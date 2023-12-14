@@ -210,7 +210,7 @@ type EventReaderCfg struct {
 	SourcePath          string
 	ProcessedPath       string
 	Opts                *EventReaderOpts
-	Tenant              RSRParsers
+	Tenant              utils.RSRParsers
 	Timezone            string
 	Filters             []string
 	Flags               utils.FlagsWithParams
@@ -473,7 +473,7 @@ func (er *EventReaderCfg) loadFromJSONCfg(jsnCfg *EventReaderJsonCfg, msgTemplat
 		er.ProcessedPath = *jsnCfg.Processed_path
 	}
 	if jsnCfg.Tenant != nil {
-		if er.Tenant, err = NewRSRParsers(*jsnCfg.Tenant, sep); err != nil {
+		if er.Tenant, err = utils.NewRSRParsers(*jsnCfg.Tenant, sep); err != nil {
 			return err
 		}
 	}

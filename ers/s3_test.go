@@ -94,7 +94,7 @@ func TestS3ERProcessMessage(t *testing.T) {
 		{
 			Tag:   "Destination",
 			Type:  utils.MetaConstant,
-			Value: config.NewRSRParsersMustCompile("testdest", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("testdest", utils.InfieldSep),
 			Path:  "*cgreq.Destination",
 		},
 	}

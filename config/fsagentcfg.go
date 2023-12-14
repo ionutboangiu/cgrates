@@ -89,7 +89,7 @@ type FsAgentCfg struct {
 	SessionSConns       []string
 	SubscribePark       bool
 	CreateCdr           bool
-	ExtraFields         RSRParsers
+	ExtraFields         utils.RSRParsers
 	LowBalanceAnnFile   string
 	EmptyBalanceContext string
 	EmptyBalanceAnnFile string
@@ -98,15 +98,15 @@ type FsAgentCfg struct {
 }
 
 // loadFreeswitchAgentCfg loads the FreeswitchAgent section of the configuration
-func (fscfg *FsAgentCfg) Load(ctx *context.Context, jsnCfg ConfigDB, _ *CGRConfig) (err error) {
+func (fscfg *FsAgentCfg) Load(ctx *context.Context, jsnCfg ConfigDB, cfg *CGRConfig) (err error) {
 	jsnSmFsCfg := new(FreeswitchAgentJsonCfg)
 	if err = jsnCfg.GetSection(ctx, FreeSWITCHAgentJSON, jsnSmFsCfg); err != nil {
 		return
 	}
-	return fscfg.loadFromJSONCfg(jsnSmFsCfg)
+	return fscfg.loadFromJSONCfg(jsnSmFsCfg, cfg.generalCfg.RSRSep)
 }
 
-func (fscfg *FsAgentCfg) loadFromJSONCfg(jsnCfg *FreeswitchAgentJsonCfg) error {
+func (fscfg *FsAgentCfg) loadFromJSONCfg(jsnCfg *FreeswitchAgentJsonCfg, separator string) error {
 	if jsnCfg == nil {
 		return nil
 	}
@@ -124,7 +124,7 @@ func (fscfg *FsAgentCfg) loadFromJSONCfg(jsnCfg *FreeswitchAgentJsonCfg) error {
 		fscfg.CreateCdr = *jsnCfg.Create_cdr
 	}
 	if jsnCfg.Extra_fields != nil {
-		if fscfg.ExtraFields, err = NewRSRParsersFromSlice(*jsnCfg.Extra_fields); err != nil {
+		if fscfg.ExtraFields, err = utils.NewRSRParsersFromSlice(*jsnCfg.Extra_fields, separator); err != nil {
 			return err
 		}
 	}

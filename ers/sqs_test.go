@@ -151,7 +151,7 @@ func TestSQSERProcessMessage(t *testing.T) {
 		{
 			Tag:   "OriginID",
 			Type:  utils.MetaConstant,
-			Value: config.NewRSRParsersMustCompile("testID", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("testID", utils.InfieldSep),
 			Path:  "*cgreq.OriginID",
 		},
 	}
@@ -389,7 +389,7 @@ func TestSQSERReadMsg(t *testing.T) {
 		{
 			Tag:   "Tor",
 			Type:  utils.MetaConstant,
-			Value: config.NewRSRParsersMustCompile("*voice", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("*voice", utils.InfieldSep),
 			Path:  "*cgreq.ToR",
 		},
 	}
@@ -444,7 +444,7 @@ func TestSQSERReadMsgError1(t *testing.T) {
 		{
 			Tag:   "Tor",
 			Type:  utils.MetaConstant,
-			Value: config.NewRSRParsersMustCompile("*voice", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("*voice", utils.InfieldSep),
 			Path:  "*cgreq.ToR",
 		},
 	}
@@ -490,7 +490,7 @@ func TestSQSERReadMsgError2(t *testing.T) {
 		{
 			Tag:   "Tor",
 			Type:  utils.MetaConstant,
-			Value: config.NewRSRParsersMustCompile("*voice", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("*voice", utils.InfieldSep),
 			Path:  "*cgreq.ToR",
 		},
 	}
@@ -555,7 +555,7 @@ func TestSQSERReadMsgError3(t *testing.T) {
 		{
 			Tag:   "Tor",
 			Type:  utils.MetaConstant,
-			Value: config.NewRSRParsersMustCompile("*voice", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("*voice", utils.InfieldSep),
 			Path:  "*cgreq.ToR",
 		},
 	}

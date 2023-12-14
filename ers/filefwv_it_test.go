@@ -289,7 +289,7 @@ func TestFileFWVProcessEvent(t *testing.T) {
 	errExpect := "unsupported field prefix: <> when set fields"
 	eR.Config().Fields = []*config.FCTemplate{
 		{
-			Value: config.RSRParsers{
+			Value: utils.RSRParsers{
 				{
 					Rules: "~*hdr",
 				},
@@ -465,7 +465,7 @@ func TestFileFWVProcessTrailer(t *testing.T) {
 			Tag:   "OriginId",
 			Path:  "*cgreq.OriginID",
 			Type:  utils.MetaConstant,
-			Value: config.NewRSRParsersMustCompile("testOriginID", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("testOriginID", utils.InfieldSep),
 		},
 	}
 	eR.Config().Fields = trailerFields
@@ -540,7 +540,7 @@ func TestFileFWVProcessTrailerError2(t *testing.T) {
 		conReqs:   make(chan struct{}, 1),
 	}
 	eR.conReqs <- struct{}{}
-	eR.Config().Tenant = config.RSRParsers{
+	eR.Config().Tenant = utils.RSRParsers{
 		{
 			Rules: "cgrates.org",
 		},
@@ -559,7 +559,7 @@ func TestFileFWVProcessTrailerError2(t *testing.T) {
 			Tag:   "OriginId",
 			Path:  "*cgreq.OriginID",
 			Type:  utils.MetaConstant,
-			Value: config.NewRSRParsersMustCompile("testOriginID", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("testOriginID", utils.InfieldSep),
 		},
 	}
 
@@ -592,7 +592,7 @@ func TestFileFWVProcessTrailerError3(t *testing.T) {
 			Tag:   "OriginId",
 			Path:  "*cgreq.OriginID",
 			Type:  utils.MetaConstant,
-			Value: config.NewRSRParsersMustCompile("testOriginID", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("testOriginID", utils.InfieldSep),
 		},
 	}
 	var file *os.File
@@ -630,7 +630,7 @@ func TestFileFWVCreateHeaderMap(t *testing.T) {
 			Tag:   "OriginId",
 			Path:  "*cgreq.OriginID",
 			Type:  utils.MetaConstant,
-			Value: config.NewRSRParsersMustCompile("testOriginID", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("testOriginID", utils.InfieldSep),
 		},
 	}
 	eR.Config().Fields = hdrFields
@@ -698,7 +698,7 @@ func TestFileFWVCreateHeaderMapError2(t *testing.T) {
 			Tag:   "OriginId",
 			Path:  "*cgreq.OriginID",
 			Type:  utils.MetaConstant,
-			Value: config.NewRSRParsersMustCompile("testOriginID", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("testOriginID", utils.InfieldSep),
 		},
 	}
 

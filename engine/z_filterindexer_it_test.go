@@ -486,7 +486,7 @@ func testITTestAttributeProfileFilterIndexes(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  "FN1",
-				Value: config.NewRSRParsersMustCompile("Val1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Val1", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -517,7 +517,7 @@ func testITTestAttributeProfileFilterIndexes(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  "FN1",
-				Value: config.NewRSRParsersMustCompile("Val1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Val1", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -625,7 +625,7 @@ func testITTestAttributeProfileFilterIndexes2(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  "FN1",
-				Value: config.NewRSRParsersMustCompile("Val1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Val1", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -657,7 +657,7 @@ func testITTestAttributeProfileFilterIndexes2(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  "FN1",
-				Value: config.NewRSRParsersMustCompile("Val1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Val1", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{

@@ -61,7 +61,7 @@ func TestV1AttributeProfileAsAttributeProfile(t *testing.T) {
 			{
 				FieldName:  "FL1",
 				Initial:    "In1",
-				Substitute: config.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
+				Substitute: utils.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
 				Append:     true,
 			},
 		},
@@ -89,7 +89,7 @@ func TestV2AttributeProfileAsAttributeProfile(t *testing.T) {
 			{
 				FieldName:  "FL1",
 				Initial:    "In1",
-				Substitute: config.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
+				Substitute: utils.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
 				Append:     true,
 			},
 		},
@@ -108,7 +108,7 @@ func TestV2AttributeProfileAsAttributeProfile(t *testing.T) {
 			{
 				FilterIDs:  []string{"*string:FL1:In1"},
 				FieldName:  "FL1",
-				Substitute: config.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
+				Substitute: utils.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
 			},
 		},
 		Weight: 20,
@@ -135,7 +135,7 @@ func TestV2AttributeProfileAsAttributeProfile2(t *testing.T) {
 			{
 				FieldName:  "FL1",
 				Initial:    nil,
-				Substitute: config.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
+				Substitute: utils.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
 				Append:     true,
 			},
 		},
@@ -154,7 +154,7 @@ func TestV2AttributeProfileAsAttributeProfile2(t *testing.T) {
 			{
 				FilterIDs:  []string{"*string:FL1:"},
 				FieldName:  "FL1",
-				Substitute: config.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
+				Substitute: utils.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
 			},
 		},
 		Weight: 20,
@@ -181,7 +181,7 @@ func TestV3AttributeProfileAsAttributeProfile(t *testing.T) {
 			{
 				FilterIDs:  []string{"*string:FL1:In1"},
 				FieldName:  "FL1",
-				Substitute: config.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
+				Substitute: utils.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
 			},
 		},
 		Weight: 20,
@@ -200,7 +200,7 @@ func TestV3AttributeProfileAsAttributeProfile(t *testing.T) {
 				FilterIDs: []string{"*string:FL1:In1"},
 				FieldName: "FL1",
 				Type:      utils.MetaVariable,
-				Value:     config.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
 			},
 		},
 		Weight: 20,
@@ -227,7 +227,7 @@ func TestV4AttributeProfileAsAttributeProfile(t *testing.T) {
 			{
 				FieldName: "FL1",
 				Type:      utils.MetaVariable,
-				Value:     config.NewRSRParsersMustCompile("~Category:s/(.*)/${1}_UK_Mobile_Vodafone_GBRVF/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~Category:s/(.*)/${1}_UK_Mobile_Vodafone_GBRVF/", utils.InfieldSep),
 			},
 		},
 		Weight: 20,
@@ -241,7 +241,7 @@ func TestV4AttributeProfileAsAttributeProfile(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "FL1",
 				Type:  utils.MetaVariable,
-				Value: config.NewRSRParsersMustCompile("~*req.Category:s/(.*)/${1}_UK_Mobile_Vodafone_GBRVF/", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.Category:s/(.*)/${1}_UK_Mobile_Vodafone_GBRVF/", utils.InfieldSep),
 			},
 		},
 		Weight: 20,
@@ -275,7 +275,7 @@ func TestAsAttributeProfileV2(t *testing.T) {
 		Attributes: mapSubstitutes,
 		Weight:     20,
 	}
-	sbstPrsr, err := config.NewRSRParsers("Al1", config.CgrConfig().GeneralCfg().RSRSep)
+	sbstPrsr, err := utils.NewRSRParsers("Al1", config.CgrConfig().GeneralCfg().RSRSep)
 	if err != nil {
 		t.Error("Error converting Substitute from string to RSRParser: ", err)
 	}
@@ -321,7 +321,7 @@ func TestAsAttributeProfileV3(t *testing.T) {
 			{
 				FieldName:  "FL1",
 				Initial:    "In1",
-				Substitute: config.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
+				Substitute: utils.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
 				Append:     true,
 			},
 		},
@@ -340,7 +340,7 @@ func TestAsAttributeProfileV3(t *testing.T) {
 			{
 				FilterIDs:  []string{"*string:FL1:In1"}, //here
 				FieldName:  "FL1",
-				Substitute: config.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
+				Substitute: utils.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
 			}},
 		Weight: 20,
 	}
@@ -365,7 +365,7 @@ func TestAsAttributeProfileV4(t *testing.T) {
 			{
 				FilterIDs:  []string{"*string:FL1:In1"},
 				FieldName:  "FL1",
-				Substitute: config.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
+				Substitute: utils.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
 			},
 		},
 		Weight: 20,
@@ -384,7 +384,7 @@ func TestAsAttributeProfileV4(t *testing.T) {
 				FilterIDs: []string{"*string:FL1:In1"},
 				FieldName: "FL1",
 				Type:      utils.MetaVariable,
-				Value:     config.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("Al1", utils.InfieldSep),
 			}},
 
 		Blocker: false,
@@ -413,7 +413,7 @@ func TestAsAttributeProfileV5(t *testing.T) {
 				FilterIDs: []string{"*string:FL1:In1"},
 				FieldName: "FL1",
 				Type:      utils.MetaVariable,
-				Value:     config.NewRSRParsersMustCompile("~Al1", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~Al1", utils.InfieldSep),
 			},
 		},
 		Weight: 20,
@@ -429,7 +429,7 @@ func TestAsAttributeProfileV5(t *testing.T) {
 				FilterIDs: []string{"*string:FL1:In1"},
 				Path:      utils.MetaReq + utils.NestingSep + "FL1",
 				Type:      utils.MetaVariable,
-				Value:     config.NewRSRParsersMustCompile("~*req.Al1", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Al1", utils.InfieldSep),
 			},
 		},
 		Weight: 20,
@@ -464,7 +464,7 @@ func TestAsAttributeProfileV1To4(t *testing.T) {
 		Attributes: mapSubstitutes,
 		Weight:     20,
 	}
-	sbstPrsr, err := config.NewRSRParsers("Al1", config.CgrConfig().GeneralCfg().RSRSep)
+	sbstPrsr, err := utils.NewRSRParsers("Al1", config.CgrConfig().GeneralCfg().RSRSep)
 	if err != nil {
 		t.Error("Error converting Substitute from string to RSRParser: ", err)
 	}

@@ -67,44 +67,44 @@ func TestAgReqSetFields(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Tenant",
 			Path: utils.MetaRep + utils.NestingSep + utils.Tenant, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
 		{Tag: "Account",
 			Path: utils.MetaRep + utils.NestingSep + utils.AccountField, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
 		{Tag: "Destination",
 			Path: utils.MetaRep + utils.NestingSep + utils.Destination, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Destination", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Destination", utils.InfieldSep)},
 
 		{Tag: "RequestedUsageVoice",
 			Path: utils.MetaRep + utils.NestingSep + "RequestedUsage", Type: utils.MetaVariable,
 			Filters: []string{"*string:~*cgreq.ToR:*voice"},
-			Value: config.NewRSRParsersMustCompile(
+			Value: utils.NewRSRParsersMustCompile(
 				"~*cgreq.Usage{*duration_seconds}", utils.InfieldSep)},
 		{Tag: "RequestedUsageData",
 			Path: utils.MetaRep + utils.NestingSep + "RequestedUsage", Type: utils.MetaVariable,
 			Filters: []string{"*string:~*cgreq.ToR:*data"},
-			Value: config.NewRSRParsersMustCompile(
+			Value: utils.NewRSRParsersMustCompile(
 				"~*cgreq.Usage{*duration_nanoseconds}", utils.InfieldSep)},
 		{Tag: "RequestedUsageSMS",
 			Path: utils.MetaRep + utils.NestingSep + "RequestedUsage", Type: utils.MetaVariable,
 			Filters: []string{"*string:~*cgreq.ToR:*sms"},
-			Value: config.NewRSRParsersMustCompile(
+			Value: utils.NewRSRParsersMustCompile(
 				"~*cgreq.Usage{*duration_nanoseconds}", utils.InfieldSep)},
 
 		{Tag: "AttrPaypalAccount",
 			Path: utils.MetaRep + utils.NestingSep + "PaypalAccount", Type: utils.MetaVariable,
 			Filters: []string{"*empty:~*cgrep.Error:"},
-			Value: config.NewRSRParsersMustCompile(
+			Value: utils.NewRSRParsersMustCompile(
 				"~*cgrep.Attributes.PaypalAccount", utils.InfieldSep)},
 		{Tag: "MaxUsage",
 			Path: utils.MetaRep + utils.NestingSep + "MaxUsage", Type: utils.MetaVariable,
 			Filters: []string{"*empty:~*cgrep.Error:"},
-			Value: config.NewRSRParsersMustCompile(
+			Value: utils.NewRSRParsersMustCompile(
 				"~*cgrep.MaxUsage{*duration_seconds}", utils.InfieldSep)},
 		{Tag: "Error",
 			Path: utils.MetaRep + utils.NestingSep + "Error", Type: utils.MetaVariable,
 			Filters: []string{"*rsr:~*cgrep.Error:!^$"},
-			Value: config.NewRSRParsersMustCompile(
+			Value: utils.NewRSRParsersMustCompile(
 				"~*cgrep.Error", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
@@ -143,7 +143,7 @@ func TestAgentRequestSetFields(t *testing.T) {
 	dm := engine.NewDataManager(engine.NewInternalDB(nil, nil, cfg.DataDbCfg().Items),
 		config.CgrConfig().CacheCfg(), nil)
 	ar := NewAgentRequest(utils.MapStorage(req), nil,
-		nil, nil, nil, config.NewRSRParsersMustCompile("", utils.NestingSep),
+		nil, nil, nil, utils.NewRSRParsersMustCompile("", utils.NestingSep),
 		"cgrates.org", "", engine.NewFilterS(cfg, nil, dm),
 		map[string]utils.DataProvider{utils.MetaHdr: utils.MapStorage(req), utils.MetaTrl: utils.MapStorage(req)})
 	input := []*config.FCTemplate{}
@@ -166,7 +166,7 @@ func TestAgentRequestSetFields(t *testing.T) {
 			Path:  fmt.Sprintf("%s.Account", utils.MetaVars),
 			Tag:   fmt.Sprintf("%s.Account", utils.MetaVars),
 			Type:  utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~"+utils.MetaReq+".Account", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("~"+utils.MetaReq+".Account", utils.InfieldSep),
 		},
 	}
 	input[0].ComputePath()
@@ -189,7 +189,7 @@ func TestAgentRequestSetFields(t *testing.T) {
 			Path:  fmt.Sprintf("%s.Account", utils.MetaCgreq),
 			Tag:   fmt.Sprintf("%s.Account", utils.MetaCgreq),
 			Type:  utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~"+utils.MetaReq+".Account", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("~"+utils.MetaReq+".Account", utils.InfieldSep),
 		},
 	}
 	input[0].ComputePath()
@@ -211,7 +211,7 @@ func TestAgentRequestSetFields(t *testing.T) {
 			Path:  fmt.Sprintf("%s.Account", utils.MetaCgrep),
 			Tag:   fmt.Sprintf("%s.Account", utils.MetaCgrep),
 			Type:  utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~"+utils.MetaReq+".Account", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("~"+utils.MetaReq+".Account", utils.InfieldSep),
 		},
 	}
 	input[0].ComputePath()
@@ -233,7 +233,7 @@ func TestAgentRequestSetFields(t *testing.T) {
 			Path:  fmt.Sprintf("%s.Account", utils.MetaRep),
 			Tag:   fmt.Sprintf("%s.Account", utils.MetaRep),
 			Type:  utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~"+utils.MetaReq+".Account", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("~"+utils.MetaReq+".Account", utils.InfieldSep),
 		},
 	}
 	input[0].ComputePath()
@@ -255,7 +255,7 @@ func TestAgentRequestSetFields(t *testing.T) {
 			Path:  fmt.Sprintf("%s.Account", utils.MetaDiamreq),
 			Tag:   fmt.Sprintf("%s.Account", utils.MetaDiamreq),
 			Type:  utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~"+utils.MetaReq+".Account", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("~"+utils.MetaReq+".Account", utils.InfieldSep),
 		},
 	}
 	input[0].ComputePath()
@@ -277,19 +277,19 @@ func TestAgentRequestSetFields(t *testing.T) {
 			Path:  fmt.Sprintf("%s.AccountID", utils.MetaVars),
 			Tag:   fmt.Sprintf("%s.AccountID", utils.MetaVars),
 			Type:  utils.MetaComposed,
-			Value: config.NewRSRParsersMustCompile("~"+utils.MetaReq+".Tenant", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("~"+utils.MetaReq+".Tenant", utils.InfieldSep),
 		},
 		{
 			Path:  fmt.Sprintf("%s.AccountID", utils.MetaVars),
 			Tag:   fmt.Sprintf("%s.AccountID", utils.MetaVars),
 			Type:  utils.MetaComposed,
-			Value: config.NewRSRParsersMustCompile(":", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile(":", utils.InfieldSep),
 		},
 		{
 			Path:  fmt.Sprintf("%s.AccountID", utils.MetaVars),
 			Tag:   fmt.Sprintf("%s.AccountID", utils.MetaVars),
 			Type:  utils.MetaComposed,
-			Value: config.NewRSRParsersMustCompile("~"+utils.MetaReq+".Account", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("~"+utils.MetaReq+".Account", utils.InfieldSep),
 		},
 	}
 	for _, v := range input {
@@ -314,7 +314,7 @@ func TestAgentRequestSetFields(t *testing.T) {
 			Path:  fmt.Sprintf("%s.Account", utils.MetaVars),
 			Tag:   fmt.Sprintf("%s.Account", utils.MetaVars),
 			Type:  utils.MetaConstant,
-			Value: config.NewRSRParsersMustCompile("2020", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("2020", utils.InfieldSep),
 		},
 	}
 	input[0].ComputePath()
@@ -337,7 +337,7 @@ func TestAgentRequestSetFields(t *testing.T) {
 			Tag:     fmt.Sprintf("%s.AccountID", utils.MetaVars),
 			Filters: []string{utils.MetaString + ":~" + utils.MetaVars + ".Account:1003"},
 			Type:    utils.MetaConstant,
-			Value:   config.NewRSRParsersMustCompile("2021", utils.InfieldSep),
+			Value:   utils.NewRSRParsersMustCompile("2021", utils.InfieldSep),
 		},
 	}
 	input[0].ComputePath()
@@ -359,7 +359,7 @@ func TestAgentRequestSetFields(t *testing.T) {
 			Tag:     fmt.Sprintf("%s.Account", utils.MetaVars),
 			Filters: []string{"Not really a filter"},
 			Type:    utils.MetaConstant,
-			Value:   config.NewRSRParsersMustCompile("2021", utils.InfieldSep),
+			Value:   utils.NewRSRParsersMustCompile("2021", utils.InfieldSep),
 		},
 	}
 	input[0].ComputePath()
@@ -373,14 +373,14 @@ func TestAgentRequestSetFields(t *testing.T) {
 			Path:    fmt.Sprintf("%s.Name", utils.MetaVars),
 			Tag:     fmt.Sprintf("%s.Name", utils.MetaVars),
 			Type:    utils.MetaVariable,
-			Value:   config.NewRSRParsersMustCompile("~"+utils.MetaReq+".Account", utils.InfieldSep),
+			Value:   utils.NewRSRParsersMustCompile("~"+utils.MetaReq+".Account", utils.InfieldSep),
 			Blocker: true,
 		},
 		{
 			Path:  fmt.Sprintf("%s.Name", utils.MetaVars),
 			Tag:   fmt.Sprintf("%s.Name", utils.MetaVars),
 			Type:  utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("1005", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("1005", utils.InfieldSep),
 		},
 	}
 	for _, v := range input {
@@ -404,7 +404,7 @@ func TestAgentRequestSetFields(t *testing.T) {
 			Path:  fmt.Sprintf("%s.Test", utils.MetaVars),
 			Tag:   fmt.Sprintf("%s.Test", utils.MetaVars),
 			Type:  utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~"+utils.MetaReq+".Test", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("~"+utils.MetaReq+".Test", utils.InfieldSep),
 		},
 	}
 	input[0].ComputePath()
@@ -418,7 +418,7 @@ func TestAgentRequestSetFields(t *testing.T) {
 			Path:      fmt.Sprintf("%s.Test", utils.MetaVars),
 			Tag:       fmt.Sprintf("%s.Test", utils.MetaVars),
 			Type:      utils.MetaVariable,
-			Value:     config.NewRSRParsersMustCompile("~"+utils.MetaReq+".Test", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~"+utils.MetaReq+".Test", utils.InfieldSep),
 			Mandatory: true,
 		},
 	}
@@ -433,7 +433,7 @@ func TestAgentRequestSetFields(t *testing.T) {
 			Path:      "wrong",
 			Tag:       "wrong",
 			Type:      utils.MetaVariable,
-			Value:     config.NewRSRParsersMustCompile("~*req.Account", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.Account", utils.InfieldSep),
 			Mandatory: true,
 		},
 	}
@@ -448,7 +448,7 @@ func TestAgentRequestSetFields(t *testing.T) {
 			Path:  fmt.Sprintf("%s.Account4", utils.MetaVars),
 			Tag:   fmt.Sprintf("%s.Account4", utils.MetaVars),
 			Type:  utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~"+utils.MetaHdr+".Account", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("~"+utils.MetaHdr+".Account", utils.InfieldSep),
 		},
 	}
 	input[0].ComputePath()
@@ -469,7 +469,7 @@ func TestAgentRequestSetFields(t *testing.T) {
 			Path:  fmt.Sprintf("%s.Account5", utils.MetaVars),
 			Tag:   fmt.Sprintf("%s.Account5", utils.MetaVars),
 			Type:  utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~"+utils.MetaTrl+".Account", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("~"+utils.MetaTrl+".Account", utils.InfieldSep),
 		},
 	}
 	input[0].ComputePath()
@@ -503,7 +503,7 @@ func TestAgReqMaxCost(t *testing.T) {
 		{Tag: "MaxUsage",
 			Path: utils.MetaRep + utils.NestingSep + "MaxUsage", Type: utils.MetaVariable,
 			Filters: []string{"*rsr:~*cgrep.MaxUsage:>0s"},
-			Value: config.NewRSRParsersMustCompile(
+			Value: utils.NewRSRParsersMustCompile(
 				"~*cgrep.MaxUsage{*duration_seconds}", utils.InfieldSep)},
 	}
 	tplFlds[0].ComputePath()
@@ -543,15 +543,15 @@ func TestAgReqParseFieldDiameter(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "MandatoryFalse",
 			Path: "MandatoryFalse", Type: utils.MetaComposed,
-			Value:     config.NewRSRParsersMustCompile("~*req.MandatoryFalse", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.MandatoryFalse", utils.InfieldSep),
 			Mandatory: false},
 		{Tag: "MandatoryTrue",
 			Path: "MandatoryTrue", Type: utils.MetaComposed,
-			Value:     config.NewRSRParsersMustCompile("~*req.MandatoryTrue", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.MandatoryTrue", utils.InfieldSep),
 			Mandatory: true},
 		{Tag: "Session-Id", Filters: []string{},
 			Path: "Session-Id", Type: utils.MetaComposed,
-			Value:     config.NewRSRParsersMustCompile("~*req.Session-Id", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.Session-Id", utils.InfieldSep),
 			Mandatory: true},
 	}
 	for _, v := range tplFlds {
@@ -595,11 +595,11 @@ func TestAgReqParseFieldRadius(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "MandatoryFalse",
 			Path: "MandatoryFalse", Type: utils.MetaComposed,
-			Value:     config.NewRSRParsersMustCompile("~*req.MandatoryFalse", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.MandatoryFalse", utils.InfieldSep),
 			Mandatory: false},
 		{Tag: "MandatoryTrue",
 			Path: "MandatoryTrue", Type: utils.MetaComposed,
-			Value:     config.NewRSRParsersMustCompile("~*req.MandatoryTrue", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.MandatoryTrue", utils.InfieldSep),
 			Mandatory: true},
 	}
 	for _, v := range tplFlds {
@@ -638,11 +638,11 @@ Host: api.cgrates.org
 	tplFlds := []*config.FCTemplate{
 		{Tag: "MandatoryFalse",
 			Path: "MandatoryFalse", Type: utils.MetaComposed,
-			Value:     config.NewRSRParsersMustCompile("~*req.MandatoryFalse", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.MandatoryFalse", utils.InfieldSep),
 			Mandatory: false},
 		{Tag: "MandatoryTrue",
 			Path: "MandatoryTrue", Type: utils.MetaComposed,
-			Value:     config.NewRSRParsersMustCompile("~*req.MandatoryTrue", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.MandatoryTrue", utils.InfieldSep),
 			Mandatory: true},
 	}
 	expected := ""
@@ -710,11 +710,11 @@ func TestAgReqParseFieldHttpXml(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "MandatoryFalse",
 			Path: "MandatoryFalse", Type: utils.MetaComposed,
-			Value:     config.NewRSRParsersMustCompile("~*req.MandatoryFalse", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.MandatoryFalse", utils.InfieldSep),
 			Mandatory: false},
 		{Tag: "MandatoryTrue",
 			Path: "MandatoryTrue", Type: utils.MetaComposed,
-			Value:     config.NewRSRParsersMustCompile("~*req.MandatoryTrue", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.MandatoryTrue", utils.InfieldSep),
 			Mandatory: true},
 	}
 	expected := ""
@@ -743,14 +743,14 @@ func TestAgReqEmptyFilter(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Tenant", Filters: []string{},
 			Path: utils.MetaCgrep + utils.NestingSep + utils.Tenant, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
 
 		{Tag: "Account", Filters: []string{},
 			Path: utils.MetaCgrep + utils.NestingSep + utils.AccountField, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
 		{Tag: "Destination", Filters: []string{},
 			Path: utils.MetaCgrep + utils.NestingSep + utils.Destination, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Destination", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Destination", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -782,7 +782,7 @@ func TestAgReqMetaExponent(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "TestExpo", Filters: []string{},
 			Path: utils.MetaCgrep + utils.NestingSep + "TestExpo", Type: utils.MetaValueExponent,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Value;~*cgreq.Exponent", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Value;~*cgreq.Exponent", utils.InfieldSep)},
 	}
 	tplFlds[0].ComputePath()
 	eMp := &utils.DataNode{Type: utils.NMMapType, Map: map[string]*utils.DataNode{}}
@@ -810,14 +810,14 @@ func TestAgReqFieldAsNone(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Tenant",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.Tenant, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
 		{Tag: "Account",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.AccountField, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
 		{Type: utils.MetaNone, Blocker: true},
 		{Tag: "Destination",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.Destination, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Destination", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Destination", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -848,14 +848,14 @@ func TestAgReqFieldAsNone2(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Tenant",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.Tenant, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
 		{Tag: "Account",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.AccountField, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
 		{Type: utils.MetaNone},
 		{Tag: "Destination",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.Destination, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Destination", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Destination", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -893,19 +893,19 @@ func TestAgReqSetField2(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Tenant",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.Tenant, Type: utils.MetaComposed,
-			Value: config.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
 		{Tag: "Account",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.AccountField, Type: utils.MetaComposed,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
 		{Tag: "Destination",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.Destination, Type: utils.MetaComposed,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Destination", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Destination", utils.InfieldSep)},
 		{Tag: "Usage",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.Usage, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("30s", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("30s", utils.InfieldSep)},
 		{Tag: "CalculatedUsage",
 			Path: utils.MetaCgrep + utils.NestingSep + "CalculatedUsage",
-			Type: "*difference", Value: config.NewRSRParsersMustCompile("~*cgreq.AnswerTime;~*cgrep.Usage", utils.InfieldSep),
+			Type: "*difference", Value: utils.NewRSRParsersMustCompile("~*cgreq.AnswerTime;~*cgrep.Usage", utils.InfieldSep),
 		},
 	}
 	for _, v := range tplFlds {
@@ -1251,10 +1251,10 @@ func TestAgReqNewARWithCGRRplyAndRply(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Fld1",
 			Path: utils.MetaCgreq + utils.NestingSep + "Fld1", Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*rep.FirstLevel.SecondLevel.Fld1", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*rep.FirstLevel.SecondLevel.Fld1", utils.InfieldSep)},
 		{Tag: "Fld2",
 			Path: utils.MetaCgreq + utils.NestingSep + "Fld2", Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgrep.Attributes.PaypalAccount", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgrep.Attributes.PaypalAccount", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -1290,10 +1290,10 @@ func TestAgReqSetCGRReplyWithError(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Fld1",
 			Path: utils.MetaCgreq + utils.NestingSep + "Fld1", Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*rep.FirstLevel.SecondLevel.Fld1", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*rep.FirstLevel.SecondLevel.Fld1", utils.InfieldSep)},
 		{Tag: "Fld2",
 			Path: utils.MetaCgreq + utils.NestingSep + "Fld2", Type: utils.MetaVariable,
-			Value:     config.NewRSRParsersMustCompile("~*cgrep.Attributes.PaypalAccount", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*cgrep.Attributes.PaypalAccount", utils.InfieldSep),
 			Mandatory: true},
 	}
 	for _, v := range tplFlds {
@@ -1338,10 +1338,10 @@ func TestAgReqSetCGRReplyWithoutError(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Fld1",
 			Path: utils.MetaCgreq + utils.NestingSep + "Fld1", Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*rep.FirstLevel.SecondLevel.Fld1", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*rep.FirstLevel.SecondLevel.Fld1", utils.InfieldSep)},
 		{Tag: "Fld2",
 			Path: utils.MetaCgreq + utils.NestingSep + "Fld2", Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgrep.Attributes.PaypalAccount", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgrep.Attributes.PaypalAccount", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -1383,7 +1383,7 @@ func TestAgReqParseFieldMetaCCUsage(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "CCUsage", Filters: []string{},
 			Path: "CCUsage", Type: utils.MetaCCUsage,
-			Value:     config.NewRSRParsersMustCompile("~*req.Session-Id", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.Session-Id", utils.InfieldSep),
 			Mandatory: true},
 	}
 	tplFlds[0].ComputePath()
@@ -1396,7 +1396,7 @@ func TestAgReqParseFieldMetaCCUsage(t *testing.T) {
 	tplFlds = []*config.FCTemplate{
 		{Tag: "CCUsage", Filters: []string{},
 			Path: "CCUsage", Type: utils.MetaCCUsage,
-			Value:     config.NewRSRParsersMustCompile("~*req.Session-Id;12s;12s", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.Session-Id;12s;12s", utils.InfieldSep),
 			Mandatory: true},
 	}
 	tplFlds[0].ComputePath()
@@ -1408,7 +1408,7 @@ func TestAgReqParseFieldMetaCCUsage(t *testing.T) {
 	tplFlds = []*config.FCTemplate{
 		{Tag: "CCUsage", Filters: []string{},
 			Path: "CCUsage", Type: utils.MetaCCUsage,
-			Value:     config.NewRSRParsersMustCompile("10;~*req.Session-Id;12s", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("10;~*req.Session-Id;12s", utils.InfieldSep),
 			Mandatory: true},
 	}
 	tplFlds[0].ComputePath()
@@ -1420,7 +1420,7 @@ func TestAgReqParseFieldMetaCCUsage(t *testing.T) {
 	tplFlds = []*config.FCTemplate{
 		{Tag: "CCUsage", Filters: []string{},
 			Path: "CCUsage", Type: utils.MetaCCUsage,
-			Value:     config.NewRSRParsersMustCompile("10;12s;~*req.Session-Id", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("10;12s;~*req.Session-Id", utils.InfieldSep),
 			Mandatory: true},
 	}
 	tplFlds[0].ComputePath()
@@ -1432,7 +1432,7 @@ func TestAgReqParseFieldMetaCCUsage(t *testing.T) {
 	tplFlds = []*config.FCTemplate{
 		{Tag: "CCUsage", Filters: []string{},
 			Path: "CCUsage", Type: utils.MetaCCUsage,
-			Value:     config.NewRSRParsersMustCompile("3;10s;5s", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("3;10s;5s", utils.InfieldSep),
 			Mandatory: true},
 	}
 	tplFlds[0].ComputePath()
@@ -1467,7 +1467,7 @@ func TestAgReqParseFieldMetaUsageDifference(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Usage", Filters: []string{},
 			Path: "Usage", Type: utils.MetaUsageDifference,
-			Value:     config.NewRSRParsersMustCompile("~*req.Session-Id", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.Session-Id", utils.InfieldSep),
 			Mandatory: true},
 	}
 	if _, err := agReq.ParseField(tplFlds[0]); err == nil ||
@@ -1478,7 +1478,7 @@ func TestAgReqParseFieldMetaUsageDifference(t *testing.T) {
 	tplFlds = []*config.FCTemplate{
 		{Tag: "Usage", Filters: []string{},
 			Path: "Usage", Type: utils.MetaUsageDifference,
-			Value:     config.NewRSRParsersMustCompile("1560325161;~*req.Session-Id", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("1560325161;~*req.Session-Id", utils.InfieldSep),
 			Mandatory: true},
 	}
 	if _, err := agReq.ParseField(tplFlds[0]); err == nil ||
@@ -1489,7 +1489,7 @@ func TestAgReqParseFieldMetaUsageDifference(t *testing.T) {
 	tplFlds = []*config.FCTemplate{
 		{Tag: "Usage", Filters: []string{},
 			Path: "Usage", Type: utils.MetaUsageDifference,
-			Value:     config.NewRSRParsersMustCompile("~*req.Session-Id;1560325161", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.Session-Id;1560325161", utils.InfieldSep),
 			Mandatory: true},
 	}
 	if _, err := agReq.ParseField(tplFlds[0]); err == nil ||
@@ -1500,7 +1500,7 @@ func TestAgReqParseFieldMetaUsageDifference(t *testing.T) {
 	tplFlds = []*config.FCTemplate{
 		{Tag: "Usage", Filters: []string{},
 			Path: "Usage", Type: utils.MetaUsageDifference,
-			Value:     config.NewRSRParsersMustCompile("1560325161;1560325151", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("1560325161;1560325151", utils.InfieldSep),
 			Mandatory: true},
 	}
 	expected := "10s"
@@ -1533,7 +1533,7 @@ func TestAgReqParseFieldMetaSum(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Sum", Filters: []string{},
 			Path: "Sum", Type: utils.MetaSum,
-			Value:     config.NewRSRParsersMustCompile("15;~*req.Session-Id", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("15;~*req.Session-Id", utils.InfieldSep),
 			Mandatory: true},
 	}
 	if _, err := agReq.ParseField(tplFlds[0]); err == nil ||
@@ -1544,7 +1544,7 @@ func TestAgReqParseFieldMetaSum(t *testing.T) {
 	tplFlds = []*config.FCTemplate{
 		{Tag: "Sum", Filters: []string{},
 			Path: "Sum", Type: utils.MetaSum,
-			Value:     config.NewRSRParsersMustCompile("15;15", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("15;15", utils.InfieldSep),
 			Mandatory: true},
 	}
 	expected := int64(30)
@@ -1577,7 +1577,7 @@ func TestAgReqParseFieldMetaDifference(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Diff", Filters: []string{},
 			Path: "Diff", Type: utils.MetaDifference,
-			Value:     config.NewRSRParsersMustCompile("15;~*req.Session-Id", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("15;~*req.Session-Id", utils.InfieldSep),
 			Mandatory: true},
 	}
 	if _, err := agReq.ParseField(tplFlds[0]); err == nil ||
@@ -1588,7 +1588,7 @@ func TestAgReqParseFieldMetaDifference(t *testing.T) {
 	tplFlds = []*config.FCTemplate{
 		{Tag: "Diff", Filters: []string{},
 			Path: "Diff", Type: utils.MetaDifference,
-			Value:     config.NewRSRParsersMustCompile("15;12;2", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("15;12;2", utils.InfieldSep),
 			Mandatory: true},
 	}
 	expected := int64(1)
@@ -1621,7 +1621,7 @@ func TestAgReqParseFieldMetaMultiply(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Multiply", Filters: []string{},
 			Path: "Multiply", Type: utils.MetaMultiply,
-			Value:     config.NewRSRParsersMustCompile("15;~*req.Session-Id", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("15;~*req.Session-Id", utils.InfieldSep),
 			Mandatory: true},
 	}
 	if _, err := agReq.ParseField(tplFlds[0]); err == nil ||
@@ -1632,7 +1632,7 @@ func TestAgReqParseFieldMetaMultiply(t *testing.T) {
 	tplFlds = []*config.FCTemplate{
 		{Tag: "Multiply", Filters: []string{},
 			Path: "Multiply", Type: utils.MetaMultiply,
-			Value:     config.NewRSRParsersMustCompile("15;15", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("15;15", utils.InfieldSep),
 			Mandatory: true},
 	}
 	expected := int64(225)
@@ -1665,7 +1665,7 @@ func TestAgReqParseFieldMetaDivide(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Divide", Filters: []string{},
 			Path: "Divide", Type: utils.MetaDivide,
-			Value:     config.NewRSRParsersMustCompile("15;~*req.Session-Id", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("15;~*req.Session-Id", utils.InfieldSep),
 			Mandatory: true},
 	}
 	if _, err := agReq.ParseField(tplFlds[0]); err == nil ||
@@ -1676,7 +1676,7 @@ func TestAgReqParseFieldMetaDivide(t *testing.T) {
 	tplFlds = []*config.FCTemplate{
 		{Tag: "Divide", Filters: []string{},
 			Path: "Divide", Type: utils.MetaDivide,
-			Value:     config.NewRSRParsersMustCompile("15;3", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("15;3", utils.InfieldSep),
 			Mandatory: true},
 	}
 	expected := int64(5)
@@ -1709,7 +1709,7 @@ func TestAgReqParseFieldMetaValueExponent(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "ValExp", Filters: []string{},
 			Path: "ValExp", Type: utils.MetaValueExponent,
-			Value:     config.NewRSRParsersMustCompile("~*req.Session-Id", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.Session-Id", utils.InfieldSep),
 			Mandatory: true},
 	}
 	if _, err := agReq.ParseField(tplFlds[0]); err == nil ||
@@ -1720,7 +1720,7 @@ func TestAgReqParseFieldMetaValueExponent(t *testing.T) {
 	tplFlds = []*config.FCTemplate{
 		{Tag: "ValExp", Filters: []string{},
 			Path: "ValExp", Type: utils.MetaValueExponent,
-			Value:     config.NewRSRParsersMustCompile("15;~*req.Session-Id", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("15;~*req.Session-Id", utils.InfieldSep),
 			Mandatory: true},
 	}
 	if _, err := agReq.ParseField(tplFlds[0]); err == nil ||
@@ -1731,7 +1731,7 @@ func TestAgReqParseFieldMetaValueExponent(t *testing.T) {
 	tplFlds = []*config.FCTemplate{
 		{Tag: "ValExp", Filters: []string{},
 			Path: "ValExp", Type: utils.MetaValueExponent,
-			Value:     config.NewRSRParsersMustCompile("~*req.Session-Id;15", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("~*req.Session-Id;15", utils.InfieldSep),
 			Mandatory: true},
 	}
 	if _, err := agReq.ParseField(tplFlds[0]); err == nil ||
@@ -1741,7 +1741,7 @@ func TestAgReqParseFieldMetaValueExponent(t *testing.T) {
 	tplFlds = []*config.FCTemplate{
 		{Tag: "ValExp", Filters: []string{},
 			Path: "ValExp", Type: utils.MetaValueExponent,
-			Value:     config.NewRSRParsersMustCompile("2;3", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("2;3", utils.InfieldSep),
 			Mandatory: true},
 	}
 	expected := "2000"
@@ -1771,19 +1771,19 @@ func TestAgReqOverwrite(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Account",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.AccountField, Type: utils.MetaComposed,
-			Value: config.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
 		{Tag: "Account",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.AccountField, Type: utils.MetaComposed,
-			Value: config.NewRSRParsersMustCompile(":", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile(":", utils.InfieldSep)},
 		{Tag: "Account",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.AccountField, Type: utils.MetaComposed,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
 		{Tag: "Account",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.AccountField, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("OverwrittenAccount", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("OverwrittenAccount", utils.InfieldSep)},
 		{Tag: "Account",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.AccountField, Type: utils.MetaComposed,
-			Value: config.NewRSRParsersMustCompile("WithComposed", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("WithComposed", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -1823,10 +1823,10 @@ func TestAgReqGroupType(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Account",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.AccountField, Type: utils.MetaGroup,
-			Value: config.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
 		{Tag: "Account",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.AccountField, Type: utils.MetaGroup,
-			Value: config.NewRSRParsersMustCompile("test", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("test", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -1859,10 +1859,10 @@ func TestAgReqSetFieldsInTmp(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Tenant",
 			Path: utils.MetaTmp + utils.NestingSep + utils.Tenant, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
 		{Tag: "Account",
 			Path: utils.MetaTmp + utils.NestingSep + utils.AccountField, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -1891,7 +1891,7 @@ func TestAgReqSetFieldsIp2Hex(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "IP",
 			Path: utils.MetaTmp + utils.NestingSep + "IP", Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.IP{*ip2hex}", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.IP{*ip2hex}", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -1918,7 +1918,7 @@ func TestAgReqSetFieldsString2Hex(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "CustomField",
 			Path: utils.MetaTmp + utils.NestingSep + "CustomField", Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.CustomField{*string2hex}", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.CustomField{*string2hex}", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -1961,44 +1961,44 @@ func TestAgReqSetFieldsWithRemove(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Tenant",
 			Path: utils.MetaRep + utils.NestingSep + utils.Tenant, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
 		{Tag: "Account",
 			Path: utils.MetaRep + utils.NestingSep + utils.AccountField, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
 		{Tag: "Destination",
 			Path: utils.MetaRep + utils.NestingSep + utils.Destination, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Destination", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Destination", utils.InfieldSep)},
 
 		{Tag: "RequestedUsageVoice",
 			Path: utils.MetaRep + utils.NestingSep + "RequestedUsage", Type: utils.MetaVariable,
 			Filters: []string{"*string:~*cgreq.ToR:*voice"},
-			Value: config.NewRSRParsersMustCompile(
+			Value: utils.NewRSRParsersMustCompile(
 				"~*cgreq.Usage{*duration_seconds}", utils.InfieldSep)},
 		{Tag: "RequestedUsageData",
 			Path: utils.MetaRep + utils.NestingSep + "RequestedUsage", Type: utils.MetaVariable,
 			Filters: []string{"*string:~*cgreq.ToR:*data"},
-			Value: config.NewRSRParsersMustCompile(
+			Value: utils.NewRSRParsersMustCompile(
 				"~*cgreq.Usage{*duration_nanoseconds}", utils.InfieldSep)},
 		{Tag: "RequestedUsageSMS",
 			Path: utils.MetaRep + utils.NestingSep + "RequestedUsage", Type: utils.MetaVariable,
 			Filters: []string{"*string:~*cgreq.ToR:*sms"},
-			Value: config.NewRSRParsersMustCompile(
+			Value: utils.NewRSRParsersMustCompile(
 				"~*cgreq.Usage{*duration_nanoseconds}", utils.InfieldSep)},
 
 		{Tag: "AttrPaypalAccount",
 			Path: utils.MetaRep + utils.NestingSep + "PaypalAccount", Type: utils.MetaVariable,
 			Filters: []string{"*empty:~*cgrep.Error:"},
-			Value: config.NewRSRParsersMustCompile(
+			Value: utils.NewRSRParsersMustCompile(
 				"~*cgrep.Attributes.PaypalAccount", utils.InfieldSep)},
 		{Tag: "MaxUsage",
 			Path: utils.MetaRep + utils.NestingSep + "MaxUsage", Type: utils.MetaVariable,
 			Filters: []string{"*empty:~*cgrep.Error:"},
-			Value: config.NewRSRParsersMustCompile(
+			Value: utils.NewRSRParsersMustCompile(
 				"~*cgrep.MaxUsage{*duration_seconds}", utils.InfieldSep)},
 		{Tag: "Error",
 			Path: utils.MetaRep + utils.NestingSep + "Error", Type: utils.MetaVariable,
 			Filters: []string{"*rsr:~*cgrep.Error:!^$"},
-			Value: config.NewRSRParsersMustCompile(
+			Value: utils.NewRSRParsersMustCompile(
 				"~*cgrep.Error", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
@@ -2074,10 +2074,10 @@ func TestAgReqSetFieldsInCache(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Tenant",
 			Path: utils.MetaUCH + utils.NestingSep + utils.Tenant, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
 		{Tag: "Account",
 			Path: utils.MetaUCH + utils.NestingSep + utils.AccountField, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -2118,10 +2118,10 @@ func TestAgReqSetFieldsInCacheWithTimeOut(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Tenant",
 			Path: utils.MetaUCH + utils.NestingSep + utils.Tenant, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
 		{Tag: "Account",
 			Path: utils.MetaUCH + utils.NestingSep + utils.AccountField, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -2210,12 +2210,12 @@ func TestAgReqFiltersInsideField(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Usage",
 			Path: utils.MetaCgreq + utils.NestingSep + utils.Usage, Type: utils.MetaCCUsage,
-			Value: config.NewRSRParsersMustCompile("~*req.CC-Request-Number;~*req.Used-Service-Unit.CC-Time:s/(.*)/${1}s/;5m",
+			Value: utils.NewRSRParsersMustCompile("~*req.CC-Request-Number;~*req.Used-Service-Unit.CC-Time:s/(.*)/${1}s/;5m",
 				utils.InfieldSep)},
 		{Tag: "AnswerTime",
 			Path: utils.MetaCgreq + utils.NestingSep + utils.AnswerTime, Type: utils.MetaDifference,
 			Filters: []string{"*gt:~*cgreq.Usage:0s"}, // populate answer time if usage is greater than zero
-			Value:   config.NewRSRParsersMustCompile("~*req.Event-Timestamp;~*cgreq.Usage", utils.InfieldSep)},
+			Value:   utils.NewRSRParsersMustCompile("~*req.Event-Timestamp;~*cgreq.Usage", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -2248,30 +2248,30 @@ func TestAgReqDynamicPath(t *testing.T) {
 	agReq.CGRRequest.Set(&utils.FullPath{Path: "BestRoute", PathSlice: []string{"BestRoute"}}, utils.NewLeafNode("ROUTE1"))
 
 	agReq.CGRReply = &utils.DataNode{Type: utils.NMMapType, Map: map[string]*utils.DataNode{}}
-	val1, err := config.NewRSRParsersFromSlice([]string{"~*cgreq.Routes.<CGR_;~*cgreq.BestRoute>"})
+	val1, err := utils.NewRSRParsersFromSlice([]string{"~*cgreq.Routes.<CGR_;~*cgreq.BestRoute>"}, utils.InfieldSep)
 	if err != nil {
 		t.Error(err)
 	}
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Tenant",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.Tenant, Type: utils.MetaComposed,
-			Value: config.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
 		{Tag: "Account",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.AccountField, Type: utils.MetaComposed,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
 		{Tag: "Destination",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.Destination, Type: utils.MetaComposed,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Destination", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Destination", utils.InfieldSep)},
 		{Tag: "Usage",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.Usage, Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("30s", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("30s", utils.InfieldSep)},
 		{Tag: "Route",
 			Path: utils.MetaCgrep + utils.NestingSep + "Route",
 			Type: utils.MetaVariable, Value: val1,
 		},
 		{Tag: "Route2",
 			Path: utils.MetaCgrep + utils.NestingSep + "Route2.<CGR_;~*cgreq.BestRoute>",
-			Type: utils.MetaVariable, Value: config.NewRSRParsersMustCompile("~*cgreq.Routes[CGR_ROUTE2]", utils.InfieldSep),
+			Type: utils.MetaVariable, Value: utils.NewRSRParsersMustCompile("~*cgreq.Routes[CGR_ROUTE2]", utils.InfieldSep),
 		},
 	}
 	for _, v := range tplFlds {
@@ -2318,7 +2318,7 @@ func TestAgReqRoundingDecimals(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Cost",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.Cost, Type: utils.MetaComposed,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Cost{*round:3}", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Cost{*round:3}", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -2358,13 +2358,13 @@ func BenchmarkAgReqSetField(b *testing.B) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "Tenant",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.Tenant, Type: utils.MetaComposed,
-			Value: config.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("cgrates.org", utils.InfieldSep)},
 		{Tag: "Account",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.AccountField + "[0].ID", Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cgreq.Account", utils.InfieldSep)},
 		{Tag: "Account2",
 			Path: utils.MetaCgrep + utils.NestingSep + utils.AccountField + "[1].ID", Type: utils.MetaConstant,
-			Value: config.NewRSRParsersMustCompile("1003", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("1003", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -2425,7 +2425,7 @@ func TestAgReqSetFieldsFromCfg(t *testing.T) {
 	tplFlds := []*config.FCTemplate{
 		{Tag: "CfgField",
 			Path: utils.MetaCgreq + utils.NestingSep + "NodeID", Type: utils.MetaVariable,
-			Value: config.NewRSRParsersMustCompile("~*cfg.general.node_id", utils.InfieldSep)},
+			Value: utils.NewRSRParsersMustCompile("~*cfg.general.node_id", utils.InfieldSep)},
 	}
 	for _, v := range tplFlds {
 		v.ComputePath()
@@ -2473,11 +2473,11 @@ func TestFieldAsInterface(t *testing.T) {
 }
 
 func TestAgentRequestParseFieldDateTimeDaily(t *testing.T) {
-	tntTpl := config.NewRSRParsersMustCompile("*daily", utils.InfieldSep)
+	tntTpl := utils.NewRSRParsersMustCompile("*daily", utils.InfieldSep)
 	AgentReq := NewAgentRequest(utils.MapStorage{}, nil, nil, nil, nil, tntTpl, "", "", nil, nil)
 	fctTemp := &config.FCTemplate{
 		Type:     utils.MetaDateTime,
-		Value:    config.NewRSRParsersMustCompile("*daily", utils.InfieldSep),
+		Value:    utils.NewRSRParsersMustCompile("*daily", utils.InfieldSep),
 		Layout:   "“Mon Jan _2 15:04:05 2006”",
 		Timezone: "",
 	}
@@ -2502,10 +2502,10 @@ func TestAgentRequestParseFieldDateTimeDaily(t *testing.T) {
 }
 
 func TestAgentRequestParseFieldDateTimeTimeZone(t *testing.T) {
-	tntTpl := config.NewRSRParsersMustCompile("*daily", utils.InfieldSep)
+	tntTpl := utils.NewRSRParsersMustCompile("*daily", utils.InfieldSep)
 	AgentReq := NewAgentRequest(utils.MapStorage{}, nil, nil, nil, nil, tntTpl, "", "", nil, nil)
 	fctTemp := &config.FCTemplate{Type: utils.MetaDateTime,
-		Value:    config.NewRSRParsersMustCompile("*daily", utils.InfieldSep),
+		Value:    utils.NewRSRParsersMustCompile("*daily", utils.InfieldSep),
 		Layout:   "“Mon Jan _2 15:04:05 2006”",
 		Timezone: "Local",
 	}
@@ -2530,10 +2530,10 @@ func TestAgentRequestParseFieldDateTimeTimeZone(t *testing.T) {
 }
 
 func TestAgentRequestParseFieldDateTimeMonthly(t *testing.T) {
-	tntTpl := config.NewRSRParsersMustCompile("*monthly", utils.InfieldSep)
+	tntTpl := utils.NewRSRParsersMustCompile("*monthly", utils.InfieldSep)
 	AgentReq := NewAgentRequest(utils.MapStorage{}, nil, nil, nil, nil, tntTpl, "", "", nil, nil)
 	fctTemp := &config.FCTemplate{Type: utils.MetaDateTime,
-		Value:    config.NewRSRParsersMustCompile("*monthly", utils.InfieldSep),
+		Value:    utils.NewRSRParsersMustCompile("*monthly", utils.InfieldSep),
 		Layout:   "“Mon Jan _2 15:04:05 2006”",
 		Timezone: "Local",
 	}
@@ -2558,10 +2558,10 @@ func TestAgentRequestParseFieldDateTimeMonthly(t *testing.T) {
 }
 
 func TestAgentRequestParseFieldDateTimeMonthlyEstimated(t *testing.T) {
-	tntTpl := config.NewRSRParsersMustCompile("*monthly_estimated", utils.InfieldSep)
+	tntTpl := utils.NewRSRParsersMustCompile("*monthly_estimated", utils.InfieldSep)
 	AgentReq := NewAgentRequest(utils.MapStorage{}, nil, nil, nil, nil, tntTpl, "", "", nil, nil)
 	fctTemp := &config.FCTemplate{Type: utils.MetaDateTime,
-		Value:    config.NewRSRParsersMustCompile("*monthly_estimated", utils.InfieldSep),
+		Value:    utils.NewRSRParsersMustCompile("*monthly_estimated", utils.InfieldSep),
 		Layout:   "“Mon Jan _2 15:04:05 2006”",
 		Timezone: "Local",
 	}
@@ -2586,10 +2586,10 @@ func TestAgentRequestParseFieldDateTimeMonthlyEstimated(t *testing.T) {
 }
 
 func TestAgentRequestParseFieldDateTimeYearly(t *testing.T) {
-	tntTpl := config.NewRSRParsersMustCompile("*yearly", utils.InfieldSep)
+	tntTpl := utils.NewRSRParsersMustCompile("*yearly", utils.InfieldSep)
 	AgentReq := NewAgentRequest(utils.MapStorage{}, nil, nil, nil, nil, tntTpl, "", "", nil, nil)
 	fctTemp := &config.FCTemplate{Type: utils.MetaDateTime,
-		Value:    config.NewRSRParsersMustCompile("*yearly", utils.InfieldSep),
+		Value:    utils.NewRSRParsersMustCompile("*yearly", utils.InfieldSep),
 		Layout:   "“Mon Jan _2 15:04:05 2006”",
 		Timezone: "Local",
 	}
@@ -2614,10 +2614,10 @@ func TestAgentRequestParseFieldDateTimeYearly(t *testing.T) {
 }
 
 func TestAgentRequestParseFieldDateTimeMetaUnlimited(t *testing.T) {
-	tntTpl := config.NewRSRParsersMustCompile(utils.MetaUnlimited, utils.InfieldSep)
+	tntTpl := utils.NewRSRParsersMustCompile(utils.MetaUnlimited, utils.InfieldSep)
 	AgentReq := NewAgentRequest(utils.MapStorage{}, nil, nil, nil, nil, tntTpl, "", "", nil, nil)
 	fctTemp := &config.FCTemplate{Type: utils.MetaDateTime,
-		Value:    config.NewRSRParsersMustCompile(utils.MetaUnlimited, utils.InfieldSep),
+		Value:    utils.NewRSRParsersMustCompile(utils.MetaUnlimited, utils.InfieldSep),
 		Layout:   "“Mon Jan _2 15:04:05 2006”",
 		Timezone: "Local",
 	}
@@ -2642,10 +2642,10 @@ func TestAgentRequestParseFieldDateTimeMetaUnlimited(t *testing.T) {
 }
 
 func TestAgentRequestParseFieldDateTimeEmpty(t *testing.T) {
-	tntTpl := config.NewRSRParsersMustCompile("", utils.InfieldSep)
+	tntTpl := utils.NewRSRParsersMustCompile("", utils.InfieldSep)
 	AgentReq := NewAgentRequest(utils.MapStorage{}, nil, nil, nil, nil, tntTpl, "", "", nil, nil)
 	fctTemp := &config.FCTemplate{Type: utils.MetaDateTime,
-		Value:    config.NewRSRParsersMustCompile("", utils.InfieldSep),
+		Value:    utils.NewRSRParsersMustCompile("", utils.InfieldSep),
 		Layout:   "“Mon Jan _2 15:04:05 2006”",
 		Timezone: "Local",
 	}
@@ -2670,10 +2670,10 @@ func TestAgentRequestParseFieldDateTimeEmpty(t *testing.T) {
 }
 
 func TestAgentRequestParseFieldDateTimeMonthEnd(t *testing.T) {
-	tntTpl := config.NewRSRParsersMustCompile("*month_endTest", utils.InfieldSep)
+	tntTpl := utils.NewRSRParsersMustCompile("*month_endTest", utils.InfieldSep)
 	AgentReq := NewAgentRequest(utils.MapStorage{}, nil, nil, nil, nil, tntTpl, "", "", nil, nil)
 	fctTemp := &config.FCTemplate{Type: utils.MetaDateTime,
-		Value:    config.NewRSRParsersMustCompile("*month_endTest", utils.InfieldSep),
+		Value:    utils.NewRSRParsersMustCompile("*month_endTest", utils.InfieldSep),
 		Layout:   "“Mon Jan _2 15:04:05 2006”",
 		Timezone: "Local",
 	}
@@ -2698,10 +2698,10 @@ func TestAgentRequestParseFieldDateTimeMonthEnd(t *testing.T) {
 }
 
 func TestAgentRequestParseFieldDateTimeError(t *testing.T) {
-	tntTpl := config.NewRSRParsersMustCompile("*month_endTest", utils.InfieldSep)
+	tntTpl := utils.NewRSRParsersMustCompile("*month_endTest", utils.InfieldSep)
 	AgentReq := NewAgentRequest(utils.MapStorage{}, nil, nil, nil, nil, tntTpl, "", "", nil, nil)
 	fctTemp := &config.FCTemplate{Type: utils.MetaDateTime,
-		Value:    config.NewRSRParsersMustCompile("*month_endTest", utils.InfieldSep),
+		Value:    utils.NewRSRParsersMustCompile("*month_endTest", utils.InfieldSep),
 		Layout:   "“Mon Jan _2 15:04:05 2006”",
 		Timezone: "/",
 	}
@@ -2714,7 +2714,7 @@ func TestAgentRequestParseFieldDateTimeError(t *testing.T) {
 }
 
 func TestAgentRequestParseFieldDateTimeError2(t *testing.T) {
-	prsr, err := config.NewRSRParsersFromSlice([]string{"2.", "~*opts.*originID<~*opts.Converter>"})
+	prsr, err := utils.NewRSRParsersFromSlice([]string{"2.", "~*opts.*originID<~*opts.Converter>"}, utils.InfieldSep)
 	if err != nil {
 		t.Fatal(err)
 	}

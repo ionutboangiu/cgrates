@@ -51,7 +51,7 @@ func TestCdrsCfgloadFromJsonCfg(t *testing.T) {
 		EEsConns:         []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs), "*conn1"},
 		RateSConns:       []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaRates), "*conn1"},
 		AccountSConns:    []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAccounts), "*conn1"},
-		ExtraFields:      RSRParsers{},
+		ExtraFields:      utils.RSRParsers{},
 		Opts: &CdrsOpts{
 			Accounts:   []*utils.DynamicBoolOpt{},
 			Attributes: []*utils.DynamicBoolOpt{},
@@ -66,14 +66,14 @@ func TestCdrsCfgloadFromJsonCfg(t *testing.T) {
 		},
 	}
 	jsnCfg := NewDefaultCGRConfig()
-	if err = jsnCfg.cdrsCfg.loadFromJSONCfg(jsonCfg); err != nil {
+	if err = jsnCfg.cdrsCfg.loadFromJSONCfg(jsonCfg, utils.InfieldSep); err != nil {
 		t.Error(err)
 	} else if !reflect.DeepEqual(expected, jsnCfg.cdrsCfg) {
 		t.Errorf("Expected %+v \n, received %+v", utils.ToJSON(expected), utils.ToJSON(jsnCfg.cdrsCfg))
 	}
 
 	jsonCfg = nil
-	if err = jsnCfg.cdrsCfg.loadFromJSONCfg(jsonCfg); err != nil {
+	if err = jsnCfg.cdrsCfg.loadFromJSONCfg(jsonCfg, utils.InfieldSep); err != nil {
 		t.Error(err)
 	}
 }
@@ -167,7 +167,7 @@ func TestExtraFieldsinloadFromJsonCfg(t *testing.T) {
 	}
 	expectedErrMessage := "empty RSRParser in rule: <>"
 	jsonCfg := NewDefaultCGRConfig()
-	if err = jsonCfg.cdrsCfg.loadFromJSONCfg(cfgJSON); err == nil || err.Error() != expectedErrMessage {
+	if err = jsonCfg.cdrsCfg.loadFromJSONCfg(cfgJSON, utils.InfieldSep); err == nil || err.Error() != expectedErrMessage {
 		t.Errorf("Expected %+v, received %+v", expectedErrMessage, err)
 	}
 }
@@ -276,7 +276,7 @@ func TestCdrsCfgClone(t *testing.T) {
 		ActionSConns:     []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaActions), "*conn1"},
 		EEsConns:         []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs), "*conn1"},
 		OnlineCDRExports: []string{"randomVal"},
-		ExtraFields:      RSRParsers{},
+		ExtraFields:      utils.RSRParsers{},
 		Opts:             &CdrsOpts{},
 	}
 	rcv := ban.Clone()
@@ -312,7 +312,7 @@ func TestDiffCdrsJsonCfg(t *testing.T) {
 
 	v1 := &CdrsCfg{
 		Enabled: false,
-		ExtraFields: RSRParsers{
+		ExtraFields: utils.RSRParsers{
 			{
 				Rules: "Rule1",
 			},
@@ -376,7 +376,7 @@ func TestDiffCdrsJsonCfg(t *testing.T) {
 
 	v2 := &CdrsCfg{
 		Enabled: true,
-		ExtraFields: RSRParsers{
+		ExtraFields: utils.RSRParsers{
 			{
 				Rules: "Rule2",
 			},
@@ -516,7 +516,7 @@ func TestDiffCdrsJsonCfg(t *testing.T) {
 func TestCdrsCfgCloneSection(t *testing.T) {
 	cdrsCfg := &CdrsCfg{
 		Enabled: false,
-		ExtraFields: RSRParsers{
+		ExtraFields: utils.RSRParsers{
 			{
 				Rules: "Rule1",
 			},
@@ -534,7 +534,7 @@ func TestCdrsCfgCloneSection(t *testing.T) {
 
 	exp := &CdrsCfg{
 		Enabled: false,
-		ExtraFields: RSRParsers{
+		ExtraFields: utils.RSRParsers{
 			{
 				Rules: "Rule1",
 			},

@@ -370,7 +370,7 @@ func (alS *AttributeS) V1ProcessEvent(ctx *context.Context, args *utils.CGREvent
 	return
 }
 
-func ParseAttribute(dp utils.DataProvider, attrType, path string, value config.RSRParsers, roundingDec int, timeZone, layout, rsrSep string) (
+func ParseAttribute(dp utils.DataProvider, attrType, path string, value utils.RSRParsers, roundingDec int, timeZone, layout, rsrSep string) (
 	out any, err error) {
 	switch attrType {
 	case utils.MetaNone:
@@ -473,8 +473,8 @@ func ParseAttribute(dp utils.DataProvider, attrType, path string, value config.R
 		}
 		out = dtFld.Format(layout)
 	case utils.MetaPrefix:
-		var pathRsr config.RSRParsers
-		pathRsr, err = config.NewRSRParsers(path, rsrSep)
+		var pathRsr utils.RSRParsers
+		pathRsr, err = utils.NewRSRParsers(path, rsrSep)
 		if err != nil {
 			return
 		}
@@ -488,8 +488,8 @@ func ParseAttribute(dp utils.DataProvider, attrType, path string, value config.R
 		}
 		out = val + pathVal
 	case utils.MetaSuffix:
-		var pathRsr config.RSRParsers
-		pathRsr, err = config.NewRSRParsers(path, rsrSep)
+		var pathRsr utils.RSRParsers
+		pathRsr, err = utils.NewRSRParsers(path, rsrSep)
 		if err != nil {
 			return
 		}

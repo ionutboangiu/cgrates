@@ -27,7 +27,7 @@ import (
 // RequestProcessor is the request processor configuration
 type RequestProcessor struct {
 	ID            string
-	Tenant        RSRParsers
+	Tenant        utils.RSRParsers
 	Filters       []string
 	Flags         utils.FlagsWithParams
 	Timezone      string
@@ -52,7 +52,7 @@ func (rp *RequestProcessor) loadFromJSONCfg(jsnCfg *ReqProcessorJsnCfg, sep stri
 		rp.Timezone = *jsnCfg.Timezone
 	}
 	if jsnCfg.Tenant != nil {
-		if rp.Tenant, err = NewRSRParsers(*jsnCfg.Tenant, sep); err != nil {
+		if rp.Tenant, err = utils.NewRSRParsers(*jsnCfg.Tenant, sep); err != nil {
 			return
 		}
 	}

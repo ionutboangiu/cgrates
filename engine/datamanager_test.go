@@ -6800,7 +6800,7 @@ func TestDMRemoveAttributeProfileGetAttributeProfileErr(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Account",
-				Value: config.NewRSRParsersMustCompile("1001", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("1001", utils.InfieldSep),
 			},
 		},
 		Weights: make(utils.DynamicWeights, 1),
@@ -6833,7 +6833,7 @@ func TestDMRemoveAttributeProfileRemoveAttributeProfileDrvErr(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Account",
-				Value: config.NewRSRParsersMustCompile("1001", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("1001", utils.InfieldSep),
 			},
 		},
 		Weights: make(utils.DynamicWeights, 1),
@@ -6885,7 +6885,7 @@ func TestDMRemoveAttributeProfileRmvItemFromFiltrIndexErr(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Account",
-				Value: config.NewRSRParsersMustCompile("1001", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("1001", utils.InfieldSep),
 			},
 		},
 		Weights: make(utils.DynamicWeights, 1),
@@ -6909,7 +6909,7 @@ func TestDMRemoveAttributeProfileRmvIndexFiltersItemErr(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Account",
-				Value: config.NewRSRParsersMustCompile("1001", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("1001", utils.InfieldSep),
 			},
 		},
 		Weights: make(utils.DynamicWeights, 1),
@@ -6947,7 +6947,7 @@ func TestDMRemoveAttributeProfileReplicate(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Account",
-				Value: config.NewRSRParsersMustCompile("1001", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("1001", utils.InfieldSep),
 			},
 		},
 		Weights: make(utils.DynamicWeights, 1),
@@ -7893,7 +7893,7 @@ func TestDMSetAttributeProfileCheckFiltersErr(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Account",
-				Value: config.NewRSRParsersMustCompile("1001", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("1001", utils.InfieldSep),
 			},
 		},
 		Weights: make(utils.DynamicWeights, 1),
@@ -7923,7 +7923,7 @@ func TestDMSetAttributeProfileGetAttributeProfileErr(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Account",
-				Value: config.NewRSRParsersMustCompile("1001", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("1001", utils.InfieldSep),
 			},
 		},
 		Weights: make(utils.DynamicWeights, 1),
@@ -7953,7 +7953,7 @@ func TestDMSetAttributeProfileSetAttributeProfileDrvErr(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Account",
-				Value: config.NewRSRParsersMustCompile("1001", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("1001", utils.InfieldSep),
 			},
 		},
 		Weights: make(utils.DynamicWeights, 1),
@@ -7984,7 +7984,7 @@ func TestDMSetAttributeProfileUpdatedIndexesErr(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Account",
-				Value: config.NewRSRParsersMustCompile("1001", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("1001", utils.InfieldSep),
 			},
 		},
 		Weights: make(utils.DynamicWeights, 1),
@@ -8010,7 +8010,7 @@ func TestDMSetAttributeProfileReplicate(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Account",
-				Value: config.NewRSRParsersMustCompile("1001", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("1001", utils.InfieldSep),
 			},
 		},
 		Weights: make(utils.DynamicWeights, 1),
@@ -8071,7 +8071,7 @@ func TestDMGetAttributeProfileSetAttributeProfileDrvErr(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Account",
-				Value: config.NewRSRParsersMustCompile("1001", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("1001", utils.InfieldSep),
 			},
 		},
 		Weights: make(utils.DynamicWeights, 1),
@@ -8116,7 +8116,7 @@ func TestDMSetAttributeProfileComputeHashErr(t *testing.T) {
 	}
 	cM := NewConnManager(cfg)
 	dm := NewDataManager(data, cfg.CacheCfg(), cM)
-	value := config.NewRSRParsersMustCompile("31 0a 0a 32 0a 0a 33 0a 0a 34 0a 0a 35 0a 0a 36 0a 0a 37 0a 0a 38 0a 0a 39 0a 0a 31 30 0a 0a 31", config.CgrConfig().GeneralCfg().RSRSep)
+	value := utils.NewRSRParsersMustCompile("31 0a 0a 32 0a 0a 33 0a 0a 34 0a 0a 35 0a 0a 36 0a 0a 37 0a 0a 38 0a 0a 39 0a 0a 31 30 0a 0a 31", config.CgrConfig().GeneralCfg().RSRSep)
 	attrPrfl := &AttributeProfile{
 		Tenant:    "cgrates.org",
 		ID:        "ATTR_ID",
@@ -9181,7 +9181,7 @@ func TestDMGetAttributeProfileCacheWriteErr1(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Account",
-				Value: config.NewRSRParsersMustCompile("1001", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("1001", utils.InfieldSep),
 			},
 		},
 		Weights: make(utils.DynamicWeights, 1),
@@ -9261,7 +9261,7 @@ func TestDMGetAttributeProfileCacheWriteErr2(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Account",
-				Value: config.NewRSRParsersMustCompile("1001", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("1001", utils.InfieldSep),
 			},
 		},
 		Weights: make(utils.DynamicWeights, 1),

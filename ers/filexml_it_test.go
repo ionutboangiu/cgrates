@@ -425,7 +425,7 @@ func TestFileXMLProcessEvent(t *testing.T) {
 			Tag:       "OriginID",
 			Type:      utils.MetaConstant,
 			Path:      "*cgreq.OriginID",
-			Value:     config.NewRSRParsersMustCompile("25160047719:0", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("25160047719:0", utils.InfieldSep),
 			Mandatory: true,
 		},
 	}
@@ -520,7 +520,7 @@ func TestFileXMLProcessEVentError2(t *testing.T) {
 		conReqs:   make(chan struct{}, 1),
 	}
 	eR.conReqs <- struct{}{}
-	eR.Config().Tenant = config.RSRParsers{
+	eR.Config().Tenant = utils.RSRParsers{
 		{
 			Rules: "test",
 		},
@@ -665,7 +665,7 @@ func TestFileXML(t *testing.T) {
 			Tag:       "OriginID",
 			Type:      utils.MetaConstant,
 			Path:      "*cgreq.OriginID",
-			Value:     config.NewRSRParsersMustCompile("25160047719:0", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("25160047719:0", utils.InfieldSep),
 			Mandatory: true,
 		},
 	}
@@ -718,7 +718,7 @@ func TestFileXMLError(t *testing.T) {
 			Tag:       "OriginID",
 			Type:      utils.MetaConstant,
 			Path:      "*cgreq.OriginID",
-			Value:     config.NewRSRParsersMustCompile("25160047719:0", utils.InfieldSep),
+			Value:     utils.NewRSRParsersMustCompile("25160047719:0", utils.InfieldSep),
 			Mandatory: true,
 		},
 	}

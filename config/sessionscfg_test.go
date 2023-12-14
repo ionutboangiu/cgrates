@@ -55,7 +55,7 @@ func TestFsAgentCfgloadFromJsonCfg1(t *testing.T) {
 		},
 	}
 	fsAgentCfg := new(FsAgentCfg)
-	if err := fsAgentCfg.loadFromJSONCfg(fsAgentJsnCfg); err != nil {
+	if err := fsAgentCfg.loadFromJSONCfg(fsAgentJsnCfg, utils.InfieldSep); err != nil {
 		t.Error(err)
 	} else if !reflect.DeepEqual(eFsAgentConfig, fsAgentCfg) {
 		t.Errorf("Expected: %+v , received: %+v", utils.ToJSON(eFsAgentConfig), utils.ToJSON(fsAgentCfg))
@@ -740,7 +740,7 @@ func TestFsAgentCfgloadFromJsonCfgCase1(t *testing.T) {
 		EmptyBalanceAnnFile: "randomEmptyFile",
 		EmptyBalanceContext: "randomEmptyContext",
 		MaxWaitConnection:   2,
-		ExtraFields:         RSRParsers{},
+		ExtraFields:         utils.RSRParsers{},
 		EventSocketConns: []*FsConnCfg{
 			{
 				Address:    "1.2.3.4:8021",
@@ -751,7 +751,7 @@ func TestFsAgentCfgloadFromJsonCfgCase1(t *testing.T) {
 		},
 	}
 	jsonCfg := NewDefaultCGRConfig()
-	if err = jsonCfg.fsAgentCfg.loadFromJSONCfg(fsAgentJsnCfg); err != nil {
+	if err = jsonCfg.fsAgentCfg.loadFromJSONCfg(fsAgentJsnCfg, utils.InfieldSep); err != nil {
 		t.Error(err)
 	} else if !reflect.DeepEqual(expected, jsonCfg.fsAgentCfg) {
 		t.Errorf("Expected %+v \n, received %+v", utils.ToJSON(expected), utils.ToJSON(jsonCfg.fsAgentCfg))
@@ -764,7 +764,7 @@ func TestFsAgentCfgloadFromJsonCfgCase2(t *testing.T) {
 	}
 	expected := "time: unknown unit \"ss\" in duration \"1ss\""
 	jsonCfg := NewDefaultCGRConfig()
-	if err = jsonCfg.fsAgentCfg.loadFromJSONCfg(fsAgentJsnCfg); err == nil || err.Error() != expected {
+	if err = jsonCfg.fsAgentCfg.loadFromJSONCfg(fsAgentJsnCfg, utils.InfieldSep); err == nil || err.Error() != expected {
 		t.Errorf("Expected %+v, received %+v", expected, err)
 	}
 }
@@ -775,7 +775,7 @@ func TestFsAgentCfgloadFromJsonCfgCase3(t *testing.T) {
 	}
 	expected := "invalid converter terminator in rule: <a{*>"
 	jsonCfg := NewDefaultCGRConfig()
-	if err = jsonCfg.fsAgentCfg.loadFromJSONCfg(fsAgentJsnCfg); err == nil || err.Error() != expected {
+	if err = jsonCfg.fsAgentCfg.loadFromJSONCfg(fsAgentJsnCfg, utils.InfieldSep); err == nil || err.Error() != expected {
 		t.Errorf("Expected %+v, received %+v", expected, err)
 	}
 }
@@ -1275,7 +1275,7 @@ func TestFsAgentCfgClone(t *testing.T) {
 		SubscribePark:       true,
 		EmptyBalanceAnnFile: "file",
 		EmptyBalanceContext: "context",
-		ExtraFields:         NewRSRParsersMustCompile("tenant", utils.InfieldSep),
+		ExtraFields:         utils.NewRSRParsersMustCompile("tenant", utils.InfieldSep),
 		LowBalanceAnnFile:   "file2",
 		MaxWaitConnection:   time.Second,
 		SessionSConns:       []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaSessionS), "*conn1"},
@@ -1377,7 +1377,7 @@ func TestDiffFreeswitchAgentJsonCfg(t *testing.T) {
 		SessionSConns: []string{},
 		SubscribePark: false,
 		CreateCdr:     false,
-		ExtraFields: RSRParsers{
+		ExtraFields: utils.RSRParsers{
 			{
 				Rules: "ExtraField",
 			},
@@ -1394,7 +1394,7 @@ func TestDiffFreeswitchAgentJsonCfg(t *testing.T) {
 		SessionSConns: []string{"*localhost"},
 		SubscribePark: true,
 		CreateCdr:     true,
-		ExtraFields: RSRParsers{
+		ExtraFields: utils.RSRParsers{
 			{
 				Rules: "ExtraField2",
 			},

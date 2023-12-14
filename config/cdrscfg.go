@@ -53,8 +53,8 @@ type CdrsOpts struct {
 
 // CdrsCfg is the CDR server
 type CdrsCfg struct {
-	Enabled          bool       // Enable CDR Server service
-	ExtraFields      RSRParsers // Extra fields to store in CDRs
+	Enabled          bool             // Enable CDR Server service
+	ExtraFields      utils.RSRParsers // Extra fields to store in CDRs
 	SMCostRetries    int
 	ChargerSConns    []string
 	AttributeSConns  []string
@@ -69,12 +69,12 @@ type CdrsCfg struct {
 }
 
 // loadCdrsCfg loads the Cdrs section of the configuration
-func (cdrscfg *CdrsCfg) Load(ctx *context.Context, jsnCfg ConfigDB, _ *CGRConfig) (err error) {
+func (cdrscfg *CdrsCfg) Load(ctx *context.Context, jsnCfg ConfigDB, cfg *CGRConfig) (err error) {
 	jsnCdrsCfg := new(CdrsJsonCfg)
 	if err = jsnCfg.GetSection(ctx, CDRsJSON, jsnCdrsCfg); err != nil {
 		return
 	}
-	return cdrscfg.loadFromJSONCfg(jsnCdrsCfg)
+	return cdrscfg.loadFromJSONCfg(jsnCdrsCfg, cfg.generalCfg.RSRSep)
 }
 
 func (cdrsOpts *CdrsOpts) loadFromJSONCfg(jsnCfg *CdrsOptsJson) {
@@ -114,7 +114,7 @@ func (cdrsOpts *CdrsOpts) loadFromJSONCfg(jsnCfg *CdrsOptsJson) {
 }
 
 // loadFromJSONCfg loads Cdrs config from JsonCfg
-func (cdrscfg *CdrsCfg) loadFromJSONCfg(jsnCdrsCfg *CdrsJsonCfg) (err error) {
+func (cdrscfg *CdrsCfg) loadFromJSONCfg(jsnCdrsCfg *CdrsJsonCfg, separator string) (err error) {
 	if jsnCdrsCfg == nil {
 		return
 	}
@@ -122,7 +122,7 @@ func (cdrscfg *CdrsCfg) loadFromJSONCfg(jsnCdrsCfg *CdrsJsonCfg) (err error) {
 		cdrscfg.Enabled = *jsnCdrsCfg.Enabled
 	}
 	if jsnCdrsCfg.Extra_fields != nil {
-		if cdrscfg.ExtraFields, err = NewRSRParsersFromSlice(*jsnCdrsCfg.Extra_fields); err != nil {
+		if cdrscfg.ExtraFields, err = utils.NewRSRParsersFromSlice(*jsnCdrsCfg.Extra_fields, separator); err != nil {
 			return
 		}
 	}

@@ -37,7 +37,7 @@ type Attribute struct {
 	Blockers  utils.DynamicBlockers // Blockers flag to stop processing on multiple attributes from a profile
 	Path      string
 	Type      string
-	Value     config.RSRParsers
+	Value     utils.RSRParsers
 }
 
 // AttributeProfile the profile definition for the attributes
@@ -147,7 +147,7 @@ func (ext *APIAttributeProfile) AsAttributeProfile() (attr *AttributeProfile, er
 			return nil, utils.NewErrMandatoryIeMissing("Value")
 		}
 		attr.Attributes[i] = new(Attribute)
-		if attr.Attributes[i].Value, err = config.NewRSRParsers(extAttr.Value, utils.InfieldSep); err != nil {
+		if attr.Attributes[i].Value, err = utils.NewRSRParsers(extAttr.Value, utils.InfieldSep); err != nil {
 			return nil, err
 		}
 		attr.Attributes[i].Blockers = extAttr.Blockers
@@ -174,8 +174,8 @@ func NewAttributeFromInline(tenant, inlnRule string) (attr *AttributeProfile, er
 		if len(ruleSplt) < 3 {
 			return nil, fmt.Errorf("inline parse error for string: <%s>", rule)
 		}
-		var vals config.RSRParsers
-		if vals, err = config.NewRSRParsers(ruleSplt[2], utils.ANDSep); err != nil {
+		var vals utils.RSRParsers
+		if vals, err = utils.NewRSRParsers(ruleSplt[2], utils.ANDSep); err != nil {
 			return nil, err
 		}
 		if len(ruleSplt[1]) == 0 {
@@ -235,7 +235,7 @@ func (ap *AttributeProfile) Set(path []string, val any, newBranch bool, rsrSep s
 		case utils.Type:
 			ap.Attributes[len(ap.Attributes)-1].Type = utils.IfaceAsString(val)
 		case utils.Value:
-			ap.Attributes[len(ap.Attributes)-1].Value, err = config.NewRSRParsers(utils.IfaceAsString(val), rsrSep)
+			ap.Attributes[len(ap.Attributes)-1].Value, err = utils.NewRSRParsers(utils.IfaceAsString(val), rsrSep)
 		default:
 			return utils.ErrWrongPath
 		}

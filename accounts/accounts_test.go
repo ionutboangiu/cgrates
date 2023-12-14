@@ -1499,7 +1499,7 @@ func TestV1DebitAbstractsEventCharges(t *testing.T) {
 			{
 				Path:  "*opts.RateSProfile",
 				Type:  utils.MetaConstant,
-				Value: config.NewRSRParsersMustCompile("RP_2", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("RP_2", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -2015,7 +2015,7 @@ func TestV1DebitAbstractsEventChargesWithRefundCharges(t *testing.T) {
 			{
 				Path:  "*opts.RateSProfile",
 				Type:  utils.MetaConstant,
-				Value: config.NewRSRParsersMustCompile("RP_2", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("RP_2", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{

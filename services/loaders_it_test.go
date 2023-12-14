@@ -59,7 +59,7 @@ func TestLoaderSReload(t *testing.T) {
 		{
 			Type:  utils.MetaVariable,
 			Path:  "*req.Accounts",
-			Value: config.NewRSRParsersMustCompile("1001", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("1001", utils.InfieldSep),
 		},
 	}
 

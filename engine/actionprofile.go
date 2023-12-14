@@ -25,7 +25,6 @@ import (
 	"time"
 
 	"github.com/cgrates/birpc/context"
-	"github.com/cgrates/cgrates/config"
 	"github.com/cgrates/cgrates/utils"
 )
 
@@ -77,13 +76,13 @@ type APDiktat struct {
 	Path  string // Path to execute
 	Value string // Value to execute on Path
 
-	valRSR config.RSRParsers
+	valRSR utils.RSRParsers
 }
 
 // RSRValues returns the Value as RSRParsers
-func (dk *APDiktat) RSRValues(sep string) (_ config.RSRParsers, err error) {
+func (dk *APDiktat) RSRValues(sep string) (_ utils.RSRParsers, err error) {
 	if dk.valRSR == nil {
-		dk.valRSR, err = config.NewRSRParsers(dk.Value, sep)
+		dk.valRSR, err = utils.NewRSRParsers(dk.Value, sep)
 	}
 	return dk.valRSR, err
 }

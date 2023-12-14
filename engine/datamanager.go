@@ -1404,7 +1404,7 @@ func (dm *DataManager) SetAttributeProfile(ctx *context.Context, ap *AttributePr
 			if password, err = utils.ComputeHash(password); err != nil {
 				return
 			}
-			if attribute.Value, err = config.NewRSRParsers(password, config.CgrConfig().GeneralCfg().RSRSep); err != nil {
+			if attribute.Value, err = utils.NewRSRParsers(password, config.CgrConfig().GeneralCfg().RSRSep); err != nil {
 				return
 			}
 			attribute.Type = utils.MetaConstant

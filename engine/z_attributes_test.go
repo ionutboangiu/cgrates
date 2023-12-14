@@ -86,7 +86,7 @@ var (
 			Attributes: []*Attribute{
 				{
 					Path:  utils.MetaReq + utils.NestingSep + utils.AccountField,
-					Value: config.NewRSRParsersMustCompile("1010", utils.InfieldSep),
+					Value: utils.NewRSRParsersMustCompile("1010", utils.InfieldSep),
 				},
 			},
 			Weights: utils.DynamicWeights{
@@ -102,7 +102,7 @@ var (
 			Attributes: []*Attribute{
 				{
 					Path:  utils.MetaReq + utils.NestingSep + utils.AccountField,
-					Value: config.NewRSRParsersMustCompile("1010", utils.InfieldSep),
+					Value: utils.NewRSRParsersMustCompile("1010", utils.InfieldSep),
 				},
 			},
 			Weights: utils.DynamicWeights{
@@ -118,7 +118,7 @@ var (
 			Attributes: []*Attribute{
 				{
 					Path:  utils.MetaReq + utils.NestingSep + utils.AccountField,
-					Value: config.NewRSRParsersMustCompile("1010", utils.InfieldSep),
+					Value: utils.NewRSRParsersMustCompile("1010", utils.InfieldSep),
 				},
 			},
 			Weights: utils.DynamicWeights{
@@ -134,7 +134,7 @@ var (
 			Attributes: []*Attribute{
 				{
 					Path:  utils.MetaReq + utils.NestingSep + utils.AccountField,
-					Value: config.NewRSRParsersMustCompile("1010", utils.InfieldSep),
+					Value: utils.NewRSRParsersMustCompile("1010", utils.InfieldSep),
 				},
 			},
 			Weights: utils.DynamicWeights{
@@ -255,19 +255,19 @@ func TestAttributesV1GetAttributeForEventErr(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*req.Account",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*composed",
-				Value:     config.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -294,7 +294,7 @@ func TestAttributesV1GetAttributeForEventErr(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*req.Password",
 				Type:      utils.MetaConstant,
-				Value:     config.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -639,7 +639,7 @@ func TestAttributeIndexer(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + utils.AccountField,
-				Value: config.NewRSRParsersMustCompile("1010", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("1010", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -715,7 +715,7 @@ func TestAttributeProcessWithMultipleRuns1(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field1",
-				Value: config.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -731,7 +731,7 @@ func TestAttributeProcessWithMultipleRuns1(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
-				Value: config.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -747,11 +747,11 @@ func TestAttributeProcessWithMultipleRuns1(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field3",
-				Value: config.NewRSRParsersMustCompile("Value3", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value3", utils.InfieldSep),
 			},
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Destination",
-				Value: config.NewRSRParsersMustCompile("2044", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("2044", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -843,7 +843,7 @@ func TestAttributeProcessWithMultipleRuns2(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field1",
-				Value: config.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -859,7 +859,7 @@ func TestAttributeProcessWithMultipleRuns2(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
-				Value: config.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -875,7 +875,7 @@ func TestAttributeProcessWithMultipleRuns2(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field3",
-				Value: config.NewRSRParsersMustCompile("Value3", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value3", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -964,7 +964,7 @@ func TestAttributeProcessWithMultipleRuns3(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field1",
-				Value: config.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -980,7 +980,7 @@ func TestAttributeProcessWithMultipleRuns3(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
-				Value: config.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -996,7 +996,7 @@ func TestAttributeProcessWithMultipleRuns3(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field3",
-				Value: config.NewRSRParsersMustCompile("Value3", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value3", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -1079,7 +1079,7 @@ func TestAttributeProcessWithMultipleRuns4(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field1",
-				Value: config.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -1095,7 +1095,7 @@ func TestAttributeProcessWithMultipleRuns4(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
-				Value: config.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -1182,7 +1182,7 @@ func TestAttributeMultipleProcessWithBlocker(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field1",
-				Value: config.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -1198,7 +1198,7 @@ func TestAttributeMultipleProcessWithBlocker(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
-				Value: config.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -1219,7 +1219,7 @@ func TestAttributeMultipleProcessWithBlocker(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field3",
-				Value: config.NewRSRParsersMustCompile("Value3", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value3", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -1300,7 +1300,7 @@ func TestAttributeMultipleProcessWithBlocker2(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field1",
-				Value: config.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -1321,7 +1321,7 @@ func TestAttributeMultipleProcessWithBlocker2(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
-				Value: config.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -1337,7 +1337,7 @@ func TestAttributeMultipleProcessWithBlocker2(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field3",
-				Value: config.NewRSRParsersMustCompile("Value3", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value3", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -1413,7 +1413,7 @@ func TestAttributeProcessValue(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
-				Value: config.NewRSRParsersMustCompile("~*req.Field1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.Field1", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -1487,17 +1487,17 @@ func TestAttributeAttributeFilterIDs(t *testing.T) {
 			{
 				FilterIDs: []string{"*string:~*req.PassField:Test"},
 				Path:      utils.MetaReq + utils.NestingSep + "PassField",
-				Value:     config.NewRSRParsersMustCompile("Pass", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("Pass", utils.InfieldSep),
 			},
 			{
 				FilterIDs: []string{"*string:~*req.PassField:RandomValue"},
 				Path:      utils.MetaReq + utils.NestingSep + "NotPassField",
-				Value:     config.NewRSRParsersMustCompile("NotPass", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("NotPass", utils.InfieldSep),
 			},
 			{
 				FilterIDs: []string{"*notexists:~*req.RandomField:"},
 				Path:      utils.MetaReq + utils.NestingSep + "RandomField",
-				Value:     config.NewRSRParsersMustCompile("RandomValue", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("RandomValue", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -1568,7 +1568,7 @@ func TestAttributeProcessEventConstant(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaConstant,
-				Value: config.NewRSRParsersMustCompile("ConstVal", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("ConstVal", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -1643,12 +1643,12 @@ func TestAttributeProcessEventVariable(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaVariable,
-				Value: config.NewRSRParsersMustCompile("~*req.Field1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.Field1", utils.InfieldSep),
 			},
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaVariable,
-				Value: config.NewRSRParsersMustCompile("~*req.TheField", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.TheField", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -1725,17 +1725,17 @@ func TestAttributeProcessEventComposed(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaComposed,
-				Value: config.NewRSRParsersMustCompile("~*req.Field1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.Field1", utils.InfieldSep),
 			},
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaComposed,
-				Value: config.NewRSRParsersMustCompile("_", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("_", utils.InfieldSep),
 			},
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaComposed,
-				Value: config.NewRSRParsersMustCompile("~*req.TheField", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.TheField", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -1812,7 +1812,7 @@ func TestAttributeProcessEventSum(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaSum,
-				Value: config.NewRSRParsersMustCompile("10;~*req.NumField;20", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("10;~*req.NumField;20", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -1891,7 +1891,7 @@ func TestAttributeProcessEventUsageDifference(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaUsageDifference,
-				Value: config.NewRSRParsersMustCompile("~*req.UnixTimeStamp;~*req.UnixTimeStamp2", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.UnixTimeStamp;~*req.UnixTimeStamp2", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -1972,7 +1972,7 @@ func TestAttributeProcessEventValueExponent(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaValueExponent,
-				Value: config.NewRSRParsersMustCompile("~*req.Multiplier;~*req.Pow", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.Multiplier;~*req.Pow", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -2057,7 +2057,7 @@ func BenchmarkAttributeProcessEventConstant(b *testing.B) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaConstant,
-				Value: config.NewRSRParsersMustCompile("ConstVal", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("ConstVal", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -2118,7 +2118,7 @@ func BenchmarkAttributeProcessEventVariable(b *testing.B) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaVariable,
-				Value: config.NewRSRParsersMustCompile("~*req.Field1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.Field1", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -2173,7 +2173,7 @@ func TestGetAttributeProfileFromInline(t *testing.T) {
 		Attributes: []*Attribute{{
 			Path:  utils.MetaReq + utils.NestingSep + "Field2",
 			Type:  utils.MetaSum,
-			Value: config.NewRSRParsersMustCompile("10;~*req.NumField;20", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("10;~*req.NumField;20", utils.InfieldSep),
 		}},
 	}
 	attr, err := NewDataManager(nil, nil, nil).GetAttributeProfile(context.TODO(), config.CgrConfig().GeneralCfg().DefaultTenant, attrID, false, false, "")
@@ -2197,7 +2197,7 @@ func TestProcessAttributeConstant(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaConstant,
-				Value: config.NewRSRParsersMustCompile("Val2", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Val2", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -2261,7 +2261,7 @@ func TestProcessAttributeVariable(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaVariable,
-				Value: config.NewRSRParsersMustCompile("~*req.RandomField", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.RandomField", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -2327,12 +2327,12 @@ func TestProcessAttributeComposed(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaComposed,
-				Value: config.NewRSRParsersMustCompile("~*req.RandomField", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.RandomField", utils.InfieldSep),
 			},
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaComposed,
-				Value: config.NewRSRParsersMustCompile("~*req.RandomField2", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.RandomField2", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -2399,7 +2399,7 @@ func TestProcessAttributeUsageDifference(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaUsageDifference,
-				Value: config.NewRSRParsersMustCompile("~*req.RandomField;~*req.RandomField2", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.RandomField;~*req.RandomField2", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -2466,7 +2466,7 @@ func TestProcessAttributeSum(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaSum,
-				Value: config.NewRSRParsersMustCompile("~*req.RandomField;~*req.RandomField2;10", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.RandomField;~*req.RandomField2;10", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -2533,7 +2533,7 @@ func TestProcessAttributeDiff(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaDifference,
-				Value: config.NewRSRParsersMustCompile("55;~*req.RandomField;~*req.RandomField2;10", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("55;~*req.RandomField;~*req.RandomField2;10", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -2600,7 +2600,7 @@ func TestProcessAttributeMultiply(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaMultiply,
-				Value: config.NewRSRParsersMustCompile("55;~*req.RandomField;~*req.RandomField2;10", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("55;~*req.RandomField;~*req.RandomField2;10", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -2667,7 +2667,7 @@ func TestProcessAttributeDivide(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaDivide,
-				Value: config.NewRSRParsersMustCompile("55.0;~*req.RandomField;~*req.RandomField2;4", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("55.0;~*req.RandomField;~*req.RandomField2;4", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -2734,7 +2734,7 @@ func TestProcessAttributeValueExponent(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaValueExponent,
-				Value: config.NewRSRParsersMustCompile("~*req.RandomField2;4", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.RandomField2;4", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -2801,7 +2801,7 @@ func TestProcessAttributeUnixTimeStamp(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaUnixTimestamp,
-				Value: config.NewRSRParsersMustCompile("~*req.RandomField2", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.RandomField2", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -2868,7 +2868,7 @@ func TestProcessAttributePrefix(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaPrefix,
-				Value: config.NewRSRParsersMustCompile("abc_", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("abc_", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -2934,7 +2934,7 @@ func TestProcessAttributeSuffix(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaSuffix,
-				Value: config.NewRSRParsersMustCompile("_abc", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("_abc", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -3013,7 +3013,7 @@ func TestAttributeIndexSelectsFalse(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + utils.AccountField,
-				Value: config.NewRSRParsersMustCompile("1010", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("1010", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -3058,7 +3058,7 @@ func TestProcessAttributeWithSameWeight(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
 				Type:  utils.MetaVariable,
-				Value: config.NewRSRParsersMustCompile("~*req.RandomField", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.RandomField", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -3075,7 +3075,7 @@ func TestProcessAttributeWithSameWeight(t *testing.T) {
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field3",
 				Type:  utils.MetaVariable,
-				Value: config.NewRSRParsersMustCompile("~*req.RandomField", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("~*req.RandomField", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -3146,7 +3146,7 @@ func TestAttributeMultipleProcessWithFiltersExists(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field1",
-				Value: config.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -3162,7 +3162,7 @@ func TestAttributeMultipleProcessWithFiltersExists(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
-				Value: config.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -3251,7 +3251,7 @@ func TestAttributeMultipleProcessWithFiltersNotEmpty(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field1",
-				Value: config.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -3267,7 +3267,7 @@ func TestAttributeMultipleProcessWithFiltersNotEmpty(t *testing.T) {
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "Field2",
-				Value: config.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -3355,7 +3355,7 @@ func TestAttributeMetaTenant(t *testing.T) {
 		Attributes: []*Attribute{{
 			Type:  utils.MetaPrefix,
 			Path:  utils.MetaTenant,
-			Value: config.NewRSRParsersMustCompile("prfx_", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("prfx_", utils.InfieldSep),
 		}},
 		Weights: utils.DynamicWeights{
 			{
@@ -3433,7 +3433,7 @@ func TestAttributesPorcessEventMatchingProcessRuns(t *testing.T) {
 			{
 				Path:  "*req.CompanyName",
 				Type:  utils.MetaVariable,
-				Value: config.NewRSRParsersMustCompile("ITSYS COMMUNICATIONS SRL", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("ITSYS COMMUNICATIONS SRL", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -3450,7 +3450,7 @@ func TestAttributesPorcessEventMatchingProcessRuns(t *testing.T) {
 			{
 				Path:  "*req.Password",
 				Type:  utils.MetaVariable,
-				Value: config.NewRSRParsersMustCompile("CGRateS.org", utils.InfieldSep),
+				Value: utils.NewRSRParsersMustCompile("CGRateS.org", utils.InfieldSep),
 			},
 		},
 		Weights: utils.DynamicWeights{
@@ -3524,7 +3524,7 @@ func TestAttributeMultipleProfileRunns(t *testing.T) {
 		FilterIDs: []string{},
 		Attributes: []*Attribute{{
 			Path:  utils.MetaReq + utils.NestingSep + "Field1",
-			Value: config.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("Value1", utils.InfieldSep),
 		}},
 		Weights: utils.DynamicWeights{
 			{
@@ -3538,7 +3538,7 @@ func TestAttributeMultipleProfileRunns(t *testing.T) {
 		FilterIDs: []string{},
 		Attributes: []*Attribute{{
 			Path:  utils.MetaReq + utils.NestingSep + "Field2",
-			Value: config.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
+			Value: utils.NewRSRParsersMustCompile("Value2", utils.InfieldSep),
 		}},
 		Weights: utils.DynamicWeights{
 			{
@@ -3673,19 +3673,19 @@ func TestAttributesV1ProcessEvent(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*req.Account",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*composed",
-				Value:     config.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -3712,7 +3712,7 @@ func TestAttributesV1ProcessEvent(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*req.Password",
 				Type:      utils.MetaConstant,
-				Value:     config.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -3797,19 +3797,19 @@ func TestAttributesV1ProcessEventErrorMetaSum(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*req.Account",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*composed",
-				Value:     config.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -3836,7 +3836,7 @@ func TestAttributesV1ProcessEventErrorMetaSum(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*req.Password",
 				Type:      utils.MetaSum,
-				Value:     config.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -3892,19 +3892,19 @@ func TestAttributesV1ProcessEventErrorMetaDifference(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*req.Account",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*composed",
-				Value:     config.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -3931,7 +3931,7 @@ func TestAttributesV1ProcessEventErrorMetaDifference(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*req.Password",
 				Type:      utils.MetaDifference,
-				Value:     config.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -3988,19 +3988,19 @@ func TestAttributesV1ProcessEventErrorMetaValueExponent(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*req.Account",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*composed",
-				Value:     config.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -4027,7 +4027,7 @@ func TestAttributesV1ProcessEventErrorMetaValueExponent(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*req.Password",
 				Type:      utils.MetaValueExponent,
-				Value:     config.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -4083,7 +4083,7 @@ func TestAttributesattributeProfileForEventNoDBConn(t *testing.T) {
 		fltrS: NewFilterS(cfg, nil, dm),
 	}
 
-	postpaid, err := config.NewRSRParsers(utils.MetaPostpaid, utils.InfieldSep)
+	postpaid, err := utils.NewRSRParsers(utils.MetaPostpaid, utils.InfieldSep)
 	if err != nil {
 		t.Error(err)
 	}
@@ -4202,7 +4202,7 @@ func TestAttributesattributeProfileForEventErrPass(t *testing.T) {
 		fltrS: NewFilterS(cfg, nil, dm),
 	}
 
-	postpaid, err := config.NewRSRParsers(utils.MetaPostpaid, utils.InfieldSep)
+	postpaid, err := utils.NewRSRParsers(utils.MetaPostpaid, utils.InfieldSep)
 	if err != nil {
 		t.Error(err)
 	}
@@ -4258,7 +4258,7 @@ func TestAttributesParseAttributeSIPCID(t *testing.T) {
 			"from": "1002",
 		},
 	}
-	if out, err := ParseAttribute(dp, utils.MetaSIPCID, utils.EmptyString, config.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.from", utils.InfieldSep),
+	if out, err := ParseAttribute(dp, utils.MetaSIPCID, utils.EmptyString, utils.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.from", utils.InfieldSep),
 		0, utils.EmptyString, utils.EmptyString, utils.InfieldSep); err != nil {
 		t.Fatal(err)
 	} else if exp != out {
@@ -4272,7 +4272,7 @@ func TestAttributesParseAttributeSIPCID(t *testing.T) {
 			"from": "1001",
 		},
 	}
-	if out, err := ParseAttribute(dp, utils.MetaSIPCID, utils.EmptyString, config.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.from", utils.InfieldSep),
+	if out, err := ParseAttribute(dp, utils.MetaSIPCID, utils.EmptyString, utils.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.from", utils.InfieldSep),
 		0, utils.EmptyString, utils.EmptyString, utils.InfieldSep); err != nil {
 		t.Fatal(err)
 	} else if exp != out {
@@ -4288,7 +4288,7 @@ func TestAttributesParseAttributeSIPCID(t *testing.T) {
 			"extra": "1003",
 		},
 	}
-	if out, err := ParseAttribute(dp, utils.MetaSIPCID, utils.EmptyString, config.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.extra;~*req.from",
+	if out, err := ParseAttribute(dp, utils.MetaSIPCID, utils.EmptyString, utils.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.extra;~*req.from",
 		utils.InfieldSep), 0, utils.EmptyString, utils.EmptyString, utils.InfieldSep); err != nil {
 		t.Fatal(err)
 	} else if exp != out {
@@ -4303,7 +4303,7 @@ func TestAttributesParseAttributeSIPCID(t *testing.T) {
 			"extra": "1003",
 		},
 	}
-	if out, err := ParseAttribute(dp, utils.MetaSIPCID, utils.EmptyString, config.NewRSRParsersMustCompile("~*req.cid;~*req.extra;~*req.to;~*req.from",
+	if out, err := ParseAttribute(dp, utils.MetaSIPCID, utils.EmptyString, utils.NewRSRParsersMustCompile("~*req.cid;~*req.extra;~*req.to;~*req.from",
 		utils.InfieldSep), 0, utils.EmptyString, utils.EmptyString, utils.InfieldSep); err != nil {
 		t.Fatal(err)
 	} else if exp != out {
@@ -4315,7 +4315,7 @@ func TestAttributesParseAttributeSIPCID(t *testing.T) {
 			"cid": "12345",
 		},
 	}
-	if _, err := ParseAttribute(dp, utils.MetaSIPCID, utils.EmptyString, config.NewRSRParsersMustCompile("~*req.cid;~*req.extra;~*req.to;~*req.from", utils.
+	if _, err := ParseAttribute(dp, utils.MetaSIPCID, utils.EmptyString, utils.NewRSRParsersMustCompile("~*req.cid;~*req.extra;~*req.to;~*req.from", utils.
 		InfieldSep), 0, utils.EmptyString, utils.EmptyString, utils.InfieldSep); err != utils.ErrNotFound {
 		t.Errorf("Expected <%+v>, received <%+v>", utils.ErrNotFound, err)
 	}
@@ -4330,7 +4330,7 @@ func TestAttributesParseAttributeSIPCIDWrongPathErr(t *testing.T) {
 		},
 		utils.MetaOpts: 13,
 	}
-	value := config.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.from;~*opts.WrongPath", utils.InfieldSep)
+	value := utils.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.from;~*opts.WrongPath", utils.InfieldSep)
 	if _, err := ParseAttribute(dp, utils.MetaSIPCID, utils.EmptyString, value,
 		0, time.UTC.String(), utils.EmptyString, utils.InfieldSep); err == nil ||
 		err.Error() != utils.ErrWrongPath.Error() {
@@ -4345,7 +4345,7 @@ func TestAttributesParseAttributeSIPCIDNotFoundErr(t *testing.T) {
 			"from": "1002",
 		},
 	}
-	value := config.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.from", utils.InfieldSep)
+	value := utils.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.from", utils.InfieldSep)
 	if _, err := ParseAttribute(dp, utils.MetaSIPCID, utils.EmptyString, value,
 		0, time.UTC.String(), utils.EmptyString, utils.InfieldSep); err == nil ||
 		err.Error() != utils.ErrNotFound.Error() {
@@ -4360,7 +4360,7 @@ func TestAttributesParseAttributeSIPCIDInvalidArguments(t *testing.T) {
 			"from": "1002",
 		},
 	}
-	value := config.RSRParsers{}
+	value := utils.RSRParsers{}
 	experr := `invalid number of arguments <[]> to *sipcid`
 	if _, err := ParseAttribute(dp, utils.MetaSIPCID, utils.EmptyString, value,
 		0, time.UTC.String(), utils.EmptyString, utils.InfieldSep); err == nil ||
@@ -4383,8 +4383,8 @@ func TestAttributesV1ProcessEventMultipleRuns1(t *testing.T) {
 	Cache = NewCacheS(cfg, dm, nil, nil)
 	alS := NewAttributeService(dm, filterS, cfg)
 
-	postpaid := config.NewRSRParsersMustCompile(utils.MetaPostpaid, utils.InfieldSep)
-	pw := config.NewRSRParsersMustCompile("CGRateS.org", utils.InfieldSep)
+	postpaid := utils.NewRSRParsersMustCompile(utils.MetaPostpaid, utils.InfieldSep)
+	pw := utils.NewRSRParsersMustCompile("CGRateS.org", utils.InfieldSep)
 
 	ap1 := &AttributeProfile{
 		Tenant:    "cgrates.org",
@@ -4493,9 +4493,9 @@ func TestAttributesV1ProcessEventMultipleRuns2(t *testing.T) {
 	Cache = NewCacheS(cfg, dm, nil, nil)
 	alS := NewAttributeService(dm, filterS, cfg)
 
-	postpaid := config.NewRSRParsersMustCompile(utils.MetaPostpaid, utils.InfieldSep)
-	pw := config.NewRSRParsersMustCompile("CGRateS.org", utils.InfieldSep)
-	paypal := config.NewRSRParsersMustCompile("cgrates@paypal.com", utils.InfieldSep)
+	postpaid := utils.NewRSRParsersMustCompile(utils.MetaPostpaid, utils.InfieldSep)
+	pw := utils.NewRSRParsersMustCompile("CGRateS.org", utils.InfieldSep)
+	paypal := utils.NewRSRParsersMustCompile("cgrates@paypal.com", utils.InfieldSep)
 
 	ap1 := &AttributeProfile{
 		Tenant: "cgrates.org",
@@ -4624,19 +4624,19 @@ func TestAttributesV1GetAttributeForEvent(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*req.Account",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*composed",
-				Value:     config.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -4663,7 +4663,7 @@ func TestAttributesV1GetAttributeForEvent(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*req.Password",
 				Type:      utils.MetaConstant,
-				Value:     config.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -4753,19 +4753,19 @@ func TestAttributesV1GetAttributeForEventErrorBoolOpts(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*req.Account",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*composed",
-				Value:     config.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -4792,7 +4792,7 @@ func TestAttributesV1GetAttributeForEventErrorBoolOpts(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*req.Password",
 				Type:      utils.MetaConstant,
-				Value:     config.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -4849,19 +4849,19 @@ func TestAttributesV1GetAttributeForEventErrorNil(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*req.Account",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*composed",
-				Value:     config.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -4888,7 +4888,7 @@ func TestAttributesV1GetAttributeForEventErrorNil(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*req.Password",
 				Type:      utils.MetaConstant,
-				Value:     config.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -4934,19 +4934,19 @@ func TestAttributesV1GetAttributeForEventErrOptsI(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(.*)@(.*)/${1}.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*req.Account",
 				Type:      "*variable",
-				Value:     config.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("~*req.Account:s/(dan)@(.*)/${1}.${2}/:s/(adrian)@(.*)/andrei.${2}/", utils.InfieldSep),
 			},
 			{
 				FilterIDs: nil,
 				Path:      "*tenant",
 				Type:      "*composed",
-				Value:     config.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile(".co.uk", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -4973,7 +4973,7 @@ func TestAttributesV1GetAttributeForEventErrOptsI(t *testing.T) {
 				FilterIDs: nil,
 				Path:      "*req.Password",
 				Type:      utils.MetaConstant,
-				Value:     config.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
+				Value:     utils.NewRSRParsersMustCompile("CGRATES.ORG", utils.InfieldSep),
 			},
 		},
 		Blockers: utils.DynamicBlockers{
@@ -5180,7 +5180,7 @@ func TestAttributesParseAttributeMetaNone(t *testing.T) {
 			"from": "1002",
 		},
 	}
-	if out, err := ParseAttribute(dp, utils.MetaNone, utils.EmptyString, config.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.from", utils.InfieldSep),
+	if out, err := ParseAttribute(dp, utils.MetaNone, utils.EmptyString, utils.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.from", utils.InfieldSep),
 		0, utils.EmptyString, utils.EmptyString, utils.InfieldSep); err != nil {
 		t.Fatal(err)
 	} else if out != nil {
@@ -5196,7 +5196,7 @@ func TestAttributesParseAttributeMetaUsageDifferenceBadValError(t *testing.T) {
 			"from": "1002",
 		},
 	}
-	_, err := ParseAttribute(dp, utils.MetaUsageDifference, utils.EmptyString, config.NewRSRParsersMustCompile("", utils.InfieldSep), 0, utils.EmptyString, utils.EmptyString, utils.InfieldSep)
+	_, err := ParseAttribute(dp, utils.MetaUsageDifference, utils.EmptyString, utils.NewRSRParsersMustCompile("", utils.InfieldSep), 0, utils.EmptyString, utils.EmptyString, utils.InfieldSep)
 
 	if err == nil || err.Error() != "invalid arguments <null> to *usageDifference" {
 		t.Fatal(err)
@@ -5211,7 +5211,7 @@ func TestAttributesParseAttributeMetaCCUsageError(t *testing.T) {
 			"from": "1002",
 		},
 	}
-	_, err := ParseAttribute(dp, utils.MetaCCUsage, utils.EmptyString, config.NewRSRParsersMustCompile("::;~*req.to;~*req.from", utils.InfieldSep),
+	_, err := ParseAttribute(dp, utils.MetaCCUsage, utils.EmptyString, utils.NewRSRParsersMustCompile("::;~*req.to;~*req.from", utils.InfieldSep),
 		0, utils.EmptyString, utils.EmptyString, utils.InfieldSep)
 	if err == nil || err.Error() != "invalid requestNumber <::> to *ccUsage" {
 		t.Fatal(err)
@@ -5273,7 +5273,7 @@ func TestAttributesAttributeServiceV1PrcssEvPrcssRunsGetIntOptsErr(t *testing.T)
 	filterS := NewFilterS(cfg, nil, dm)
 	Cache = NewCacheS(cfg, dm, nil, nil)
 	alS := NewAttributeService(dm, filterS, cfg)
-	pw := config.NewRSRParsersMustCompile("CGRateS.org", utils.InfieldSep)
+	pw := utils.NewRSRParsersMustCompile("CGRateS.org", utils.InfieldSep)
 
 	ap1 := &AttributeProfile{
 		Tenant: "cgrates.org",
@@ -5325,7 +5325,7 @@ func TestAttributesAttributeServiceV1PrcssEvProfRunsGetIntOptsErr(t *testing.T) 
 	filterS := NewFilterS(cfg, nil, dm)
 	Cache = NewCacheS(cfg, dm, nil, nil)
 	alS := NewAttributeService(dm, filterS, cfg)
-	pw := config.NewRSRParsersMustCompile("CGRateS.org", utils.InfieldSep)
+	pw := utils.NewRSRParsersMustCompile("CGRateS.org", utils.InfieldSep)
 
 	ap1 := &AttributeProfile{
 		Tenant: "cgrates.org",
@@ -5373,7 +5373,7 @@ func TestAttributesParseAttributeMetaGeneric(t *testing.T) {
 			"from": "1002",
 		},
 	}
-	if out, err := ParseAttribute(dp, utils.MetaGeneric, utils.EmptyString, config.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.from", utils.InfieldSep),
+	if out, err := ParseAttribute(dp, utils.MetaGeneric, utils.EmptyString, utils.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.from", utils.InfieldSep),
 		0, utils.EmptyString, utils.EmptyString, utils.InfieldSep); err != nil {
 		t.Fatal(err)
 	} else if exp != out {
@@ -5389,7 +5389,7 @@ func TestAttributesParseAttributeError(t *testing.T) {
 			"from": "1002",
 		},
 	}
-	if _, err := ParseAttribute(dp, "badType", utils.EmptyString, config.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.from", utils.InfieldSep),
+	if _, err := ParseAttribute(dp, "badType", utils.EmptyString, utils.NewRSRParsersMustCompile("~*req.cid;~*req.to;~*req.from", utils.InfieldSep),
 		0, utils.EmptyString, utils.EmptyString, utils.InfieldSep); err == nil || err.Error() != "unsupported type: <badType>" {
 		t.Errorf("Expected %q, Received %q", "unsupported type: <badType>", err)
 	}
@@ -5410,7 +5410,7 @@ func TestAttributesProcessEventPasswordAttribute(t *testing.T) {
 	filterS := NewFilterS(cfg, nil, dm)
 	attrS := NewAttributeService(dm, filterS, cfg)
 
-	value := config.NewRSRParsersMustCompile("abcd123", config.CgrConfig().GeneralCfg().RSRSep)
+	value := utils.NewRSRParsersMustCompile("abcd123", config.CgrConfig().GeneralCfg().RSRSep)
 
 	attrPrf := &AttributeProfile{
 		Tenant: "cgrates.org",
@@ -5476,7 +5476,7 @@ func TestAttributesProcessEventPasswordAttribute(t *testing.T) {
 		}
 	}
 
-	value = config.NewRSRParsersMustCompile(hashedPw, config.CgrConfig().GeneralCfg().RSRSep)
+	value = utils.NewRSRParsersMustCompile(hashedPw, config.CgrConfig().GeneralCfg().RSRSep)
 	expAttrPrf := &AttributeProfile{
 		Tenant: "cgrates.org",
 		ID:     "ATTR_TEST",
@@ -5514,7 +5514,7 @@ func TestAttributesSetAttributeProfilePasswordAttr(t *testing.T) {
 	dm := NewDataManager(data, cfg.CacheCfg(), nil)
 	Cache = NewCacheS(cfg, dm, nil, nil)
 
-	value := config.NewRSRParsersMustCompile("abcd123", config.CgrConfig().GeneralCfg().RSRSep)
+	value := utils.NewRSRParsersMustCompile("abcd123", config.CgrConfig().GeneralCfg().RSRSep)
 	attrPrf := &AttributeProfile{
 		Tenant: "cgrates.org",
 		ID:     "ATTR_TEST",
