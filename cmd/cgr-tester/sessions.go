@@ -66,6 +66,7 @@ func callSessions(ctx *context.Context, authDur, initDur, updateDur, terminateDu
 		Event: map[string]any{
 			utils.AccountField: acc,
 			utils.Destination:  dest,
+			utils.Subject:      "TestSubject",
 			utils.OriginHost:   utils.Local,
 			utils.RequestType:  *requestType,
 			utils.Source:       utils.CGRTester,

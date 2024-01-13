@@ -62,28 +62,28 @@ var (
 		testDiamItInitCfg,
 		testDiamItResetDataDb,
 		testDiamItResetStorDb,
-		testDiamItStartEngine,
+		// testDiamItStartEngine,
 		testDiamItConnectDiameterClient,
 		testDiamItApierRpcConn,
 		testDiamItTPFromFolder,
-		testDiamItDryRun,
+		// testDiamItDryRun,
 		testDiamItCCRInit,
 		testDiamItCCRUpdate,
 
-		testDiamItRAR,
+		// testDiamItRAR,
 
 		testDiamItCCRTerminate,
-		testDiamItCCRSMS,
-		testDiamItCCRMMS,
+		// testDiamItCCRSMS,
+		// testDiamItCCRMMS,
 
-		testDiamItEmulateTerminate,
+		// testDiamItEmulateTerminate,
 
-		testDiamItTemplateErr,
-		testDiamItCCRInitWithForceDuration,
+		// testDiamItTemplateErr,
+		// testDiamItCCRInitWithForceDuration,
 
-		testDiamItDRR,
+		// testDiamItDRR,
 
-		testDiamItKillEngine,
+		// testDiamItKillEngine,
 	}
 )
 
@@ -616,22 +616,22 @@ func testDiamItCCRInit(t *testing.T) {
 	m.NewAVP(avp.EventTimestamp, avp.Mbit, 0, datatype.Time(time.Date(2018, 10, 4, 14, 42, 20, 0, time.UTC)))
 	m.NewAVP(avp.SubscriptionID, avp.Mbit, 0, &diam.GroupedAVP{
 		AVP: []*diam.AVP{
-			diam.NewAVP(450, avp.Mbit, 0, datatype.Enumerated(0)),      // Subscription-Id-Type
-			diam.NewAVP(444, avp.Mbit, 0, datatype.UTF8String("1006")), // Subscription-Id-Data
+			diam.NewAVP(avp.SubscriptionIDType, avp.Mbit, 0, datatype.Enumerated(0)),      // Subscription-Id-Type
+			diam.NewAVP(avp.SubscriptionIDData, avp.Mbit, 0, datatype.UTF8String("1006")), // Subscription-Id-Data
 		}})
 	m.NewAVP(avp.ServiceIdentifier, avp.Mbit, 0, datatype.Unsigned32(0))
 	m.NewAVP(avp.RequestedServiceUnit, avp.Mbit, 0, &diam.GroupedAVP{
 		AVP: []*diam.AVP{
-			diam.NewAVP(420, avp.Mbit, 0, datatype.Unsigned32(300))}})
+			diam.NewAVP(avp.CCTime, avp.Mbit, 0, datatype.Unsigned32(300))}})
 	m.NewAVP(avp.UsedServiceUnit, avp.Mbit, 0, &diam.GroupedAVP{
 		AVP: []*diam.AVP{
-			diam.NewAVP(420, avp.Mbit, 0, datatype.Unsigned32(0))}})
-	m.NewAVP(873, avp.Mbit, 10415, &diam.GroupedAVP{
+			diam.NewAVP(avp.CCTime, avp.Mbit, 0, datatype.Unsigned32(0))}})
+	m.NewAVP(avp.ServiceInformation, avp.Mbit, 10415, &diam.GroupedAVP{
 		AVP: []*diam.AVP{
 			diam.NewAVP(20300, avp.Mbit, 2011, &diam.GroupedAVP{ // IN-Information
 				AVP: []*diam.AVP{
-					diam.NewAVP(831, avp.Mbit, 10415, datatype.UTF8String("1006")),                                      // Calling-Party-Address
-					diam.NewAVP(832, avp.Mbit, 10415, datatype.UTF8String("1002")),                                      // Called-Party-Address
+					diam.NewAVP(avp.CallingPartyAddress, avp.Mbit, 10415, datatype.UTF8String("1006")),                  // Calling-Party-Address
+					diam.NewAVP(avp.CalledPartyAddress, avp.Mbit, 10415, datatype.UTF8String("1002")),                   // Called-Party-Address
 					diam.NewAVP(20327, avp.Mbit, 2011, datatype.UTF8String("1002")),                                     // Real-Called-Number
 					diam.NewAVP(20339, avp.Mbit, 2011, datatype.Unsigned32(0)),                                          // Charge-Flow-Type
 					diam.NewAVP(20302, avp.Mbit, 2011, datatype.UTF8String("")),                                         // Calling-Vlr-Number

@@ -97,6 +97,10 @@ type DiameterClient struct {
 	received chan *diam.Message
 }
 
+func (dc *DiameterClient) IsConnNil() bool {
+	return dc.conn == nil
+}
+
 func (dc *DiameterClient) SendMessage(m *diam.Message) error {
 	_, err := m.WriteTo(dc.conn)
 	return err

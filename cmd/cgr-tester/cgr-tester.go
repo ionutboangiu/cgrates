@@ -329,6 +329,79 @@ func main() {
 	default: // unsupported task
 		log.Fatalf("task <%s> is not a supported tester task", *exec)
 		return
+	case "*diameter":
+		if *cps > *calls {
+			log.Fatalf("Number of *calls <%v> should be bigger or equal to *cps <%v>", *calls, *cps)
+			return
+		}
+		digitMin := int64(math.Pow10(*digits - 1))
+		digitMax := int64(math.Pow10(*digits)) - 1
+		if *verbose {
+			log.Printf("Digit range: <%v - %v>", digitMin, digitMax)
+		}
+		currentCalls := 0
+		if *updateInterval > *maxUsage {
+			log.Fatal(`"update_interval" should be smaller than "max_usage"`)
+		} else if *maxUsage < *minUsage {
+			log.Fatal(`"min_usage" should be equal or smaller than "max_usage"`)
+		}
+		var wg sync.WaitGroup
+		authDur := make([]time.Duration, 0, *calls)
+		initDur := make([]time.Duration, 0, *calls)
+		updateDur := make([]time.Duration, 0, *calls)
+		terminateDur := make([]time.Duration, 0, *calls)
+		cdrDur := make([]time.Duration, 0, *calls)
+		var reqAuth uint64
+		var reqInit uint64
+		var reqUpdate uint64
+		var reqTerminate uint64
+		var reqCdr uint64
+		var tmpTime time.Time
+		timeout := time.After(*timeoutDur)
+		for i := 0; i < int(math.Ceil(float64(*calls)/float64(*cps))); i++ {
+			for j := 0; j < *cps; j++ {
+				currentCalls++
+				if *calls < currentCalls {
+					break
+				}
+				totalUsage := *maxUsage
+				if *minUsage != *maxUsage {
+					totalUsage = time.Duration(utils.RandomInteger(int64(*minUsage), int64(*maxUsage)))
+				}
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					timeoutStamp := time.Now().Add(totalUsage + *timeoutDur)
+					if timeoutStamp.Compare(tmpTime) == +1 {
+						tmpTime = timeoutStamp
+						timeout = time.After(totalUsage + *timeoutDur + 140*time.Millisecond)
+					}
+					if err := callDiameter(context.TODO(), &authDur, &initDur, &updateDur, &terminateDur, &cdrDur,
+						&reqAuth, &reqInit, &reqUpdate, &reqTerminate, &reqCdr,
+						digitMin, digitMax, totalUsage); err != nil {
+						log.Fatal(err.Error())
+					}
+				}()
+
+			}
+			time.Sleep(1 * time.Second)
+		}
+		completed := make(chan struct{})
+		go func() {
+			defer close(completed)
+			wg.Wait()
+
+		}()
+
+		select {
+		case to := <-timeout:
+			log.Printf("Timed out: %v", to.Format("2006-01-02 15:04:05"))
+			printAllDurationsSummary(authDur, initDur, updateDur, terminateDur, cdrDur,
+				reqAuth, reqInit, reqUpdate, reqTerminate, reqCdr)
+		case <-completed:
+			printAllDurationsSummary(authDur, initDur, updateDur, terminateDur, cdrDur,
+				reqAuth, reqInit, reqUpdate, reqTerminate, reqCdr)
+		}
 	case utils.MetaSessionS:
 		if *cps > *calls {
 			log.Fatalf("Number of *calls <%v> should be bigger or equal to *cps <%v>", *calls, *cps)
