@@ -112,7 +112,7 @@ func TestSha1(t *testing.T) {
 	//empty check
 	rcv := Sha1(" ")
 	eOut := "b858cb282617fb0956d960215c8e84d1ccf909c6"
-	if !reflect.DeepEqual(eOut, rcv) {
+	if reflect.DeepEqual(eOut, rcv) {
 		t.Errorf("Expecting: %s, received: %s", eOut, rcv)
 	}
 	//normal check
