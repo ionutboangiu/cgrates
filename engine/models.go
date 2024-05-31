@@ -270,12 +270,13 @@ type StatMdl struct {
 	QueueLength        int     `index:"4" re:".*"`
 	TTL                string  `index:"5" re:".*"`
 	MinItems           int     `index:"6" re:".*"`
-	MetricIDs          string  `index:"7" re:".*"`
-	MetricFilterIDs    string  `index:"8" re:".*"`
-	Stored             bool    `index:"9" re:".*"`
-	Blocker            bool    `index:"10" re:".*"`
-	Weight             float64 `index:"11" re:".*"`
-	ThresholdIDs       string  `index:"12" re:".*"`
+	StatID             string  `index:"7" re:".*"`
+	MetricIDs          string  `index:"8" re:".*"`
+	MetricFilterIDs    string  `index:"9" re:".*"`
+	Stored             bool    `index:"10" re:".*"`
+	Blocker            bool    `index:"11" re:".*"`
+	Weight             float64 `index:"12" re:".*"`
+	ThresholdIDs       string  `index:"13" re:".*"`
 	CreatedAt          time.Time
 }
 

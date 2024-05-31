@@ -1672,9 +1672,11 @@ func testStorDBitCRUDTpStats(t *testing.T) {
 			},
 			QueueLength: 100,
 			TTL:         "1s",
-			Metrics: []*utils.MetricWithFilters{
-				{
-					MetricID: "*asr",
+			Metrics: map[string][]*utils.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: "*asr",
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},
@@ -1695,12 +1697,14 @@ func testStorDBitCRUDTpStats(t *testing.T) {
 	}
 
 	// UPDATE
-	eTPs[0].Metrics = []*utils.MetricWithFilters{
-		{
-			MetricID: "*asr",
-		},
-		{
-			MetricID: utils.MetaACD,
+	eTPs[0].Metrics = map[string][]*utils.MetricWithFilters{
+		"default_stat": {
+			{
+				MetricID: "*asr",
+			},
+			{
+				MetricID: utils.MetaACD,
+			},
 		},
 	}
 	if err := storDB.SetTPStats(eTPs); err != nil {
@@ -1717,12 +1721,14 @@ func testStorDBitCRUDTpStats(t *testing.T) {
 			},
 			QueueLength: 100,
 			TTL:         "1s",
-			Metrics: []*utils.MetricWithFilters{
-				{
-					MetricID: utils.MetaACD,
-				},
-				{
-					MetricID: "*asr",
+			Metrics: map[string][]*utils.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaACD,
+					},
+					{
+						MetricID: "*asr",
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},

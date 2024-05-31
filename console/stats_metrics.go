@@ -63,6 +63,6 @@ func (self *CmdGetStatQueueStringMetrics) PostprocessRpcParams() error {
 }
 
 func (self *CmdGetStatQueueStringMetrics) RpcResult() any {
-	var atr map[string]string
+	var atr map[string]map[string]string
 	return &atr
 }

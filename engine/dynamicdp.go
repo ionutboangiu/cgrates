@@ -130,16 +130,22 @@ func (dDP *dynamicDP) fieldAsInterface(fldPath []string) (val any, err error) {
 		dDP.cache.Set(fldPath[:2], dp)
 		return dp.FieldAsInterface(fldPath[2:])
 	case utils.MetaStats:
-		// sample of fieldName : ~*stats.StatID.*acd
-		var statValues map[string]float64
+		// sample of fieldName : ~*stats.StatQueueID.StatID.MetricID
+		var statValues map[string]map[string]float64
 
 		if err := connMgr.Call(context.TODO(), dDP.stsConns, utils.StatSv1GetQueueFloatMetrics,
-			&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: dDP.tenant, ID: fldPath[1]}},
-			&statValues); err != nil {
+			&utils.TenantIDWithAPIOpts{
+				TenantID: &utils.TenantID{
+					Tenant: dDP.tenant,
+					ID:     fldPath[1],
+				},
+			}, &statValues); err != nil {
 			return nil, err
 		}
-		for k, v := range statValues {
-			dDP.cache.Set([]string{utils.MetaStats, fldPath[1], k}, v)
+		for statID, stat := range statValues {
+			for metricID, metric := range stat {
+				dDP.cache.Set([]string{utils.MetaStats, fldPath[1], statID, metricID}, metric)
+			}
 		}
 		return dDP.cache.FieldAsInterface(fldPath)
 	case utils.MetaLibPhoneNumber:

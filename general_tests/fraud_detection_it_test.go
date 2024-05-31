@@ -235,8 +235,8 @@ RT_20CNT,0,0.1,60s,1s,60s
 
 	// Create and populate Stats.csv
 	if err := writeFile(utils.StatsCsv, `
-#Tenant[0],Id[1],FilterIDs[2],ActivationInterval[3],QueueLength[4],TTL[5],MinItems[6],Metrics[7],MetricFilterIDs[8],Stored[9],Blocker[10],Weight[11],ThresholdIDs[12]
-cgrates.org,STATS_FRD,,,-1,24h,0,*tcc,,true,false,0,THD_FRD
+#Tenant[0],Id[1],FilterIDs[2],ActivationInterval[3],QueueLength[4],TTL[5],MinItems[6],StatID[7],Metrics[8],MetricFilterIDs[9],Stored[10],Blocker[11],Weight[12],ThresholdIDs[13]
+cgrates.org,STATS_FRD,,,-1,24h,0,default_stat,*tcc,,true,false,0,THD_FRD
 `); err != nil {
 		t.Fatal(err)
 	}
@@ -244,7 +244,7 @@ cgrates.org,STATS_FRD,,,-1,24h,0,*tcc,,true,false,0,THD_FRD
 	// Create and populate Thresholds.csv
 	if err := writeFile(utils.ThresholdsCsv, `
 #Tenant[0],Id[1],FilterIDs[2],ActivationInterval[3],MaxHits[4],MinHits[5],MinSleep[6],Blocker[7],Weight[8],ActionIDs[9],Async[10]
-cgrates.org,THD_FRD,*gte:~*req.*tcc:2,,-1,1,0,false,0,ACT_FRD_STOP;ACT_FRD_LOG,true
+cgrates.org,THD_FRD,*gte:~*req.default_stat.*tcc:2,,-1,1,0,false,0,ACT_FRD_STOP;ACT_FRD_LOG,true
 `); err != nil {
 		t.Fatal(err)
 	}

@@ -3,8 +3,8 @@ name: Build & Unit Tests
 permissions: {}
 
 on:
-  # push:
-  #   branches: [master]
+  push:
+    branches: [feat/stat-groups]
   pull_request:
     branches: [master]
 

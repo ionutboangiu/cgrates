@@ -8,14 +8,14 @@ cgrates.org,ROUTE_ACNT_1001,,,,,vendor4,,,,,,35,,,
 
 cgrates.org,ROUTE_ACNT_1002,*string:~*req.Account:1002,,*lc,,,,,,,,,,,
 cgrates.org,ROUTE_ACNT_1002,,,,,vendor1,*lte:~*resources.RES_GRP1.TotalUsage:5,,RP_VENDOR1,,,0,,,
-cgrates.org,ROUTE_ACNT_1002,,,,,vendor2,*gte:~*stats.STATS_VENDOR_2.*acd:1m,,RP_VENDOR2,,,0,,,
+cgrates.org,ROUTE_ACNT_1002,,,,,vendor2,*gte:~*stats.STATS_VENDOR_2.default_stat.*acd:1m,,RP_VENDOR2,,,0,,,
 cgrates.org,ROUTE_ACNT_1002,,,,,vendor3,,,RP_VENDOR2,,,10,,,
 cgrates.org,ROUTE_ACNT_1002,,,,,vendor4,*ai:~*req.AnswerTime:2013-06-01T00:00:00Z|2013-06-01T10:00:00Z,,RP_STANDARD,,,30,,,
 
 cgrates.org,ROUTE_ACNT_1003,*string:~*req.Account:1003,,*qos,*acd;*tcc,,,,,,,,,,
 cgrates.org,ROUTE_ACNT_1003,,,,,vendor1,,,,,STATS_VENDOR_1,0,,,
 cgrates.org,ROUTE_ACNT_1003,,,,,vendor2,*prefix:~*req.Destination:10,,,,STATS_VENDOR_2,0,,,
-cgrates.org,ROUTE_ACNT_1003,,,,,vendor3,*gte:~*stats.STATS_VENDOR_1.*tcc:6,,,,STATS_VENDOR_1,20,,,
+cgrates.org,ROUTE_ACNT_1003,,,,,vendor3,*gte:~*stats.STATS_VENDOR_1.default_stat.*tcc:6,,,,STATS_VENDOR_1,20,,,
 
 cgrates.org,ROUTE_ACNT_1004,*string:~*req.Account:1004,,*reas,,,,,,,,,,,
 cgrates.org,ROUTE_ACNT_1004,,,,,vendor1,,,,RES_GRP1,,0,,,

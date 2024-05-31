@@ -550,9 +550,11 @@ func testFltrRplStatQueueProfile(t *testing.T) {
 			FilterIDs:   []string{"*string:~*req.Account:dan"},
 			QueueLength: 100,
 			TTL:         time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaACD,
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaACD,
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},
@@ -566,7 +568,7 @@ func testFltrRplStatQueueProfile(t *testing.T) {
 		Tenant:    "cgrates.org",
 		ID:        stID,
 		SQItems:   []engine.SQItem{},
-		SQMetrics: map[string]engine.StatMetric{},
+		SQMetrics: map[string]map[string]engine.StatMetric{},
 	}
 	var result string
 	var replyPrfl *engine.StatQueueProfile
@@ -640,8 +642,10 @@ func testFltrRplStatQueueProfile(t *testing.T) {
 	replySq = engine.StatQueue{}
 	sq.SQItems = nil
 	s, _ := engine.NewACD(1, "", nil)
-	sq.SQMetrics = map[string]engine.StatMetric{
-		utils.MetaACD: s,
+	sq.SQMetrics = map[string]map[string]engine.StatMetric{
+		"default_stat": {
+			utils.MetaACD: s,
+		},
 	}
 	if err := fltrRplEngine1RPC.Call(context.Background(), utils.StatSv1GetStatQueue, argsSq, &replySq); err != nil {
 		t.Fatal(err)

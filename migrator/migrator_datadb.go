@@ -39,8 +39,8 @@ type MigratorDataDB interface {
 	setV1SharedGroup(x *v1SharedGroup) (err error)
 	getV1Stats() (v1st *v1Stat, err error)
 	setV1Stats(x *v1Stat) (err error)
-	getV2Stats() (v2 *engine.StatQueue, err error)
-	setV2Stats(v2 *engine.StatQueue) (err error)
+	getV2Stats() (v2 *v2to3StatQueue, err error)
+	setV2Stats(v2 *v2to3StatQueue) (err error)
 	getV2ActionTrigger() (v2at *v2ActionTrigger, err error)
 	setV2ActionTrigger(x *v2ActionTrigger) (err error)
 	getv2Account() (v2Acnt *v2Account, err error)
@@ -85,7 +85,7 @@ type MigratorDataDB interface {
 	getV1DispatcherProfile() (v1chrPrf *engine.DispatcherProfile, err error)
 	getV1RouteProfile() (v1chrPrf *engine.RouteProfile, err error)
 
-	getV3Stats() (v1st *engine.StatQueueProfile, err error)
+	getV3Stats() (*v2to4StatQueueProfile, error)
 	getV3ThresholdProfile() (v2T *engine.ThresholdProfile, err error)
 
 	DataManager() *engine.DataManager

@@ -663,16 +663,18 @@ func setddestinations(ub *Account, a *Action, acs Actions, _ *FilterS, extraData
 				}, &sts); err != nil {
 				return
 			}
-			ddcIface, has := sts.SQMetrics[utils.MetaDDC]
-			if !has {
-				continue
-			}
-			ddcMetric := ddcIface.(*StatDDC)
+			for _, stat := range sts.SQMetrics {
+				ddcIface, has := stat[utils.MetaDDC]
+				if !has {
+					continue
+				}
+				ddcMetric := ddcIface.(*StatDDC)
 
-			// make slice from prefixes
-			// Review here prefixes
-			for p := range ddcMetric.FieldValues {
-				destinations.Add(p)
+				// make slice from prefixes
+				// Review here prefixes
+				for p := range ddcMetric.FieldValues {
+					destinations.Add(p)
+				}
 			}
 		}
 

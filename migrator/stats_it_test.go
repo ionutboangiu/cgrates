@@ -210,15 +210,17 @@ func testStsITMigrateAndMove(t *testing.T) {
 		FilterIDs:   []string{v1Sts.Id},
 		QueueLength: 10,
 		TTL:         0,
-		Metrics: []*engine.MetricWithFilters{
-			{
-				MetricID: "*asr",
-			},
-			{
-				MetricID: utils.MetaACD,
-			},
-			{
-				MetricID: "*acc",
+		Metrics: map[string][]*engine.MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: "*asr",
+				},
+				{
+					MetricID: utils.MetaACD,
+				},
+				{
+					MetricID: "*acc",
+				},
 			},
 		},
 		ThresholdIDs: []string{"Test"},
@@ -230,14 +232,17 @@ func testStsITMigrateAndMove(t *testing.T) {
 	sq := &engine.StatQueue{
 		Tenant:    config.CgrConfig().GeneralCfg().DefaultTenant,
 		ID:        v1Sts.Id,
-		SQMetrics: make(map[string]engine.StatMetric),
+		SQMetrics: make(map[string]map[string]engine.StatMetric),
 	}
-	for _, metric := range sqp.Metrics {
-		if stsMetric, err := engine.NewStatMetric(metric.MetricID, 0, []string{}); err != nil {
-			t.Error("Error when creating newstatMETRIc ", err.Error())
-		} else {
-			if _, has := sq.SQMetrics[metric.MetricID]; !has {
-				sq.SQMetrics[metric.MetricID] = stsMetric
+	for sID, stat := range sqp.Metrics {
+		sq.SQMetrics[sID] = make(map[string]engine.StatMetric)
+		for _, metric := range stat {
+			if stsMetric, err := engine.NewStatMetric(metric.MetricID, 0, []string{}); err != nil {
+				t.Error("Error when creating newstatMETRIc ", err.Error())
+			} else {
+				if _, has := sq.SQMetrics[metric.MetricID]; !has {
+					sq.SQMetrics[sID][metric.MetricID] = stsMetric
+				}
 			}
 		}
 	}

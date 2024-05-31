@@ -212,16 +212,18 @@ func testV1STSGetStats(t *testing.T) {
 	} else if !reflect.DeepEqual(expectedIDs, reply) {
 		t.Errorf("expecting: %+v, received reply: %s", expectedIDs, reply)
 	}
-	var metrics map[string]string
-	expectedMetrics := map[string]string{
-		utils.MetaASR: utils.NotAvailable,
-		utils.MetaACD: utils.NotAvailable,
-		utils.MetaTCC: utils.NotAvailable,
-		utils.MetaTCD: utils.NotAvailable,
-		utils.MetaACC: utils.NotAvailable,
-		utils.MetaPDD: utils.NotAvailable,
-		utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage:     utils.NotAvailable,
-		utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage: utils.NotAvailable,
+	var metrics map[string]map[string]string
+	expectedMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaASR: utils.NotAvailable,
+			utils.MetaACD: utils.NotAvailable,
+			utils.MetaTCC: utils.NotAvailable,
+			utils.MetaTCD: utils.NotAvailable,
+			utils.MetaACC: utils.NotAvailable,
+			utils.MetaPDD: utils.NotAvailable,
+			utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage:     utils.NotAvailable,
+			utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage: utils.NotAvailable,
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: expectedIDs[0]}},
@@ -245,11 +247,13 @@ func testV1STSV1StatSv1GetQueueStringMetricsWithoutTenant(t *testing.T) {
 			t.Errorf("expecting: %+v, received reply: %s", expectedIDs, reply)
 		}
 	}
-	var metrics map[string]string
-	expectedMetrics := map[string]string{
-		utils.MetaACD: "12s",
-		utils.MetaTCD: "18s",
-		utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.CustomValue: "10",
+	var metrics map[string]map[string]string
+	expectedMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaACD: "12s",
+			utils.MetaTCD: "18s",
+			utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.CustomValue: "10",
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{ID: expectedIDs[0]}},
@@ -273,11 +277,13 @@ func testV1STSV1StatSv1ResetAction(t *testing.T) {
 	if err := stsV1Rpc.Call(context.Background(), utils.APIerSv1ExecuteAction, attrs, &reply); err != nil {
 		t.Error(err)
 	}
-	var metrics map[string]string
-	expectedMetrics := map[string]string{
-		utils.MetaACD: utils.NotAvailable,
-		utils.MetaTCD: utils.NotAvailable,
-		utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.CustomValue: utils.NotAvailable,
+	var metrics map[string]map[string]string
+	expectedMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaACD: utils.NotAvailable,
+			utils.MetaTCD: utils.NotAvailable,
+			utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.CustomValue: utils.NotAvailable,
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "CustomStatProfile"}}, &metrics); err != nil {
@@ -307,17 +313,19 @@ func testV1STSProcessEvent(t *testing.T) {
 		t.Errorf("Expecting: %+v, received: %+v", expected, reply)
 	}
 	//process with one event (should be N/A becaus MinItems is 2)
-	expectedMetrics := map[string]string{
-		utils.MetaASR: utils.NotAvailable,
-		utils.MetaACD: utils.NotAvailable,
-		utils.MetaTCC: utils.NotAvailable,
-		utils.MetaTCD: utils.NotAvailable,
-		utils.MetaACC: utils.NotAvailable,
-		utils.MetaPDD: utils.NotAvailable,
-		utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage:     utils.NotAvailable,
-		utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage: utils.NotAvailable,
+	expectedMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaASR: utils.NotAvailable,
+			utils.MetaACD: utils.NotAvailable,
+			utils.MetaTCC: utils.NotAvailable,
+			utils.MetaTCD: utils.NotAvailable,
+			utils.MetaACC: utils.NotAvailable,
+			utils.MetaPDD: utils.NotAvailable,
+			utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage:     utils.NotAvailable,
+			utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage: utils.NotAvailable,
+		},
 	}
-	var metrics map[string]string
+	var metrics map[string]map[string]string
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "Stats1"}}, &metrics); err != nil {
 		t.Error(err)
@@ -326,17 +334,19 @@ func testV1STSProcessEvent(t *testing.T) {
 	}
 
 	//process with one event (should be N/A becaus MinItems is 2)
-	expectedFloatMetrics := map[string]float64{
-		utils.MetaASR: -1.0,
-		utils.MetaACD: -1.0,
-		utils.MetaTCC: -1.0,
-		utils.MetaTCD: -1.0,
-		utils.MetaACC: -1.0,
-		utils.MetaPDD: -1.0,
-		utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage:     -1.0,
-		utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage: -1.0,
+	expectedFloatMetrics := map[string]map[string]float64{
+		"default_stat": {
+			utils.MetaASR: -1.0,
+			utils.MetaACD: -1.0,
+			utils.MetaTCC: -1.0,
+			utils.MetaTCD: -1.0,
+			utils.MetaACC: -1.0,
+			utils.MetaPDD: -1.0,
+			utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage:     -1.0,
+			utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage: -1.0,
+		},
 	}
-	var floatMetrics map[string]float64
+	var floatMetrics map[string]map[string]float64
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueFloatMetrics,
 		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "Stats1"}}, &floatMetrics); err != nil {
 		t.Error(err)
@@ -374,17 +384,19 @@ func testV1STSProcessEvent(t *testing.T) {
 	} else if !reflect.DeepEqual(reply, expected) {
 		t.Errorf("Expecting: %+v, received: %+v", expected, reply)
 	}
-	expectedMetrics2 := map[string]string{
-		utils.MetaASR: "66.66667%",
-		utils.MetaACD: "1m0s",
-		utils.MetaACC: "45.03333",
-		utils.MetaTCD: "3m0s",
-		utils.MetaTCC: "135.1",
-		utils.MetaPDD: utils.NotAvailable,
-		utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage:     "180000000000",
-		utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage: "60000000000",
+	expectedMetrics2 := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaASR: "66.66667%",
+			utils.MetaACD: "1m0s",
+			utils.MetaACC: "45.03333",
+			utils.MetaTCD: "3m0s",
+			utils.MetaTCC: "135.1",
+			utils.MetaPDD: utils.NotAvailable,
+			utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage:     "180000000000",
+			utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage: "60000000000",
+		},
 	}
-	var metrics2 map[string]string
+	var metrics2 map[string]map[string]string
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "Stats1"}}, &metrics2); err != nil {
 		t.Error(err)
@@ -392,17 +404,19 @@ func testV1STSProcessEvent(t *testing.T) {
 		t.Errorf("expecting: %+v, received reply: %s", expectedMetrics2, metrics2)
 	}
 
-	expectedFloatMetrics2 := map[string]float64{
-		utils.MetaASR: 66.66667,
-		utils.MetaACD: 60 * 1e9,
-		utils.MetaTCC: 135.1,
-		utils.MetaTCD: 180 * 1e9,
-		utils.MetaACC: 45.03333,
-		utils.MetaPDD: -1.0,
-		utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage:     180000000000,
-		utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage: 60000000000,
+	expectedFloatMetrics2 := map[string]map[string]float64{
+		"default_stat": {
+			utils.MetaASR: 66.66667,
+			utils.MetaACD: 60 * 1e9,
+			utils.MetaTCC: 135.1,
+			utils.MetaTCD: 180 * 1e9,
+			utils.MetaACC: 45.03333,
+			utils.MetaPDD: -1.0,
+			utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage:     180000000000,
+			utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage: 60000000000,
+		},
 	}
-	var floatMetrics2 map[string]float64
+	var floatMetrics2 map[string]map[string]float64
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueFloatMetrics,
 		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "Stats1"}}, &floatMetrics2); err != nil {
 		t.Error(err)
@@ -435,17 +449,19 @@ func testV1STSGetStatsAfterRestart(t *testing.T) {
 	}
 
 	//get stats metrics after restart
-	expectedMetrics2 := map[string]string{
-		utils.MetaASR: "66.66667%",
-		utils.MetaACD: "1m0s",
-		utils.MetaACC: "45.03333",
-		utils.MetaTCD: "3m0s",
-		utils.MetaTCC: "135.1",
-		utils.MetaPDD: utils.NotAvailable,
-		utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage:     "180000000000",
-		utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage: "60000000000",
+	expectedMetrics2 := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaASR: "66.66667%",
+			utils.MetaACD: "1m0s",
+			utils.MetaACC: "45.03333",
+			utils.MetaTCD: "3m0s",
+			utils.MetaTCC: "135.1",
+			utils.MetaPDD: utils.NotAvailable,
+			utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage:     "180000000000",
+			utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + utils.Usage: "60000000000",
+		},
 	}
-	var metrics2 map[string]string
+	var metrics2 map[string]map[string]string
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "Stats1"}}, &metrics2); err != nil {
 		t.Error(err)
@@ -468,12 +484,14 @@ func testV1STSSetStatQueueProfile(t *testing.T) {
 			},
 			QueueLength: 10,
 			TTL:         10 * time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaACD,
-				},
-				{
-					MetricID: utils.MetaTCD,
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaACD,
+					},
+					{
+						MetricID: utils.MetaTCD,
+					},
 				},
 			},
 			ThresholdIDs: []string{"Val1", "Val2"},
@@ -619,18 +637,20 @@ func testV1STSProcessMetricsWithFilter(t *testing.T) {
 			},
 			QueueLength: 100,
 			TTL:         time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID:  utils.MetaACD,
-					FilterIDs: []string{"*gt:~*req.Usage:10s"},
-				},
-				{
-					MetricID:  utils.MetaTCD,
-					FilterIDs: []string{"*gt:~*req.Usage:5s"},
-				},
-				{
-					MetricID:  utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue",
-					FilterIDs: []string{"*exists:~*req.CustomValue:", "*gte:~*req.CustomValue:10.0"},
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID:  utils.MetaACD,
+						FilterIDs: []string{"*gt:~*req.Usage:10s"},
+					},
+					{
+						MetricID:  utils.MetaTCD,
+						FilterIDs: []string{"*gt:~*req.Usage:5s"},
+					},
+					{
+						MetricID:  utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue",
+						FilterIDs: []string{"*exists:~*req.CustomValue:", "*gte:~*req.CustomValue:10.0"},
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},
@@ -657,11 +677,13 @@ func testV1STSProcessMetricsWithFilter(t *testing.T) {
 	}
 	//verify metrics
 	expectedIDs := []string{"CustomStatProfile"}
-	var metrics map[string]string
-	expectedMetrics := map[string]string{
-		utils.MetaACD: utils.NotAvailable,
-		utils.MetaTCD: utils.NotAvailable,
-		utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue": utils.NotAvailable,
+	var metrics map[string]map[string]string
+	expectedMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaACD: utils.NotAvailable,
+			utils.MetaTCD: utils.NotAvailable,
+			utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue": utils.NotAvailable,
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: expectedIDs[0]}}, &metrics); err != nil {
@@ -687,10 +709,12 @@ func testV1STSProcessMetricsWithFilter(t *testing.T) {
 		t.Errorf("Expecting: %+v, received: %+v", expected, reply2)
 	}
 	//verify metrics after first process
-	expectedMetrics = map[string]string{
-		utils.MetaACD: utils.NotAvailable,
-		utils.MetaTCD: "6s",
-		utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue": utils.NotAvailable,
+	expectedMetrics = map[string]map[string]string{
+		"default_stat": {
+			utils.MetaACD: utils.NotAvailable,
+			utils.MetaTCD: "6s",
+			utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue": utils.NotAvailable,
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{
@@ -715,10 +739,12 @@ func testV1STSProcessMetricsWithFilter(t *testing.T) {
 		t.Errorf("Expecting: %+v, received: %+v", expected, reply2)
 	}
 
-	expectedMetrics = map[string]string{
-		utils.MetaACD: "12s",
-		utils.MetaTCD: "18s",
-		utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue": "10",
+	expectedMetrics = map[string]map[string]string{
+		"default_stat": {
+			utils.MetaACD: "12s",
+			utils.MetaTCD: "18s",
+			utils.MetaSum + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue": "10",
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{
@@ -739,12 +765,14 @@ func testV1STSProcessStaticMetrics(t *testing.T) {
 				ActivationTime: time.Date(2014, 7, 14, 14, 25, 0, 0, time.UTC),
 			},
 			QueueLength: 100,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaSum + utils.HashtagSep + "1",
-				},
-				{
-					MetricID: utils.MetaAverage + utils.HashtagSep + "2",
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaSum + utils.HashtagSep + "1",
+					},
+					{
+						MetricID: utils.MetaAverage + utils.HashtagSep + "2",
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},
@@ -771,10 +799,12 @@ func testV1STSProcessStaticMetrics(t *testing.T) {
 	}
 	//verify metrics
 	expectedIDs := []string{"StaticStatQueue"}
-	var metrics map[string]string
-	expectedMetrics := map[string]string{
-		utils.MetaSum + utils.HashtagSep + "1":     utils.NotAvailable,
-		utils.MetaAverage + utils.HashtagSep + "2": utils.NotAvailable,
+	var metrics map[string]map[string]string
+	expectedMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaSum + utils.HashtagSep + "1":     utils.NotAvailable,
+			utils.MetaAverage + utils.HashtagSep + "2": utils.NotAvailable,
+		},
 	}
 	//process event
 	var reply2 []string
@@ -792,9 +822,11 @@ func testV1STSProcessStaticMetrics(t *testing.T) {
 		t.Errorf("Expecting: %+v, received: %+v", expected, reply2)
 	}
 	//verify metrics after first process
-	expectedMetrics = map[string]string{
-		utils.MetaSum + utils.HashtagSep + "1":     "1",
-		utils.MetaAverage + utils.HashtagSep + "2": "2",
+	expectedMetrics = map[string]map[string]string{
+		"default_stat": {
+			utils.MetaSum + utils.HashtagSep + "1":     "1",
+			utils.MetaAverage + utils.HashtagSep + "2": "2",
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{
@@ -809,9 +841,11 @@ func testV1STSProcessStaticMetrics(t *testing.T) {
 	} else if !reflect.DeepEqual(reply2, expected) {
 		t.Errorf("Expecting: %+v, received: %+v", expected, reply2)
 	}
-	expectedMetrics = map[string]string{
-		utils.MetaSum + utils.HashtagSep + "1":     "2",
-		utils.MetaAverage + utils.HashtagSep + "2": "2",
+	expectedMetrics = map[string]map[string]string{
+		"default_stat": {
+			utils.MetaSum + utils.HashtagSep + "1":     "2",
+			utils.MetaAverage + utils.HashtagSep + "2": "2",
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{
@@ -828,9 +862,11 @@ func testV1STSProcessStaticMetrics(t *testing.T) {
 	} else if result != utils.OK {
 		t.Errorf("expecting: %+v, received reply: %s", utils.OK, result)
 	}
-	expectedMetrics = map[string]string{
-		utils.MetaSum + utils.HashtagSep + "1":     utils.NotAvailable,
-		utils.MetaAverage + utils.HashtagSep + "2": utils.NotAvailable,
+	expectedMetrics = map[string]map[string]string{
+		"default_stat": {
+			utils.MetaSum + utils.HashtagSep + "1":     utils.NotAvailable,
+			utils.MetaAverage + utils.HashtagSep + "2": utils.NotAvailable,
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{
@@ -851,18 +887,20 @@ func testV1STSProcessStatsOneEvent(t *testing.T) {
 				ActivationTime: time.Date(2014, 7, 14, 14, 25, 0, 0, time.UTC),
 			},
 			QueueLength: -1,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaACC,
-				},
-				{
-					MetricID: utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue",
-				},
-				{
-					MetricID: utils.MetaTCC,
-				},
-				{
-					MetricID: utils.MetaTCD,
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaACC,
+					},
+					{
+						MetricID: utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue",
+					},
+					{
+						MetricID: utils.MetaTCC,
+					},
+					{
+						MetricID: utils.MetaTCD,
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},
@@ -888,12 +926,14 @@ func testV1STSProcessStatsOneEvent(t *testing.T) {
 		t.Errorf("Expecting: %+v, received: %+v", utils.ToJSON(statConfig.StatQueueProfile), utils.ToJSON(reply))
 	}
 
-	var metrics map[string]string
-	expectedMetrics := map[string]string{
-		utils.MetaACC: utils.NotAvailable,
-		utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue": utils.NotAvailable,
-		utils.MetaTCC: utils.NotAvailable,
-		utils.MetaTCD: utils.NotAvailable,
+	var metrics map[string]map[string]string
+	expectedMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaACC: utils.NotAvailable,
+			utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue": utils.NotAvailable,
+			utils.MetaTCC: utils.NotAvailable,
+			utils.MetaTCD: utils.NotAvailable,
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "StatQueueOne"}}, &metrics); err != nil {
@@ -920,11 +960,13 @@ func testV1STSProcessStatsOneEvent(t *testing.T) {
 		t.Errorf("Expecting: %+v, received: %+v", expected, reply2)
 	}
 
-	expectedMetrics = map[string]string{
-		utils.MetaACC: "21.1",
-		utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue": "7",
-		utils.MetaTCC: "21.1",
-		utils.MetaTCD: "6s",
+	expectedMetrics = map[string]map[string]string{
+		"default_stat": {
+			utils.MetaACC: "21.1",
+			utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue": "7",
+			utils.MetaTCC: "21.1",
+			utils.MetaTCD: "6s",
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{
@@ -950,11 +992,13 @@ func testV1STSProcessStatsOneEvent(t *testing.T) {
 		t.Errorf("Expecting: %+v, received: %+v", expected, reply2)
 	}
 
-	expectedMetrics = map[string]string{
-		utils.MetaACC: "12.75",
-		utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue": "4.67",
-		utils.MetaTCC: "25.5",
-		utils.MetaTCD: "28s",
+	expectedMetrics = map[string]map[string]string{
+		"default_stat": {
+			utils.MetaACC: "12.75",
+			utils.MetaAverage + utils.HashtagSep + utils.DynamicDataPrefix + utils.MetaReq + utils.NestingSep + "CustomValue": "4.67",
+			utils.MetaTCC: "25.5",
+			utils.MetaTCD: "28s",
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{
@@ -992,12 +1036,14 @@ func testV1STSProcessStatWithThreshold(t *testing.T) {
 			},
 			QueueLength: 100,
 			TTL:         time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaTCD,
-				},
-				{
-					MetricID: utils.MetaSum + utils.HashtagSep + "2",
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaTCD,
+					},
+					{
+						MetricID: utils.MetaSum + utils.HashtagSep + "2",
+					},
 				},
 			},
 			Stored:   true,
@@ -1016,7 +1062,7 @@ func testV1STSProcessStatWithThreshold(t *testing.T) {
 			Tenant: "cgrates.org",
 			ID:     "THD_Stat",
 			FilterIDs: []string{"*string:~*req.EventType:StatUpdate",
-				"*string:~*req.StatID:StatWithThreshold", "*exists:~*req.*tcd:", "*gte:~*req.*tcd:1s"},
+				"*string:~*req.StatID:StatWithThreshold", "*exists:~*req.default_stat.*tcd:", "*gte:~*req.default_stat.*tcd:1s"},
 			ActivationInterval: &utils.ActivationInterval{
 				ActivationTime: time.Date(2014, 7, 14, 14, 35, 0, 0, time.UTC),
 			},
@@ -1070,9 +1116,11 @@ func testV1STSProcessCDRStat(t *testing.T) {
 			},
 			QueueLength: 100,
 			TTL:         time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaSum + utils.HashtagSep + "~*req.CostDetails.Usage",
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaSum + utils.HashtagSep + "~*req.CostDetails.Usage",
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},
@@ -1098,9 +1146,11 @@ func testV1STSProcessCDRStat(t *testing.T) {
 		t.Errorf("Expecting: %+v, received: %+v", utils.ToJSON(statConfig.StatQueueProfile), utils.ToJSON(reply))
 	}
 	//verify metrics
-	var metrics map[string]string
-	expectedMetrics := map[string]string{
-		utils.MetaSum + utils.HashtagSep + "1": utils.NotAvailable,
+	var metrics map[string]map[string]string
+	expectedMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaSum + utils.HashtagSep + "1": utils.NotAvailable,
+		},
 	}
 	//process event
 	cc := &engine.CallCost{
@@ -1164,8 +1214,10 @@ func testV1STSProcessCDRStat(t *testing.T) {
 		t.Errorf("Expecting: %+v, received: %+v", expected, reply2)
 	}
 	//verify metrics after first process
-	expectedMetrics = map[string]string{
-		utils.MetaSum + utils.HashtagSep + "~*req.CostDetails.Usage": "10000000000",
+	expectedMetrics = map[string]map[string]string{
+		"default_stat": {
+			utils.MetaSum + utils.HashtagSep + "~*req.CostDetails.Usage": "10000000000",
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{
@@ -1180,8 +1232,10 @@ func testV1STSProcessCDRStat(t *testing.T) {
 	} else if !reflect.DeepEqual(reply2, expected) {
 		t.Errorf("Expecting: %+v, received: %+v", expected, reply2)
 	}
-	expectedMetrics = map[string]string{
-		utils.MetaSum + utils.HashtagSep + "~*req.CostDetails.Usage": "20000000000",
+	expectedMetrics = map[string]map[string]string{
+		"default_stat": {
+			utils.MetaSum + utils.HashtagSep + "~*req.CostDetails.Usage": "20000000000",
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{
@@ -1203,9 +1257,11 @@ func testV1STSOverWriteStats(t *testing.T) {
 			},
 			QueueLength: 100,
 			TTL:         time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaSum + utils.HashtagSep + "1",
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaSum + utils.HashtagSep + "1",
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},
@@ -1231,9 +1287,11 @@ func testV1STSOverWriteStats(t *testing.T) {
 		t.Errorf("Expecting: %+v, received: %+v", utils.ToJSON(initStat.StatQueueProfile), utils.ToJSON(reply))
 	}
 
-	var metrics map[string]string
-	expectedMetrics := map[string]string{
-		utils.MetaSum + utils.HashtagSep + "1": utils.NotAvailable,
+	var metrics map[string]map[string]string
+	expectedMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaSum + utils.HashtagSep + "1": utils.NotAvailable,
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{
@@ -1253,9 +1311,11 @@ func testV1STSOverWriteStats(t *testing.T) {
 			},
 			QueueLength: 100,
 			TTL:         time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaSum + utils.HashtagSep + "~*req.Test",
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaSum + utils.HashtagSep + "~*req.Test",
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},
@@ -1271,9 +1331,11 @@ func testV1STSOverWriteStats(t *testing.T) {
 		t.Error("Unexpected reply returned", result)
 	}
 
-	var metrics2 map[string]string
-	expectedMetrics2 := map[string]string{
-		utils.MetaSum + utils.HashtagSep + "~*req.Test": utils.NotAvailable,
+	var metrics2 map[string]map[string]string
+	expectedMetrics2 := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaSum + utils.HashtagSep + "~*req.Test": utils.NotAvailable,
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{
@@ -1295,12 +1357,14 @@ func testV1STSProcessStatWithThreshold2(t *testing.T) {
 			},
 			QueueLength: 100,
 			TTL:         time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaTCD,
-				},
-				{
-					MetricID: utils.MetaSum + utils.HashtagSep + "2",
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaTCD,
+					},
+					{
+						MetricID: utils.MetaSum + utils.HashtagSep + "2",
+					},
 				},
 			},
 			Stored:   true,
@@ -1319,7 +1383,7 @@ func testV1STSProcessStatWithThreshold2(t *testing.T) {
 			Tenant: "cgrates.org",
 			ID:     "THD_Stat2",
 			FilterIDs: []string{"*string:~*req.EventType:StatUpdate",
-				"*string:~*req.StatID:StatWithThreshold2", "*exists:~*req.*sum#2:", "*gt:~*req.*sum#2:1"},
+				"*string:~*req.StatID:StatWithThreshold2", "*exists:~*req.default_stat.*sum#2:", "*gt:~*req.default_stat.*sum#2:1"},
 			ActivationInterval: &utils.ActivationInterval{
 				ActivationTime: time.Date(2014, 7, 14, 14, 35, 0, 0, time.UTC),
 			},
@@ -1395,7 +1459,7 @@ func BenchmarkSTSV1SetEvent(b *testing.B) {
 // BenchmarkStatSV1GetQueueStringMetrics 	   20000	     94607 ns/op
 func BenchmarkSTSV1GetQueueStringMetrics(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		var metrics map[string]string
+		var metrics map[string]map[string]string
 		if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 			&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "STATS_1"}},
 			&metrics); err != nil {
@@ -1415,12 +1479,14 @@ func testV1STSGetStatQueueProfileWithoutTenant(t *testing.T) {
 			},
 			QueueLength: 10,
 			TTL:         10 * time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaACD,
-				},
-				{
-					MetricID: utils.MetaTCD,
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaACD,
+					},
+					{
+						MetricID: utils.MetaTCD,
+					},
 				},
 			},
 			ThresholdIDs: []string{"Val1", "Val2"},
@@ -1527,9 +1593,11 @@ func testV1STSSimulateAccountUpdate(t *testing.T) {
 			},
 			QueueLength: 100,
 			TTL:         time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaSum + utils.HashtagSep + "~*asm.BalanceSummaries.HolidayBalance.Value",
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaSum + utils.HashtagSep + "~*asm.BalanceSummaries.HolidayBalance.Value",
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},
@@ -1555,9 +1623,11 @@ func testV1STSSimulateAccountUpdate(t *testing.T) {
 		t.Errorf("Expecting: %+v, received: %+v", utils.ToJSON(statConfig.StatQueueProfile), utils.ToJSON(reply))
 	}
 	//verify metrics
-	var metrics map[string]string
-	expectedMetrics := map[string]string{
-		utils.MetaSum + utils.HashtagSep + "~*asm.BalanceSummaries.HolidayBalance.Value": utils.NotAvailable,
+	var metrics map[string]map[string]string
+	expectedMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaSum + utils.HashtagSep + "~*asm.BalanceSummaries.HolidayBalance.Value": utils.NotAvailable,
+		},
 	}
 
 	var reply2 []string
@@ -1602,8 +1672,10 @@ func testV1STSSimulateAccountUpdate(t *testing.T) {
 		t.Errorf("Expecting: %+v, received: %+v", expected, reply2)
 	}
 	//verify metrics after first process
-	expectedMetrics = map[string]string{
-		utils.MetaSum + utils.HashtagSep + "~*asm.BalanceSummaries.HolidayBalance.Value": "1.5",
+	expectedMetrics = map[string]map[string]string{
+		"default_stat": {
+			utils.MetaSum + utils.HashtagSep + "~*asm.BalanceSummaries.HolidayBalance.Value": "1.5",
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{
@@ -1618,8 +1690,10 @@ func testV1STSSimulateAccountUpdate(t *testing.T) {
 	} else if !reflect.DeepEqual(reply2, expected) {
 		t.Errorf("Expecting: %+v, received: %+v", expected, reply2)
 	}
-	expectedMetrics = map[string]string{
-		utils.MetaSum + utils.HashtagSep + "~*asm.BalanceSummaries.HolidayBalance.Value": "3",
+	expectedMetrics = map[string]map[string]string{
+		"default_stat": {
+			utils.MetaSum + utils.HashtagSep + "~*asm.BalanceSummaries.HolidayBalance.Value": "3",
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{
@@ -1640,9 +1714,11 @@ func testV1STSGetStatQueueWithoutExpired(t *testing.T) {
 			FilterIDs:   []string{"*string:~*req.StatQ:Sq1Nanao"},
 			QueueLength: 10,
 			TTL:         1,
-			Metrics: []*engine.MetricWithFilters{{
-				MetricID: utils.MetaTCD,
-			}},
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {{
+					MetricID: utils.MetaTCD,
+				}},
+			},
 			Blocker:  true,
 			Stored:   true,
 			Weight:   200,
@@ -1661,9 +1737,11 @@ func testV1STSGetStatQueueWithoutExpired(t *testing.T) {
 		t.Errorf("Expecting: %+v, received: %+v", utils.ToJSON(statConfig.StatQueueProfile), utils.ToJSON(reply))
 	}
 
-	var metrics map[string]string
-	expectedMetrics := map[string]string{
-		utils.MetaTCD: utils.NotAvailable,
+	var metrics map[string]map[string]string
+	expectedMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaTCD: utils.NotAvailable,
+		},
 	}
 	//process event
 	var reply2 []string
@@ -1704,9 +1782,11 @@ func testV1STSGetStatQueueWithoutStored(t *testing.T) {
 			FilterIDs:   []string{"*string:~*req.StatQ:Sq1NotStored"},
 			QueueLength: 10,
 			TTL:         time.Second,
-			Metrics: []*engine.MetricWithFilters{{
-				MetricID: utils.MetaTCD,
-			}},
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {{
+					MetricID: utils.MetaTCD,
+				}},
+			},
 			Blocker:  true,
 			Weight:   200,
 			MinItems: 1,
@@ -1724,9 +1804,11 @@ func testV1STSGetStatQueueWithoutStored(t *testing.T) {
 		t.Errorf("Expecting: %+v, received: %+v", utils.ToJSON(statConfig.StatQueueProfile), utils.ToJSON(reply))
 	}
 
-	var metrics map[string]string
-	expectedMetrics := map[string]string{
-		utils.MetaTCD: "10s",
+	var metrics map[string]map[string]string
+	expectedMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaTCD: "10s",
+		},
 	}
 	//process event
 	var reply2 []string
@@ -1773,10 +1855,12 @@ func testV1STSGetStatQueueWithoutStored(t *testing.T) {
 }
 
 func testV1STSCheckMetricsAfterRestart(t *testing.T) {
-	var metrics map[string]string
+	var metrics map[string]map[string]string
 
-	expectedMetrics := map[string]string{
-		utils.MetaSum + utils.HashtagSep + "~*asm.BalanceSummaries.HolidayBalance.Value": "3",
+	expectedMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaSum + utils.HashtagSep + "~*asm.BalanceSummaries.HolidayBalance.Value": "3",
+		},
 	}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{
@@ -1785,10 +1869,12 @@ func testV1STSCheckMetricsAfterRestart(t *testing.T) {
 	} else if !reflect.DeepEqual(expectedMetrics, metrics) {
 		t.Errorf("expecting: %+v, received reply: %s", expectedMetrics, metrics)
 	}
-	expectedMetrics = map[string]string{
-		utils.MetaTCD: utils.NotAvailable,
+	expectedMetrics = map[string]map[string]string{
+		"default_stat": {
+			utils.MetaTCD: utils.NotAvailable,
+		},
 	}
-	metrics = map[string]string{}
+	metrics = map[string]map[string]string{}
 	if err := stsV1Rpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{
 			TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "Sq1NotStored"}}, &metrics); err != nil {

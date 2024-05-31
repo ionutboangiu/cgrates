@@ -371,15 +371,17 @@ func testCgrLdrGetStatsProfileAfterLoad(t *testing.T) {
 		QueueLength: 100,
 		TTL:         10 * time.Second,
 		MinItems:    0,
-		Metrics: []*engine.MetricWithFilters{
-			{
-				MetricID: "*tcd",
-			},
-			{
-				MetricID: "*asr",
-			},
-			{
-				MetricID: "*acd",
+		Metrics: map[string][]*engine.MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: "*tcd",
+				},
+				{
+					MetricID: "*asr",
+				},
+				{
+					MetricID: "*acd",
+				},
 			},
 		},
 		Blocker:      true,
@@ -394,12 +396,16 @@ func testCgrLdrGetStatsProfileAfterLoad(t *testing.T) {
 		&replySts); err != nil {
 		t.Error(err)
 	} else {
-		sort.Slice(expStatsprf.Metrics, func(i, j int) bool {
-			return expStatsprf.Metrics[i].MetricID < expStatsprf.Metrics[j].MetricID
-		})
-		sort.Slice(replySts.Metrics, func(i, j int) bool {
-			return replySts.Metrics[i].MetricID < replySts.Metrics[j].MetricID
-		})
+		for _, slMetrics := range expStatsprf.Metrics {
+			sort.Slice(slMetrics, func(i, j int) bool {
+				return slMetrics[i].MetricID < slMetrics[j].MetricID
+			})
+		}
+		for _, slMetrics := range replySts.Metrics {
+			sort.Slice(slMetrics, func(i, j int) bool {
+				return slMetrics[i].MetricID < slMetrics[j].MetricID
+			})
+		}
 		if !reflect.DeepEqual(expStatsprf, replySts) {
 			t.Errorf("Expected %+v \n, received %+v", utils.ToJSON(expStatsprf), utils.ToJSON(replySts))
 		}
@@ -407,12 +413,14 @@ func testCgrLdrGetStatsProfileAfterLoad(t *testing.T) {
 }
 
 func testCgrLdrGetStatQueueAfterLoad(t *testing.T) {
-	expStatQueue := map[string]string{
-		"*acd": "N/A",
-		"*tcd": "N/A",
-		"*asr": "N/A",
+	expStatQueue := map[string]map[string]string{
+		"default_stat": {
+			"*acd": "N/A",
+			"*tcd": "N/A",
+			"*asr": "N/A",
+		},
 	}
-	replyStQue := make(map[string]string)
+	replyStQue := make(map[string]map[string]string)
 	if err := cgrLdrRPC.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "Stat_1"}},
 		&replyStQue); err != nil {

@@ -978,7 +978,7 @@ type TPStatProfile struct {
 	ActivationInterval *TPActivationInterval
 	QueueLength        int
 	TTL                string
-	Metrics            []*MetricWithFilters
+	Metrics            map[string][]*MetricWithFilters
 	Blocker            bool // blocker flag to stop processing on filters matched
 	Stored             bool
 	Weight             float64

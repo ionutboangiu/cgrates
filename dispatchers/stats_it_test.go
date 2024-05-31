@@ -102,7 +102,7 @@ func testDspStsPingFailover(t *testing.T) {
 
 func testDspStsGetStatFailover(t *testing.T) {
 	var reply []string
-	var metrics map[string]string
+	var metrics map[string]map[string]string
 	expected := []string{"Stats1"}
 	args := &utils.CGREvent{
 		Tenant: "cgrates.org",
@@ -201,7 +201,7 @@ func testDspStsTestAuthKey(t *testing.T) {
 		},
 	}
 
-	var metrics map[string]string
+	var metrics map[string]map[string]string
 	if err := dispEngine.RPC.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		args2, &metrics); err == nil || err.Error() != utils.ErrUnauthorizedApi.Error() {
 		t.Error(err)
@@ -210,7 +210,7 @@ func testDspStsTestAuthKey(t *testing.T) {
 
 func testDspStsTestAuthKey2(t *testing.T) {
 	var reply []string
-	var metrics map[string]string
+	var metrics map[string]map[string]string
 	expected := []string{"Stats2"}
 	args := &utils.CGREvent{
 		Tenant: "cgrates.org",
@@ -241,9 +241,11 @@ func testDspStsTestAuthKey2(t *testing.T) {
 			ID:     "Stats2",
 		},
 	}
-	expectedMetrics := map[string]string{
-		utils.MetaTCC: "123",
-		utils.MetaTCD: "2m15s",
+	expectedMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaTCC: "123",
+			utils.MetaTCD: "2m15s",
+		},
 	}
 
 	if err := dispEngine.RPC.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
@@ -274,9 +276,11 @@ func testDspStsTestAuthKey2(t *testing.T) {
 		t.Errorf("Expecting: %+v, received: %+v", expected, reply)
 	}
 
-	expectedMetrics = map[string]string{
-		utils.MetaTCC: "133",
-		utils.MetaTCD: "3m0s",
+	expectedMetrics = map[string]map[string]string{
+		"default_stat": {
+			utils.MetaTCC: "133",
+			utils.MetaTCD: "3m0s",
+		},
 	}
 	if err := dispEngine.RPC.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
 		args2, &metrics); err != nil {
@@ -288,7 +292,7 @@ func testDspStsTestAuthKey2(t *testing.T) {
 
 func testDspStsTestAuthKey3(t *testing.T) {
 	var reply []string
-	var metrics map[string]float64
+	var metrics map[string]map[string]float64
 
 	args2 := utils.TenantIDWithAPIOpts{
 		APIOpts: map[string]any{
@@ -299,9 +303,11 @@ func testDspStsTestAuthKey3(t *testing.T) {
 			ID:     "Stats2",
 		},
 	}
-	expectedMetrics := map[string]float64{
-		utils.MetaTCC: 133,
-		utils.MetaTCD: 180 * 1e9,
+	expectedMetrics := map[string]map[string]float64{
+		"default_stat": {
+			utils.MetaTCC: 133,
+			utils.MetaTCD: 180 * 1e9,
+		},
 	}
 
 	if err := dispEngine.RPC.Call(context.Background(), utils.StatSv1GetQueueFloatMetrics,

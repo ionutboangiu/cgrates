@@ -862,10 +862,12 @@ func TestRouteServiceStatMetrics(t *testing.T) {
 	testMock := &ccMock{
 		calls: map[string]func(ctx *context.Context, args, reply any) error{
 			utils.StatSv1GetQueueFloatMetrics: func(ctx *context.Context, args, reply any) error {
-				rpl := map[string]float64{
-					"metric1": 21.11,
+				rpl := map[string]map[string]float64{
+					"default_stat": {
+						"metric1": 21.11,
+					},
 				}
-				*reply.(*map[string]float64) = rpl
+				*reply.(*map[string]map[string]float64) = rpl
 				return nil
 			},
 		},
@@ -882,8 +884,10 @@ func TestRouteServiceStatMetrics(t *testing.T) {
 		utils.ConcatenatedKey(utils.MetaInternal, utils.MetaStats): clientconn,
 	})
 	rpS := NewRouteService(dmSPP, &FilterS{dm: dmSPP, cfg: cfg, connMgr: nil}, cfg, connMgr)
-	exp := map[string]float64{
-		"metric1": 21.11,
+	exp := map[string]map[string]float64{
+		"default_stat": {
+			"metric1": 21.11,
+		},
 	}
 
 	if val, err := rpS.statMetrics([]string{"stat1", "stat2"}, "cgrates.org"); err != nil {
@@ -1536,11 +1540,13 @@ func TestLoadDistributionSorterSortRoutes(t *testing.T) {
 				return nil
 			},
 			utils.StatSv1GetQueueFloatMetrics: func(ctx *context.Context, args, reply any) error {
-				rpl := map[string]float64{
-					"metric":  22.0,
-					"metric3": 32.2,
+				rpl := map[string]map[string]float64{
+					"default_stat": {
+						"metric":  22.0,
+						"metric3": 32.2,
+					},
 				}
-				*reply.(*map[string]float64) = rpl
+				*reply.(*map[string]map[string]float64) = rpl
 				return nil
 			},
 		},
@@ -1653,11 +1659,13 @@ func TestRouteServicePopulateSortingData(t *testing.T) {
 				return nil
 			},
 			utils.StatSv1GetQueueFloatMetrics: func(ctx *context.Context, args, reply any) error {
-				rpl := &map[string]float64{
-					"metric1": 12,
-					"stat":    2.1,
+				rpl := map[string]map[string]float64{
+					"default_stat": {
+						"metric1": 12,
+						"stat":    2.1,
+					},
 				}
-				*reply.(*map[string]float64) = *rpl
+				*reply.(*map[string]map[string]float64) = rpl
 				return nil
 			},
 			utils.ResourceSv1GetResource: func(ctx *context.Context, args, reply any) error {
@@ -1812,41 +1820,6 @@ func TestRSStatMetricsLogg(t *testing.T) {
 	rps := NewRouteService(dm, nil, cfg, connMgr)
 	expLog := ` getting statMetrics for stat : `
 	if _, err := rps.statMetrics(statIds, "cgrates.org"); err == nil || err.Error() != "Can't get StatMetrics" {
-		t.Error(err)
-	} else if rcvLog := buf.String(); !strings.Contains(rcvLog, expLog) {
-		t.Errorf("Logger %v doesn't contain %v", rcvLog, expLog)
-	}
-}
-
-func TestRSStatMetricsForLoadDistributionLogg(t *testing.T) {
-	utils.Logger.SetLogLevel(4)
-	utils.Logger.SetSyslog(nil)
-	cfg := config.NewDefaultCGRConfig()
-	buf := new(bytes.Buffer)
-	log.SetOutput(buf)
-	defer func() {
-		utils.Logger.SetLogLevel(0)
-		log.SetOutput(os.Stderr)
-		config.SetCgrConfig(config.NewDefaultCGRConfig())
-	}()
-	cfg.RouteSCfg().StatSConns = []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaStats)}
-	db := NewInternalDB(nil, nil, true, cfg.DataDbCfg().Items)
-	dm := NewDataManager(db, cfg.CacheCfg(), nil)
-	clientConn := make(chan birpc.ClientConnector, 1)
-	clientConn <- &ccMock{
-		calls: map[string]func(ctx *context.Context, args any, reply any) error{
-			utils.StatSv1GetQueueFloatMetrics: func(ctx *context.Context, args, reply any) error {
-				return errors.New("Can't get StatMetrics")
-			},
-		},
-	}
-	connMgr := NewConnManager(cfg, map[string]chan birpc.ClientConnector{
-		utils.ConcatenatedKey(utils.MetaInternal, utils.MetaStats): clientConn,
-	})
-	statIds := []string{"STATS_VENDOR_1:*sum#1"}
-	rps := NewRouteService(dm, nil, cfg, connMgr)
-	expLog := `getting statMetrics for stat : `
-	if _, err := rps.statMetricsForLoadDistribution(statIds, "cgrates.org"); err == nil || !strings.Contains(err.Error(), utils.ErrNotFound.Error()) {
 		t.Error(err)
 	} else if rcvLog := buf.String(); !strings.Contains(rcvLog, expLog) {
 		t.Errorf("Logger %v doesn't contain %v", rcvLog, expLog)

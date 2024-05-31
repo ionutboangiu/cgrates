@@ -1220,21 +1220,40 @@ func (dm *DataManager) SetStatQueueProfile(sqp *StatQueueProfile, withIndex bool
 				err = dm.SetStatQueue(sq)
 				return
 			}
-			// update the metrics if needed
+
+			//Update stats/metrics if needed.
+
+			// Track stat and metric IDs from the current profile.
+			cStatIDs := utils.StringSet{}
 			cMetricIDs := utils.StringSet{}
-			for _, metric := range sqp.Metrics { // add missing metrics and recreate the old metrics that changed
-				cMetricIDs.Add(metric.MetricID)
-				if oSqMetric, has := oSq.SQMetrics[metric.MetricID]; !has ||
-					!slices.Equal(oSqMetric.GetFilterIDs(), metric.FilterIDs) { // recreate it if the filter changed
-					if oSq.SQMetrics[metric.MetricID], err = NewStatMetric(metric.MetricID,
-						sqp.MinItems, metric.FilterIDs); err != nil {
-						return
+
+			for sID, stat := range sqp.Metrics {
+				cStatIDs.Add(sID)
+				for _, metric := range stat {
+					cMetricIDs.Add(metric.MetricID)
+
+					// Recreate metric if it doesn't exist or filter IDs changed.
+					if oSqMetric, has := oSq.SQMetrics[sID][metric.MetricID]; !has ||
+						!slices.Equal(oSqMetric.GetFilterIDs(), metric.FilterIDs) { // recreate it if the filter changed
+						oSq.SQMetrics[sID] = make(map[string]StatMetric)
+						if oSq.SQMetrics[sID][metric.MetricID], err = NewStatMetric(metric.MetricID,
+							sqp.MinItems, metric.FilterIDs); err != nil {
+							return
+						}
 					}
 				}
 			}
-			for sqMetricID := range oSq.SQMetrics { // remove the old metrics
-				if !cMetricIDs.Has(sqMetricID) {
-					delete(oSq.SQMetrics, sqMetricID)
+
+			// Remove old stats and metrics not in the current profile.
+			for sID, stat := range oSq.SQMetrics {
+				if !cStatIDs.Has(sID) {
+					delete(oSq.SQMetrics, sID)
+					continue
+				}
+				for sqMetricID := range stat {
+					if !cMetricIDs.Has(sqMetricID) {
+						delete(oSq.SQMetrics, sqMetricID)
+					}
 				}
 			}
 			if sqp.Stored { // already changed the value in cache

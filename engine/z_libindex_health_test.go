@@ -767,15 +767,17 @@ func TestHealthIndexStats(t *testing.T) {
 		QueueLength: 100,
 		TTL:         10 * time.Second,
 		MinItems:    0,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: "*tcd",
-			},
-			{
-				MetricID: "*asr",
-			},
-			{
-				MetricID: "*acd",
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: "*tcd",
+				},
+				{
+					MetricID: "*asr",
+				},
+				{
+					MetricID: "*acd",
+				},
 			},
 		},
 		Blocker:      true,
@@ -855,15 +857,17 @@ func TestHealthIndexStats(t *testing.T) {
 		QueueLength: 100,
 		TTL:         10 * time.Second,
 		MinItems:    0,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: "*tcd",
-			},
-			{
-				MetricID: "*asr",
-			},
-			{
-				MetricID: "*acd",
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: "*tcd",
+				},
+				{
+					MetricID: "*asr",
+				},
+				{
+					MetricID: "*acd",
+				},
 			},
 		},
 		Blocker:      true,
@@ -908,7 +912,7 @@ func TestHealthIndexRoutes(t *testing.T) {
 		ID:     "ROUTE_ACNT_1001",
 		FilterIDs: []string{"*string:~*opts.*apikey:rts1234",
 			"*string:~*req.Usage:160s",
-			"*string:~*stats.STATS_VENDOR_2.*acd:1m", // *stats will not be indexing
+			"*string:~*stats.STATS_VENDOR_2.default_stat.*acd:1m", // *stats will not be indexing
 			"*string:~*nothing.Denied:true",
 			"*suffix:BrokenFilter:Invalid"},
 		Sorting:           utils.MetaLC,
@@ -1013,7 +1017,7 @@ func TestHealthIndexRoutes(t *testing.T) {
 		ID:     "ROUTE_ACNT_1001",
 		FilterIDs: []string{"*string:~*opts.*apikey:rts1234",
 			"*string:~*req.Usage:160s",
-			"*string:~*stats.STATS_VENDOR_2.*acd:1m", // *stats will not be indexing
+			"*string:~*stats.STATS_VENDOR_2.default_stat.*acd:1m", // *stats will not be indexing
 			"*string:~*nothing.Denied:true",
 			"*suffix:BrokenFilter:Invalid",
 			"FLTR_1_NOT_EXIST",

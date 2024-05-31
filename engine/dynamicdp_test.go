@@ -40,10 +40,12 @@ func TestDynamicDpFieldAsInterface(t *testing.T) {
 	clientconn <- &ccMock{
 		calls: map[string]func(ctx *context.Context, args any, reply any) error{
 			utils.StatSv1GetQueueFloatMetrics: func(ctx *context.Context, args, reply any) error {
-				rpl := &map[string]float64{
-					"stat1": 31,
+				rpl := map[string]map[string]float64{
+					"default_stat": {
+						"*tcc": 31,
+					},
 				}
-				*reply.(*map[string]float64) = *rpl
+				*reply.(*map[string]map[string]float64) = rpl
 				return nil
 			},
 		},
@@ -52,14 +54,62 @@ func TestDynamicDpFieldAsInterface(t *testing.T) {
 		utils.ConcatenatedKey(utils.MetaInternal, utils.StatSConnsCfg): clientconn,
 	})
 	SetConnManager(connMgr)
-	if _, err := dDp.fieldAsInterface([]string{utils.MetaStats, "val", "val3"}); err == nil || err != utils.ErrNotFound {
-		t.Error(err)
-	} else if _, err := dDp.fieldAsInterface([]string{utils.MetaLibPhoneNumber, "+402552663", "val3"}); err != nil {
-		t.Error(err)
-	} else if _, err := dDp.fieldAsInterface([]string{utils.MetaLibPhoneNumber, "+402552663", "val3"}); err != nil {
-		t.Error(err)
-	} else if _, err := dDp.fieldAsInterface([]string{utils.MetaAsm, "+402552663", "val3"}); err == nil || err != utils.ErrNotFound {
-		t.Error(err)
+
+	tests := []struct {
+		name   string
+		input  []string
+		output any
+		err    string
+	}{
+		{
+			name:   "successful metric retrieval",
+			input:  []string{utils.MetaStats, "sq_test", "default_stat", "*tcc"},
+			output: 31.,
+			err:    "",
+		},
+		{
+			name:   "metric not found",
+			input:  []string{utils.MetaStats, "val", "val3"},
+			output: nil,
+			err:    utils.ErrNotFound.Error(),
+		},
+		{
+			name:   "successful CountryCode retrieval from number",
+			input:  []string{utils.MetaLibPhoneNumber, "+402552663", "CountryCode"},
+			output: int32(40),
+			err:    "",
+		},
+		{
+			name:   "invalid phone number",
+			input:  []string{utils.MetaLibPhoneNumber, "+abcdef", "CountryCode"},
+			output: nil,
+			err:    "the phone number supplied is not a number",
+		},
+		{
+			name:   "acc summary not found",
+			input:  []string{utils.MetaAsm, "+402552663", "val3"},
+			output: nil,
+			err:    utils.ErrNotFound.Error(),
+		},
+	}
+	errToString := func(err error) string {
+		if err == nil {
+			return ""
+		}
+		return err.Error()
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+
+			output, err := dDp.fieldAsInterface(test.input)
+			if got, want := output, test.output; got != want {
+				t.Errorf("dDp.fieldAsInterface(%v) = %v, want %v", test.input, got, want)
+			}
+			if got, want := err, test.err; errToString(got) != want {
+				t.Errorf("dDp.fieldAsInterface(%v) err %q, want %q", test.input, got, want)
+			}
+		})
 	}
 }
 

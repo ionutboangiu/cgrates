@@ -434,12 +434,14 @@ func testInternalReplicateITStatQueueProfile(t *testing.T) {
 			},
 			QueueLength: 10,
 			TTL:         10 * time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: "*sum",
-				},
-				{
-					MetricID: "*acd",
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: "*sum",
+					},
+					{
+						MetricID: "*acd",
+					},
 				},
 			},
 			ThresholdIDs: []string{"Val1", "Val2"},

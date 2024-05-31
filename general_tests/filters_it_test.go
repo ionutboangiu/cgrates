@@ -277,7 +277,7 @@ func testV1FltrPopulateThreshold(t *testing.T) {
 			Rules: []*engine.FilterRule{
 				{
 					Type:    "*gt",
-					Element: "~*stats.Stat_1.*acd",
+					Element: "~*stats.Stat_1.default_stat.*acd",
 					Values:  []string{"10.0"},
 				},
 			},
@@ -359,7 +359,7 @@ func testV1FltrGetThresholdForEvent2(t *testing.T) {
 			Rules: []*engine.FilterRule{
 				{
 					Type:    "*lt",
-					Element: "~*stats.Stat_1.*acd",
+					Element: "~*stats.Stat_1.default_stat.*acd",
 					Values:  []string{"10.0"},
 				},
 			},

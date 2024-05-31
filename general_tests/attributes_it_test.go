@@ -397,7 +397,7 @@ func testAttributeSProcessEventWithStat(t *testing.T) {
 					Type: utils.MetaVariable,
 					Value: config.RSRParsers{
 						&config.RSRParser{
-							Rules: "~*stats.Stat_1.*acd",
+							Rules: "~*stats.Stat_1.default_stat.*acd",
 						},
 					},
 				},
@@ -525,7 +525,7 @@ func testAttributeSProcessEventWithStatFull(t *testing.T) {
 			ID:     "testAttributeSProcessEventWithStat",
 			Event: map[string]any{
 				"EventName":  "AddFullStats",
-				"AllMetrics": "{\"*acd\":11000000000,\"*asr\":100,\"*tcd\":22000000000}",
+				"AllMetrics": "{\"default_stat\":{\"*acd\":11000000000,\"*asr\":100,\"*tcd\":22000000000}}",
 			},
 			APIOpts: map[string]any{
 				utils.OptsContext: utils.MetaSessionS,

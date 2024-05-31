@@ -945,9 +945,11 @@ func TestDMStatQueueRemote(t *testing.T) {
 		Tenant:  "cgrates.org",
 		ID:      "SQ1",
 		SQItems: []SQItem{},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{
-				Events: make(map[string]*DurationWithCompress),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{
+					Events: make(map[string]*DurationWithCompress),
+				},
 			},
 		},
 	}
@@ -3389,12 +3391,14 @@ func TestUpdateFilterIndexStatIndex(t *testing.T) {
 		},
 		QueueLength: 10,
 		TTL:         10 * time.Second,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: "*sum",
-			},
-			{
-				MetricID: "*acd",
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: "*sum",
+				},
+				{
+					MetricID: "*acd",
+				},
 			},
 		},
 		ThresholdIDs: []string{"Val1", "Val2"},
@@ -3936,8 +3940,10 @@ func TestCacheDataFromDB(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{},
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{},
+			},
 		},
 	}
 	if err = dm.SetStatQueue(sq); err != nil {

@@ -85,7 +85,7 @@ func TestV1StatsAsStats(t *testing.T) {
 		ID:     v1Sts.Id,
 		Rules:  filters}
 
-	sqp := &engine.StatQueueProfile{
+	sqp := &v2to4StatQueueProfile{
 		Tenant:      "cgrates.org",
 		ID:          "test",
 		FilterIDs:   []string{v1Sts.Id},
@@ -151,7 +151,7 @@ func TestV1StatsAsStats(t *testing.T) {
 }
 
 func TestRemakeQueue(t *testing.T) {
-	sq := &engine.StatQueue{
+	sq := &v2to3StatQueue{
 		Tenant: "cgrates.org",
 		ID:     "StatsID",
 		SQItems: []engine.SQItem{{
@@ -163,7 +163,7 @@ func TestRemakeQueue(t *testing.T) {
 			"*average#~*req.Cost": nil,
 		},
 	}
-	expected := &engine.StatQueue{
+	expected := &v2to3StatQueue{
 		Tenant:  sq.Tenant,
 		ID:      sq.ID,
 		SQItems: sq.SQItems,

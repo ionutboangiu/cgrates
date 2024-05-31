@@ -529,12 +529,14 @@ func testV1FIdxSetStatQueueProfileIndexes(t *testing.T) {
 			FilterIDs:   []string{"FLTR_1"},
 			QueueLength: 10,
 			TTL:         10 * time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaSum,
-				},
-				{
-					MetricID: utils.MetaACD,
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaSum,
+					},
+					{
+						MetricID: utils.MetaACD,
+					},
 				},
 			},
 			ThresholdIDs: []string{"Val1", "Val2"},
@@ -682,12 +684,14 @@ func testV1FIdxSetSecondStatQueueProfileIndexes(t *testing.T) {
 			},
 			QueueLength: 10,
 			TTL:         10 * time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: "*sum",
-				},
-				{
-					MetricID: utils.MetaACD,
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: "*sum",
+					},
+					{
+						MetricID: utils.MetaACD,
+					},
 				},
 			},
 			ThresholdIDs: []string{"Val1", "Val2"},
@@ -3225,12 +3229,14 @@ func testSetProfilesWithFltrsAndOverwriteThemFIdx(t *testing.T) {
 			},
 			QueueLength: 10,
 			TTL:         time.Duration(10) * time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaACD,
-				},
-				{
-					MetricID: utils.MetaTCD,
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaACD,
+					},
+					{
+						MetricID: utils.MetaTCD,
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},
@@ -3247,12 +3253,14 @@ func testSetProfilesWithFltrsAndOverwriteThemFIdx(t *testing.T) {
 			},
 			QueueLength: 10,
 			TTL:         time.Duration(10) * time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaACD,
-				},
-				{
-					MetricID: utils.MetaTCD,
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaACD,
+					},
+					{
+						MetricID: utils.MetaTCD,
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},
@@ -3391,12 +3399,14 @@ func testSetAndChangeFiltersOnProfiles(t *testing.T) {
 			FilterIDs:   []string{},
 			QueueLength: 10,
 			TTL:         time.Duration(10) * time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaACD,
-				},
-				{
-					MetricID: utils.MetaTCD,
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaACD,
+					},
+					{
+						MetricID: utils.MetaTCD,
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},
@@ -3414,12 +3424,14 @@ func testSetAndChangeFiltersOnProfiles(t *testing.T) {
 			},
 			QueueLength: 10,
 			TTL:         time.Duration(10) * time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaACD,
-				},
-				{
-					MetricID: utils.MetaTCD,
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaACD,
+					},
+					{
+						MetricID: utils.MetaTCD,
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},

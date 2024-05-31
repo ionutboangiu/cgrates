@@ -39,7 +39,7 @@ type StatQueueProfile struct {
 	QueueLength        int
 	TTL                time.Duration
 	MinItems           int
-	Metrics            []*MetricWithFilters // list of metrics to build
+	Metrics            map[string][]*MetricWithFilters // list of metrics to build
 	Stored             bool
 	Blocker            bool // blocker flag to stop processing on filters matched
 	Weight             float64
@@ -101,17 +101,20 @@ func NewStoredStatQueue(sq *StatQueue, ms Marshaler) (sSQ *StoredStatQueue, err 
 		Compressed: sq.Compress(int64(config.CgrConfig().StatSCfg().StoreUncompressedLimit),
 			config.CgrConfig().GeneralCfg().RoundingDecimals),
 		SQItems:   make([]SQItem, len(sq.SQItems)),
-		SQMetrics: make(map[string][]byte, len(sq.SQMetrics)),
+		SQMetrics: make(map[string]map[string][]byte, len(sq.SQMetrics)),
 	}
 
 	copy(sSQ.SQItems, sq.SQItems)
 
-	for metricID, metric := range sq.SQMetrics {
-		marshaled, err := metric.Marshal(ms)
-		if err != nil {
-			return nil, err
+	for sID, stat := range sq.SQMetrics {
+		sSQ.SQMetrics[sID] = make(map[string][]byte, len(stat))
+		for metricID, metric := range stat {
+			marshaled, err := metric.Marshal(ms)
+			if err != nil {
+				return nil, err
+			}
+			sSQ.SQMetrics[sID][metricID] = marshaled
 		}
-		sSQ.SQMetrics[metricID] = marshaled
 	}
 	return
 }
@@ -121,7 +124,7 @@ type StoredStatQueue struct {
 	Tenant     string
 	ID         string
 	SQItems    []SQItem
-	SQMetrics  map[string][]byte
+	SQMetrics  map[string]map[string][]byte
 	Compressed bool
 }
 
@@ -144,18 +147,21 @@ func (ssq *StoredStatQueue) AsStatQueue(ms Marshaler) (sq *StatQueue, err error)
 		Tenant:    ssq.Tenant,
 		ID:        ssq.ID,
 		SQItems:   make([]SQItem, len(ssq.SQItems)),
-		SQMetrics: make(map[string]StatMetric, len(ssq.SQMetrics)),
+		SQMetrics: make(map[string]map[string]StatMetric, len(ssq.SQMetrics)),
 	}
 
 	copy(sq.SQItems, ssq.SQItems)
 
-	for metricID, marshaled := range ssq.SQMetrics {
-		if metric, err := NewStatMetric(metricID, 0, []string{}); err != nil {
-			return nil, err
-		} else if err := metric.LoadMarshaled(ms, marshaled); err != nil {
-			return nil, err
-		} else {
-			sq.SQMetrics[metricID] = metric
+	for sID, stat := range ssq.SQMetrics {
+		sq.SQMetrics[sID] = make(map[string]StatMetric, len(stat))
+		for metricID, marshaled := range stat {
+			if metric, err := NewStatMetric(metricID, 0, []string{}); err != nil {
+				return nil, err
+			} else if err := metric.LoadMarshaled(ms, marshaled); err != nil {
+				return nil, err
+			} else {
+				sq.SQMetrics[sID][metricID] = metric
+			}
 		}
 	}
 	if ssq.Compressed {
@@ -169,17 +175,20 @@ type SQItem struct {
 	ExpiryTime *time.Time // Used to auto-expire events
 }
 
-func NewStatQueue(tnt, id string, metrics []*MetricWithFilters, minItems int) (sq *StatQueue, err error) {
+func NewStatQueue(tnt, id string, metrics map[string][]*MetricWithFilters, minItems int) (sq *StatQueue, err error) {
 	sq = &StatQueue{
 		Tenant:    tnt,
 		ID:        id,
-		SQMetrics: make(map[string]StatMetric),
+		SQMetrics: make(map[string]map[string]StatMetric),
 	}
 
-	for _, metric := range metrics {
-		if sq.SQMetrics[metric.MetricID], err = NewStatMetric(metric.MetricID,
-			minItems, metric.FilterIDs); err != nil {
-			return
+	for sID, stat := range metrics {
+		sq.SQMetrics[sID] = make(map[string]StatMetric)
+		for _, metric := range stat {
+			if sq.SQMetrics[sID][metric.MetricID], err = NewStatMetric(metric.MetricID,
+				minItems, metric.FilterIDs); err != nil {
+				return
+			}
 		}
 	}
 	return
@@ -190,7 +199,7 @@ type StatQueue struct {
 	Tenant    string
 	ID        string
 	SQItems   []SQItem
-	SQMetrics map[string]StatMetric
+	SQMetrics map[string]map[string]StatMetric
 	lkID      string // ID of the lock used when matching the stat
 	sqPrfl    *StatQueueProfile
 	dirty     *bool          // needs save
@@ -255,17 +264,19 @@ func (sq *StatQueue) addOneEvent(tnt string, filterS *FilterS, evNm utils.MapSto
 	var pass bool
 	dDP := newDynamicDP(config.CgrConfig().FilterSCfg().ResourceSConns, config.CgrConfig().FilterSCfg().StatSConns,
 		config.CgrConfig().FilterSCfg().ApierSConns, tnt, utils.MapStorage{utils.MetaReq: evNm[utils.MetaReq]})
-	for metricID, metric := range sq.SQMetrics {
-		if pass, err = filterS.Pass(tnt, metric.GetFilterIDs(),
-			evNm); err != nil {
-			return
-		} else if !pass {
-			continue
-		}
-		if err = metric.AddOneEvent(dDP); err != nil {
-			utils.Logger.Warning(fmt.Sprintf("<StatQueue> metricID: %s, OneEvent, error: %s",
-				metricID, err.Error()))
-			return
+	for _, stat := range sq.SQMetrics {
+		for metricID, metric := range stat {
+			if pass, err = filterS.Pass(tnt, metric.GetFilterIDs(),
+				evNm); err != nil {
+				return
+			} else if !pass {
+				continue
+			}
+			if err = metric.AddOneEvent(dDP); err != nil {
+				utils.Logger.Warning(fmt.Sprintf("<StatQueue> metricID: %s, OneEvent, error: %s",
+					metricID, err.Error()))
+				return
+			}
 		}
 	}
 	return
@@ -273,14 +284,16 @@ func (sq *StatQueue) addOneEvent(tnt string, filterS *FilterS, evNm utils.MapSto
 
 // remStatEvent removes an event from metrics
 func (sq *StatQueue) remEventWithID(evID string) (err error) {
-	for metricID, metric := range sq.SQMetrics {
-		if err = metric.RemEvent(evID); err != nil {
-			if err.Error() == utils.ErrNotFound.Error() {
-				err = nil
-				continue
+	for _, stat := range sq.SQMetrics {
+		for metricID, metric := range stat {
+			if err = metric.RemEvent(evID); err != nil {
+				if err.Error() == utils.ErrNotFound.Error() {
+					err = nil
+					continue
+				}
+				utils.Logger.Warning(fmt.Sprintf("<StatQueue> metricID: %s, remove eventID: %s, error: %s", metricID, evID, err.Error()))
+				return
 			}
-			utils.Logger.Warning(fmt.Sprintf("<StatQueue> metricID: %s, remove eventID: %s, error: %s", metricID, evID, err.Error()))
-			return
 		}
 	}
 	return
@@ -335,17 +348,19 @@ func (sq *StatQueue) addStatEvent(tnt, evID string, filterS *FilterS, evNm utils
 	// recreate the request without *opts
 	dDP := newDynamicDP(config.CgrConfig().FilterSCfg().ResourceSConns, config.CgrConfig().FilterSCfg().StatSConns,
 		config.CgrConfig().FilterSCfg().ApierSConns, tnt, utils.MapStorage{utils.MetaReq: evNm[utils.MetaReq]})
-	for metricID, metric := range sq.SQMetrics {
-		if pass, err = filterS.Pass(tnt, metric.GetFilterIDs(),
-			evNm); err != nil {
-			return
-		} else if !pass {
-			continue
-		}
-		if err = metric.AddEvent(evID, dDP); err != nil {
-			utils.Logger.Warning(fmt.Sprintf("<StatQueue> metricID: %s, add eventID: %s, error: %s",
-				metricID, evID, err.Error()))
-			return
+	for _, stat := range sq.SQMetrics {
+		for metricID, metric := range stat {
+			if pass, err = filterS.Pass(tnt, metric.GetFilterIDs(),
+				evNm); err != nil {
+				return
+			} else if !pass {
+				continue
+			}
+			if err = metric.AddEvent(evID, dDP); err != nil {
+				utils.Logger.Warning(fmt.Sprintf("<StatQueue> metricID: %s, add eventID: %s, error: %s",
+					metricID, evID, err.Error()))
+				return
+			}
 		}
 	}
 	return
@@ -365,9 +380,11 @@ func (sq *StatQueue) Compress(maxQL int64, roundDec int) bool {
 		sqMap[sqitem.EventID] = sqitem.ExpiryTime
 	}
 
-	for _, m := range sq.SQMetrics {
-		for _, id := range m.Compress(maxQL, defaultCompressID, roundDec) {
-			idMap.Add(id)
+	for _, stat := range sq.SQMetrics {
+		for _, metric := range stat {
+			for _, id := range metric.Compress(maxQL, defaultCompressID, roundDec) {
+				idMap.Add(id)
+			}
 		}
 	}
 	for k := range idMap {
@@ -397,8 +414,10 @@ func (sq *StatQueue) Compress(maxQL int64, roundDec int) bool {
 
 func (sq *StatQueue) Expand() {
 	compressFactorMap := make(map[string]int)
-	for _, m := range sq.SQMetrics {
-		compressFactorMap = m.GetCompressFactor(compressFactorMap)
+	for _, stat := range sq.SQMetrics {
+		for _, metric := range stat {
+			compressFactorMap = metric.GetCompressFactor(compressFactorMap)
+		}
 	}
 	var newSQItems []SQItem
 	for _, sqi := range sq.SQItems {
@@ -445,7 +464,7 @@ func (sq *StatQueue) UnmarshalJSON(data []byte) (err error) {
 		Tenant    string
 		ID        string
 		SQItems   []SQItem
-		SQMetrics map[string]json.RawMessage
+		SQMetrics map[string]map[string]json.RawMessage
 	}
 	if err = json.Unmarshal(data, &tmp); err != nil {
 		return
@@ -453,38 +472,41 @@ func (sq *StatQueue) UnmarshalJSON(data []byte) (err error) {
 	sq.Tenant = tmp.Tenant
 	sq.ID = tmp.ID
 	sq.SQItems = tmp.SQItems
-	sq.SQMetrics = make(map[string]StatMetric)
-	for metricID, val := range tmp.SQMetrics {
-		metricSplit := strings.Split(metricID, utils.HashtagSep)
-		var metric StatMetric
-		switch metricSplit[0] {
-		case utils.MetaASR:
-			metric = new(StatASR)
-		case utils.MetaACD:
-			metric = new(StatACD)
-		case utils.MetaTCD:
-			metric = new(StatTCD)
-		case utils.MetaACC:
-			metric = new(StatACC)
-		case utils.MetaTCC:
-			metric = new(StatTCC)
-		case utils.MetaPDD:
-			metric = new(StatPDD)
-		case utils.MetaDDC:
-			metric = new(StatDDC)
-		case utils.MetaSum:
-			metric = new(StatSum)
-		case utils.MetaAverage:
-			metric = new(StatAverage)
-		case utils.MetaDistinct:
-			metric = new(StatDistinct)
-		default:
-			return fmt.Errorf("unsupported metric type <%s>", metricSplit[0])
+	sq.SQMetrics = make(map[string]map[string]StatMetric)
+	for statID, stat := range tmp.SQMetrics {
+		sq.SQMetrics[statID] = make(map[string]StatMetric)
+		for metricID, val := range stat {
+			metricSplit := strings.Split(metricID, utils.HashtagSep)
+			var metric StatMetric
+			switch metricSplit[0] {
+			case utils.MetaASR:
+				metric = new(StatASR)
+			case utils.MetaACD:
+				metric = new(StatACD)
+			case utils.MetaTCD:
+				metric = new(StatTCD)
+			case utils.MetaACC:
+				metric = new(StatACC)
+			case utils.MetaTCC:
+				metric = new(StatTCC)
+			case utils.MetaPDD:
+				metric = new(StatPDD)
+			case utils.MetaDDC:
+				metric = new(StatDDC)
+			case utils.MetaSum:
+				metric = new(StatSum)
+			case utils.MetaAverage:
+				metric = new(StatAverage)
+			case utils.MetaDistinct:
+				metric = new(StatDistinct)
+			default:
+				return fmt.Errorf("unsupported metric type <%s>", metricSplit[0])
+			}
+			if err = json.Unmarshal([]byte(val), metric); err != nil {
+				return
+			}
+			sq.SQMetrics[statID][metricID] = metric
 		}
-		if err = json.Unmarshal([]byte(val), metric); err != nil {
-			return
-		}
-		sq.SQMetrics[metricID] = metric
 	}
 	return
 }

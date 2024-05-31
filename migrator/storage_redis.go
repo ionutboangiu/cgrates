@@ -359,7 +359,7 @@ func (v1rs *redisMigrator) getV1Stats() (v1st *v1Stat, err error) {
 	return v1st, nil
 }
 
-func (v1rs *redisMigrator) getV3Stats() (v1st *engine.StatQueueProfile, err error) {
+func (v1rs *redisMigrator) getV3Stats() (v3sqp *v2to4StatQueueProfile, err error) {
 	if v1rs.qryIdx == nil {
 		v1rs.dataKeys, err = v1rs.rds.GetKeysForPrefix(utils.StatQueueProfilePrefix)
 		if err != nil {
@@ -374,7 +374,7 @@ func (v1rs *redisMigrator) getV3Stats() (v1st *engine.StatQueueProfile, err erro
 		if err = v1rs.rds.Cmd(&strVal, "GET", v1rs.dataKeys[*v1rs.qryIdx]); err != nil {
 			return nil, err
 		}
-		if err := v1rs.rds.Marshaler().Unmarshal(strVal, &v1st); err != nil {
+		if err := v1rs.rds.Marshaler().Unmarshal(strVal, &v3sqp); err != nil {
 			return nil, err
 		}
 		*v1rs.qryIdx = *v1rs.qryIdx + 1
@@ -382,7 +382,7 @@ func (v1rs *redisMigrator) getV3Stats() (v1st *engine.StatQueueProfile, err erro
 		v1rs.qryIdx = nil
 		return nil, utils.ErrNoMoreData
 	}
-	return v1st, nil
+	return v3sqp, nil
 }
 
 // set
@@ -399,7 +399,7 @@ func (v1rs *redisMigrator) setV1Stats(x *v1Stat) (err error) {
 }
 
 // get
-func (v1rs *redisMigrator) getV2Stats() (v2 *engine.StatQueue, err error) {
+func (v1rs *redisMigrator) getV2Stats() (v2 *v2to3StatQueue, err error) {
 	if v1rs.qryIdx == nil {
 		v1rs.dataKeys, err = v1rs.rds.GetKeysForPrefix(utils.StatQueuePrefix)
 		if err != nil {
@@ -426,7 +426,7 @@ func (v1rs *redisMigrator) getV2Stats() (v2 *engine.StatQueue, err error) {
 }
 
 // set
-func (v1rs *redisMigrator) setV2Stats(v2 *engine.StatQueue) (err error) {
+func (v1rs *redisMigrator) setV2Stats(v2 *v2to3StatQueue) (err error) {
 	key := utils.StatQueuePrefix + v2.ID
 	bit, err := v1rs.rds.Marshaler().Marshal(v2)
 	if err != nil {

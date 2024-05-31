@@ -1945,6 +1945,7 @@ func TestTPStatsAsTPStats(t *testing.T) {
 			QueueLength:        100,
 			TTL:                "1s",
 			MinItems:           2,
+			StatID:             "default_stat",
 			MetricIDs:          "*asr;*acc;*tcc;*acd;*tcd;*pdd",
 			Stored:             true,
 			Blocker:            true,
@@ -1959,6 +1960,7 @@ func TestTPStatsAsTPStats(t *testing.T) {
 			QueueLength:        100,
 			TTL:                "1s",
 			MinItems:           2,
+			StatID:             "default_stat",
 			MetricIDs:          "*sum#BalanceValue;*average#BalanceValue;*tcc",
 			ThresholdIDs:       "THRESH3",
 			Stored:             true,
@@ -1974,6 +1976,7 @@ func TestTPStatsAsTPStats(t *testing.T) {
 			QueueLength:        100,
 			TTL:                "1s",
 			MinItems:           2,
+			StatID:             "default_stat",
 			MetricIDs:          "*sum#BalanceValue;*average#BalanceValue;*tcc",
 			ThresholdIDs:       "THRESH4",
 			Stored:             true,
@@ -1987,12 +1990,12 @@ func TestTPStatsAsTPStats(t *testing.T) {
 	}
 	for _, rcvTP := range rcvTPs {
 		if rcvTP.Tenant == "cgrates.org" {
-			if len(rcvTP.Metrics) != 8 {
-				t.Errorf("Expecting: 8, received: %+v", len(rcvTP.Metrics))
+			if len(rcvTP.Metrics["default_stat"]) != 8 {
+				t.Errorf("Expecting: 8, received: %+v", len(rcvTP.Metrics["default_stat"]))
 			}
 		} else {
-			if len(rcvTP.Metrics) != 3 {
-				t.Errorf("Expecting: 3, received: %+v", len(rcvTP.Metrics))
+			if len(rcvTP.Metrics["default_stat"]) != 3 {
+				t.Errorf("Expecting: 3, received: %+v", len(rcvTP.Metrics["default_stat"]))
 			}
 		}
 	}
@@ -2006,15 +2009,17 @@ func TestAPItoTPStats(t *testing.T) {
 		ActivationInterval: &utils.TPActivationInterval{ActivationTime: "2014-07-29T15:00:00Z"},
 		QueueLength:        100,
 		TTL:                "1s",
-		Metrics: []*utils.MetricWithFilters{
-			{
-				MetricID: "*sum#BalanceValue",
-			},
-			{
-				MetricID: "*average#BalanceValue",
-			},
-			{
-				MetricID: "*tcc",
+		Metrics: map[string][]*utils.MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: "*sum#BalanceValue",
+				},
+				{
+					MetricID: "*average#BalanceValue",
+				},
+				{
+					MetricID: "*tcc",
+				},
 			},
 		},
 		MinItems:     1,
@@ -2025,15 +2030,17 @@ func TestAPItoTPStats(t *testing.T) {
 	}
 	eTPs := &StatQueueProfile{ID: tps.ID,
 		QueueLength: tps.QueueLength,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: "*sum#BalanceValue",
-			},
-			{
-				MetricID: "*average#BalanceValue",
-			},
-			{
-				MetricID: "*tcc",
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: "*sum#BalanceValue",
+				},
+				{
+					MetricID: "*average#BalanceValue",
+				},
+				{
+					MetricID: "*tcc",
+				},
 			},
 		},
 		ThresholdIDs: []string{"THRESH1", "THRESH2"},
@@ -2064,15 +2071,17 @@ func TestStatQueueProfileToAPI(t *testing.T) {
 		ActivationInterval: &utils.TPActivationInterval{ActivationTime: "2014-07-29T15:00:00Z"},
 		QueueLength:        100,
 		TTL:                "1s",
-		Metrics: []*utils.MetricWithFilters{
-			{
-				MetricID: "*sum#BalanceValue",
-			},
-			{
-				MetricID: "*average#BalanceValue",
-			},
-			{
-				MetricID: "*tcc",
+		Metrics: map[string][]*utils.MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: "*sum#BalanceValue",
+				},
+				{
+					MetricID: "*average#BalanceValue",
+				},
+				{
+					MetricID: "*tcc",
+				},
 			},
 		},
 		MinItems:     1,
@@ -2086,15 +2095,17 @@ func TestStatQueueProfileToAPI(t *testing.T) {
 		ActivationInterval: &utils.ActivationInterval{
 			ActivationTime: time.Date(2014, 7, 29, 15, 0, 0, 0, time.UTC),
 		},
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: "*sum#BalanceValue",
-			},
-			{
-				MetricID: "*average#BalanceValue",
-			},
-			{
-				MetricID: "*tcc",
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: "*sum#BalanceValue",
+				},
+				{
+					MetricID: "*average#BalanceValue",
+				},
+				{
+					MetricID: "*tcc",
+				},
 			},
 		},
 		TTL:          time.Second,
@@ -2121,12 +2132,14 @@ func TestAPItoModelStats(t *testing.T) {
 		},
 		QueueLength: 100,
 		TTL:         "1s",
-		Metrics: []*utils.MetricWithFilters{
-			{
-				MetricID: "*tcc",
-			},
-			{
-				MetricID: "*average#Usage",
+		Metrics: map[string][]*utils.MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: "*tcc",
+				},
+				{
+					MetricID: "*average#Usage",
+				},
 			},
 		},
 		Blocker:      true,
@@ -2146,6 +2159,7 @@ func TestAPItoModelStats(t *testing.T) {
 			QueueLength:        100,
 			TTL:                "1s",
 			MinItems:           2,
+			StatID:             "default_stat",
 			MetricIDs:          "*tcc",
 			Stored:             true,
 			Blocker:            true,
@@ -2156,6 +2170,7 @@ func TestAPItoModelStats(t *testing.T) {
 			Tpid:      "TPS1",
 			Tenant:    "cgrates.org",
 			ID:        "Stat1",
+			StatID:    "default_stat",
 			MetricIDs: "*average#Usage",
 		},
 	}
@@ -5443,9 +5458,11 @@ func TestModelHelpersStatQueueProfileToAPIFilterIds(t *testing.T) {
 		},
 		QueueLength: 0,
 		MinItems:    0,
-		Metrics: []*MetricWithFilters{{
-			FilterIDs: []string{"test_id"},
-		},
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {{
+				FilterIDs: []string{"test_id"},
+			},
+			},
 		},
 		Stored:       false,
 		Blocker:      false,
@@ -5462,9 +5479,11 @@ func TestModelHelpersStatQueueProfileToAPIFilterIds(t *testing.T) {
 		},
 		QueueLength: 0,
 		MinItems:    0,
-		Metrics: []*utils.MetricWithFilters{
-			{
-				FilterIDs: []string{"test_id"},
+		Metrics: map[string][]*utils.MetricWithFilters{
+			"default_stat": {
+				{
+					FilterIDs: []string{"test_id"},
+				},
 			},
 		},
 		Blocker:      false,
@@ -5537,10 +5556,12 @@ func TestModelHelpersAPItoModelStatsCase2(t *testing.T) {
 		},
 		QueueLength: 100,
 		TTL:         "1s",
-		Metrics: []*utils.MetricWithFilters{
-			{
-				FilterIDs: []string{"test_filter_id1", "test_filter_id2"},
-				MetricID:  "*tcc",
+		Metrics: map[string][]*utils.MetricWithFilters{
+			"default_stat": {
+				{
+					FilterIDs: []string{"test_filter_id1", "test_filter_id2"},
+					MetricID:  "*tcc",
+				},
 			},
 		},
 		Blocker:      true,
@@ -5559,6 +5580,7 @@ func TestModelHelpersAPItoModelStatsCase2(t *testing.T) {
 			QueueLength:        100,
 			TTL:                "1s",
 			MinItems:           2,
+			StatID:             "default_stat",
 			MetricIDs:          "*tcc",
 			MetricFilterIDs:    "test_filter_id1;test_filter_id2",
 			Stored:             true,
@@ -5576,6 +5598,7 @@ func TestModelHelpersAPItoModelStatsCase2(t *testing.T) {
 func TestStatMdlsAsTPStatsCase2(t *testing.T) {
 	testStruct := StatMdls{{
 		ActivationInterval: "2014-07-25T15:00:00Z;2014-07-26T15:00:00Z",
+		StatID:             "default_stat",
 		MetricIDs:          "test_id",
 		MetricFilterIDs:    "test_filter_id",
 	}}
@@ -5584,10 +5607,12 @@ func TestStatMdlsAsTPStatsCase2(t *testing.T) {
 			ActivationTime: "2014-07-25T15:00:00Z",
 			ExpiryTime:     "2014-07-26T15:00:00Z",
 		},
-		Metrics: []*utils.MetricWithFilters{
-			{
-				MetricID:  "test_id",
-				FilterIDs: []string{"test_filter_id"},
+		Metrics: map[string][]*utils.MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID:  "test_id",
+					FilterIDs: []string{"test_filter_id"},
+				},
 			},
 		},
 	}}

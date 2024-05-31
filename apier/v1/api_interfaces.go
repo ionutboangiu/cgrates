@@ -42,8 +42,8 @@ type StatSv1Interface interface {
 	GetQueueIDs(ctx *context.Context, tenant *utils.TenantWithAPIOpts, qIDs *[]string) error
 	ProcessEvent(ctx *context.Context, args *utils.CGREvent, reply *[]string) error
 	GetStatQueuesForEvent(ctx *context.Context, args *utils.CGREvent, reply *[]string) (err error)
-	GetQueueStringMetrics(ctx *context.Context, args *utils.TenantIDWithAPIOpts, reply *map[string]string) (err error)
-	GetQueueFloatMetrics(ctx *context.Context, args *utils.TenantIDWithAPIOpts, reply *map[string]float64) (err error)
+	GetQueueStringMetrics(ctx *context.Context, args *utils.TenantIDWithAPIOpts, reply *map[string]map[string]string) (err error)
+	GetQueueFloatMetrics(ctx *context.Context, args *utils.TenantIDWithAPIOpts, reply *map[string]map[string]float64) (err error)
 	Ping(ctx *context.Context, ign *utils.CGREvent, reply *string) error
 }
 

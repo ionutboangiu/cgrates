@@ -45,9 +45,11 @@ var (
 			},
 			QueueLength: 10,
 			TTL:         10 * time.Second,
-			Metrics: []*MetricWithFilters{
-				{
-					MetricID: "*sum#Usage",
+			Metrics: map[string][]*MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: "*sum#Usage",
+					},
 				},
 			},
 			ThresholdIDs: []string{},
@@ -65,9 +67,11 @@ var (
 			},
 			QueueLength: 10,
 			TTL:         10 * time.Second,
-			Metrics: []*MetricWithFilters{
-				{
-					MetricID: "*sum#Usage",
+			Metrics: map[string][]*MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: "*sum#Usage",
+					},
 				},
 			},
 			ThresholdIDs: []string{},
@@ -85,9 +89,11 @@ var (
 			},
 			QueueLength: 10,
 			TTL:         10 * time.Second,
-			Metrics: []*MetricWithFilters{
-				{
-					MetricID: "*sum#Usage",
+			Metrics: map[string][]*MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: "*sum#Usage",
+					},
 				},
 			},
 			ThresholdIDs: []string{},
@@ -98,9 +104,9 @@ var (
 		},
 	}
 	testStatsQ = []*StatQueue{
-		{Tenant: "cgrates.org", ID: "StatQueueProfile1", sqPrfl: testStatsPrfs[0], SQMetrics: make(map[string]StatMetric)},
-		{Tenant: "cgrates.org", ID: "StatQueueProfile2", sqPrfl: testStatsPrfs[1], SQMetrics: make(map[string]StatMetric)},
-		{Tenant: "cgrates.org", ID: "StatQueueProfilePrefix", sqPrfl: testStatsPrfs[2], SQMetrics: make(map[string]StatMetric)},
+		{Tenant: "cgrates.org", ID: "StatQueueProfile1", sqPrfl: testStatsPrfs[0], SQMetrics: make(map[string]map[string]StatMetric)},
+		{Tenant: "cgrates.org", ID: "StatQueueProfile2", sqPrfl: testStatsPrfs[1], SQMetrics: make(map[string]map[string]StatMetric)},
+		{Tenant: "cgrates.org", ID: "StatQueueProfilePrefix", sqPrfl: testStatsPrfs[2], SQMetrics: make(map[string]map[string]StatMetric)},
 	}
 	testStatsArgs = []*utils.CGREvent{
 		{
@@ -305,7 +311,7 @@ func TestStatQueuesProcessEvent(t *testing.T) {
 	statService := NewStatService(dmSTS, cfg,
 		&FilterS{dm: dmSTS, cfg: cfg}, nil)
 	prepareStatsData(t, dmSTS)
-	stq := map[string]string{}
+	stq := map[string]map[string]string{}
 	reply := []string{}
 	expected := []string{"StatQueueProfile1"}
 	err := statService.V1ProcessEvent(context.Background(), testStatsArgs[0], &reply)
@@ -443,9 +449,11 @@ func TestStatQueuesV1ProcessEvent(t *testing.T) {
 		},
 		QueueLength: 10,
 		TTL:         10 * time.Second,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: "*sum#Usage",
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: "*sum#Usage",
+				},
 			},
 		},
 		ThresholdIDs: []string{},
@@ -453,6 +461,7 @@ func TestStatQueuesV1ProcessEvent(t *testing.T) {
 		Weight:       20,
 		MinItems:     1,
 	}
+
 	sq := &StatQueue{Tenant: "cgrates.org", ID: "StatQueueProfile3", sqPrfl: sqPrf}
 	if err := dmSTS.SetStatQueueProfile(sqPrf, true); err != nil {
 		t.Error(err)
@@ -486,7 +495,9 @@ func TestStatQueuesUpdateStatQueue(t *testing.T) {
 		ID:          "THUP1",
 		Stored:      true,
 		QueueLength: 1,
-		Metrics:     []*MetricWithFilters{{MetricID: utils.MetaTCC}},
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {{MetricID: utils.MetaTCC}},
+		},
 	}
 	sqm, err := NewTCC(0, utils.EmptyString, []string{})
 	if err != nil {
@@ -496,19 +507,28 @@ func TestStatQueuesUpdateStatQueue(t *testing.T) {
 		t.Fatal(err)
 	}
 	sq := &StatQueue{
-		Tenant:    sqp.Tenant,
-		ID:        sqp.ID,
-		SQItems:   []SQItem{{EventID: "ev1"}},
-		SQMetrics: map[string]StatMetric{utils.MetaTCC: sqm, utils.MetaTCD: sqm},
+		Tenant:  sqp.Tenant,
+		ID:      sqp.ID,
+		SQItems: []SQItem{{EventID: "ev1"}},
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCC: sqm,
+				utils.MetaTCD: sqm,
+			},
+		},
 	}
 	sqm2, err := NewTCC(0, utils.EmptyString, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	expTh := &StatQueue{
-		Tenant:    sqp.Tenant,
-		ID:        sqp.ID,
-		SQMetrics: map[string]StatMetric{utils.MetaTCC: sqm2},
+		Tenant: sqp.Tenant,
+		ID:     sqp.ID,
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCC: sqm2,
+			},
+		},
 	}
 
 	if err := dm.SetStatQueueProfile(sqp, true); err != nil {
@@ -542,7 +562,14 @@ func TestStatQueuesUpdateStatQueue(t *testing.T) {
 		ID:          "THUP1",
 		Stored:      true,
 		QueueLength: 1,
-		Metrics:     []*MetricWithFilters{{MetricID: utils.MetaTCC, FilterIDs: []string{"*string:~*req.Account:1001"}}},
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID:  utils.MetaTCC,
+					FilterIDs: []string{"*string:~*req.Account:1001"},
+				},
+			},
+		},
 	}
 
 	if err := dm.SetStatQueueProfile(sqp, true); err != nil {
@@ -554,10 +581,14 @@ func TestStatQueuesUpdateStatQueue(t *testing.T) {
 		t.Fatal(err)
 	}
 	expTh = &StatQueue{
-		Tenant:    sqp.Tenant,
-		ID:        sqp.ID,
-		SQItems:   []SQItem{{EventID: "ev1"}},
-		SQMetrics: map[string]StatMetric{utils.MetaTCC: sqm3},
+		Tenant:  sqp.Tenant,
+		ID:      sqp.ID,
+		SQItems: []SQItem{{EventID: "ev1"}},
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCC: sqm3,
+			},
+		},
 	}
 	if th, err := dm.GetStatQueue(sqp.Tenant, sqp.ID, false, false, utils.NonTransactional); err != nil {
 		t.Fatal(err)
@@ -574,9 +605,13 @@ func TestStatQueuesUpdateStatQueue(t *testing.T) {
 		t.Fatal(err)
 	}
 	expTh = &StatQueue{
-		Tenant:    sqp.Tenant,
-		ID:        sqp.ID,
-		SQMetrics: map[string]StatMetric{utils.MetaTCC: sqm2},
+		Tenant: sqp.Tenant,
+		ID:     sqp.ID,
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCC: sqm2,
+			},
+		},
 	}
 	delete(sq.SQMetrics, utils.MetaTCD)
 	if err := dm.SetStatQueue(sq); err != nil {
@@ -588,8 +623,14 @@ func TestStatQueuesUpdateStatQueue(t *testing.T) {
 		ID:          "THUP1",
 		Stored:      true,
 		QueueLength: 1,
-		Metrics:     []*MetricWithFilters{{MetricID: utils.MetaTCC}},
-		MinItems:    5,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCC,
+				},
+			},
+		},
+		MinItems: 5,
 	}
 
 	if err := dm.SetStatQueueProfile(sqp, true); err != nil {
@@ -610,9 +651,15 @@ func TestStatQueuesUpdateStatQueue(t *testing.T) {
 		ID:          "THUP1",
 		Stored:      true,
 		QueueLength: 1,
-		Metrics:     []*MetricWithFilters{{MetricID: utils.MetaTCC}},
-		MinItems:    5,
-		TTL:         10,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCC,
+				},
+			},
+		},
+		MinItems: 5,
+		TTL:      10,
 	}
 
 	if err := dm.SetStatQueueProfile(sqp, true); err != nil {
@@ -634,9 +681,15 @@ func TestStatQueuesUpdateStatQueue(t *testing.T) {
 		ID:          "THUP1",
 		Stored:      true,
 		QueueLength: 10,
-		Metrics:     []*MetricWithFilters{{MetricID: utils.MetaTCC}},
-		TTL:         10,
-		MinItems:    5,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCC,
+				},
+			},
+		},
+		TTL:      10,
+		MinItems: 5,
 	}
 
 	if err := dm.SetStatQueueProfile(sqp, true); err != nil {
@@ -658,9 +711,15 @@ func TestStatQueuesUpdateStatQueue(t *testing.T) {
 		ID:          "THUP1",
 		Stored:      false,
 		QueueLength: 10,
-		Metrics:     []*MetricWithFilters{{MetricID: utils.MetaTCC}},
-		TTL:         10,
-		MinItems:    5,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCC,
+				},
+			},
+		},
+		TTL:      10,
+		MinItems: 5,
 	}
 
 	if err := dm.SetStatQueueProfile(sqp, true); err != nil {
@@ -918,7 +977,7 @@ func TestStatQueueMatchingStatQueuesForEventLocks3(t *testing.T) {
 			Cache.Set(utils.CacheStatQueues, rPrf.TenantID(), &StatQueue{
 				Tenant:    rPrf.Tenant,
 				ID:        rPrf.ID,
-				SQMetrics: make(map[string]StatMetric),
+				SQMetrics: make(map[string]map[string]StatMetric),
 			}, nil, true, utils.NonTransactional)
 			prfs = append(prfs, rPrf)
 			return rPrf, nil
@@ -1251,9 +1310,11 @@ func TestStatQueueProcessEventOK(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -1266,7 +1327,7 @@ func TestStatQueueProcessEventOK(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: make(map[string]StatMetric),
+		SQMetrics: make(map[string]map[string]StatMetric),
 	}
 
 	if err := dm.SetStatQueueProfile(sqPrf, true); err != nil {
@@ -1324,7 +1385,7 @@ func TestStatQueueProcessEventProcessThPartExec(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: make(map[string]StatMetric),
+		SQMetrics: make(map[string]map[string]StatMetric),
 	}
 
 	if err := dm.SetStatQueueProfile(sqPrf, true); err != nil {
@@ -1376,9 +1437,11 @@ func TestStatQueueProcessEventProcessEventErr(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -1391,8 +1454,10 @@ func TestStatQueueProcessEventProcessEventErr(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{},
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{},
+			},
 		},
 	}
 
@@ -1454,9 +1519,11 @@ func TestStatQueueV1ProcessEventProcessEventErr(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -1469,8 +1536,10 @@ func TestStatQueueV1ProcessEventProcessEventErr(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{},
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{},
+			},
 		},
 	}
 
@@ -1523,9 +1592,11 @@ func TestStatQueueV1ProcessEventMissingArgs(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -1538,8 +1609,10 @@ func TestStatQueueV1ProcessEventMissingArgs(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{},
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{},
+			},
 		},
 	}
 
@@ -1614,9 +1687,11 @@ func TestStatQueueV1GetQueueIDsOK(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -1629,8 +1704,10 @@ func TestStatQueueV1GetQueueIDsOK(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{},
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{},
+			},
 		},
 	}
 
@@ -1715,9 +1792,11 @@ func TestStatQueueV1GetStatQueueOK(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -1730,8 +1809,10 @@ func TestStatQueueV1GetStatQueueOK(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{},
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{},
+			},
 		},
 	}
 
@@ -1805,9 +1886,11 @@ func TestStatQueueV1GetStatQueueMissingArgs(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -1820,8 +1903,10 @@ func TestStatQueueV1GetStatQueueMissingArgs(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{},
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{},
+			},
 		},
 	}
 
@@ -1867,9 +1952,11 @@ func TestStatQueueV1GetStatQueuesForEventOK(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -1889,9 +1976,11 @@ func TestStatQueueV1GetStatQueuesForEventOK(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaACD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaACD,
+				},
 			},
 		},
 	}
@@ -1944,9 +2033,11 @@ func TestStatQueueV1GetStatQueuesForEventNotFoundErr(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -1994,9 +2085,11 @@ func TestStatQueueV1GetStatQueuesForEventMissingArgs(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -2065,9 +2158,11 @@ func TestStatQueueV1ResetStatQueueOK(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -2081,10 +2176,12 @@ func TestStatQueueV1ResetStatQueueOK(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{
-				Sum: time.Minute,
-				val: utils.DurationPointer(time.Hour),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{
+					Sum: time.Minute,
+					val: utils.DurationPointer(time.Hour),
+				},
 			},
 		},
 	}
@@ -2102,9 +2199,11 @@ func TestStatQueueV1ResetStatQueueOK(t *testing.T) {
 		Tenant:  "cgrates.org",
 		ID:      "SQ1",
 		SQItems: []SQItem{},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{
-				Events: make(map[string]*DurationWithCompress),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{
+					Events: make(map[string]*DurationWithCompress),
+				},
 			},
 		},
 	}
@@ -2150,9 +2249,11 @@ func TestStatQueueV1ResetStatQueueNotFoundErr(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -2166,10 +2267,12 @@ func TestStatQueueV1ResetStatQueueNotFoundErr(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{
-				Sum: time.Minute,
-				val: utils.DurationPointer(time.Hour),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{
+					Sum: time.Minute,
+					val: utils.DurationPointer(time.Hour),
+				},
 			},
 		},
 	}
@@ -2213,9 +2316,11 @@ func TestStatQueueV1ResetStatQueueMissingArgs(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -2229,10 +2334,12 @@ func TestStatQueueV1ResetStatQueueMissingArgs(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{
-				Sum: time.Minute,
-				val: utils.DurationPointer(time.Hour),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{
+					Sum: time.Minute,
+					val: utils.DurationPointer(time.Hour),
+				},
 			},
 		},
 	}
@@ -2275,9 +2382,11 @@ func TestStatQueueV1ResetStatQueueUnsupportedMetricType(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: "testMetricType",
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: "testMetricType",
+				},
 			},
 		},
 	}
@@ -2291,10 +2400,12 @@ func TestStatQueueV1ResetStatQueueUnsupportedMetricType(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			"testMetricType": &StatTCD{
-				Sum: time.Minute,
-				val: utils.DurationPointer(time.Hour),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				"testMetricType": &StatTCD{
+					Sum: time.Minute,
+					val: utils.DurationPointer(time.Hour),
+				},
 			},
 		},
 	}
@@ -2343,9 +2454,11 @@ func TestStatQueueProcessThresholdsOKNoThIDs(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: "testMetricType",
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: "testMetricType",
+				},
 			},
 		},
 	}
@@ -2359,10 +2472,12 @@ func TestStatQueueProcessThresholdsOKNoThIDs(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			"testMetricType": &StatTCD{
-				Sum: time.Minute,
-				val: utils.DurationPointer(time.Hour),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				"testMetricType": &StatTCD{
+					Sum: time.Minute,
+					val: utils.DurationPointer(time.Hour),
+				},
 			},
 		},
 	}
@@ -2401,9 +2516,11 @@ func TestStatQueueProcessThresholdsOK(t *testing.T) {
 					Tenant: "cgrates.org",
 					ID:     args.(*utils.CGREvent).ID,
 					Event: map[string]any{
-						utils.EventType:  utils.StatUpdate,
-						utils.StatID:     "SQ1",
-						"testMetricType": time.Duration(time.Hour),
+						utils.EventType: utils.StatUpdate,
+						utils.StatID:    "SQ1",
+						"default_stat": map[string]any{
+							"testMetricType": time.Duration(time.Hour),
+						},
 					},
 					APIOpts: map[string]any{
 						utils.MetaEventType:            utils.StatUpdate,
@@ -2439,9 +2556,11 @@ func TestStatQueueProcessThresholdsOK(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"TH1"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: "testMetricType",
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: "testMetricType",
+				},
 			},
 		},
 	}
@@ -2455,10 +2574,12 @@ func TestStatQueueProcessThresholdsOK(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			"testMetricType": &StatTCD{
-				Sum: time.Minute,
-				val: utils.DurationPointer(time.Hour),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				"testMetricType": &StatTCD{
+					Sum: time.Minute,
+					val: utils.DurationPointer(time.Hour),
+				},
 			},
 		},
 	}
@@ -2530,9 +2651,11 @@ func TestStatQueueProcessThresholdsErrPartExec(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"TH1"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: "testMetricType",
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: "testMetricType",
+				},
 			},
 		},
 	}
@@ -2546,10 +2669,12 @@ func TestStatQueueProcessThresholdsErrPartExec(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			"testMetricType": &StatTCD{
-				Sum: time.Minute,
-				val: utils.DurationPointer(time.Hour),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				"testMetricType": &StatTCD{
+					Sum: time.Minute,
+					val: utils.DurationPointer(time.Hour),
+				},
 			},
 		},
 	}
@@ -2597,9 +2722,11 @@ func TestStatQueueV1GetQueueFloatMetricsOK(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -2613,10 +2740,12 @@ func TestStatQueueV1GetQueueFloatMetricsOK(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{
-				Sum: time.Minute,
-				val: utils.DurationPointer(time.Hour),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{
+					Sum: time.Minute,
+					val: utils.DurationPointer(time.Hour),
+				},
 			},
 		},
 	}
@@ -2625,10 +2754,12 @@ func TestStatQueueV1GetQueueFloatMetricsOK(t *testing.T) {
 		t.Error(err)
 	}
 
-	expected := map[string]float64{
-		utils.MetaTCD: 3600000000000,
+	expected := map[string]map[string]float64{
+		"default_stat": {
+			utils.MetaTCD: 3600000000000,
+		},
 	}
-	reply := map[string]float64{}
+	reply := map[string]map[string]float64{}
 	if err := sS.V1GetQueueFloatMetrics(context.Background(),
 		&utils.TenantID{
 			ID: "SQ1",
@@ -2665,9 +2796,11 @@ func TestStatQueueV1GetQueueFloatMetricsErrNotFound(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -2681,10 +2814,12 @@ func TestStatQueueV1GetQueueFloatMetricsErrNotFound(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{
-				Sum: time.Minute,
-				val: utils.DurationPointer(time.Hour),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{
+					Sum: time.Minute,
+					val: utils.DurationPointer(time.Hour),
+				},
 			},
 		},
 	}
@@ -2693,7 +2828,7 @@ func TestStatQueueV1GetQueueFloatMetricsErrNotFound(t *testing.T) {
 		t.Error(err)
 	}
 
-	reply := map[string]float64{}
+	reply := map[string]map[string]float64{}
 	if err := sS.V1GetQueueFloatMetrics(context.Background(),
 		&utils.TenantID{
 			ID: "SQ2",
@@ -2728,9 +2863,11 @@ func TestStatQueueV1GetQueueFloatMetricsMissingArgs(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -2744,10 +2881,12 @@ func TestStatQueueV1GetQueueFloatMetricsMissingArgs(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{
-				Sum: time.Minute,
-				val: utils.DurationPointer(time.Hour),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{
+					Sum: time.Minute,
+					val: utils.DurationPointer(time.Hour),
+				},
 			},
 		},
 	}
@@ -2757,7 +2896,7 @@ func TestStatQueueV1GetQueueFloatMetricsMissingArgs(t *testing.T) {
 	}
 
 	experr := `MANDATORY_IE_MISSING: [ID]`
-	reply := map[string]float64{}
+	reply := map[string]map[string]float64{}
 	if err := sS.V1GetQueueFloatMetrics(context.Background(), &utils.TenantID{}, &reply); err == nil ||
 		err.Error() != experr {
 		t.Errorf("expected: <%+v>, received: <%+v>", experr, err)
@@ -2777,7 +2916,7 @@ func TestStatQueueV1GetQueueFloatMetricsErrGetStats(t *testing.T) {
 	sS := NewStatService(nil, cfg, filterS, nil)
 
 	experr := `SERVER_ERROR: NO_DATABASE_CONNECTION`
-	reply := map[string]float64{}
+	reply := map[string]map[string]float64{}
 	if err := sS.V1GetQueueFloatMetrics(context.Background(),
 		&utils.TenantID{
 			ID: "SQ1",
@@ -2812,9 +2951,11 @@ func TestStatQueueV1GetQueueStringMetricsOK(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -2828,10 +2969,12 @@ func TestStatQueueV1GetQueueStringMetricsOK(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{
-				Sum: time.Minute,
-				val: utils.DurationPointer(time.Hour),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{
+					Sum: time.Minute,
+					val: utils.DurationPointer(time.Hour),
+				},
 			},
 		},
 	}
@@ -2840,10 +2983,12 @@ func TestStatQueueV1GetQueueStringMetricsOK(t *testing.T) {
 		t.Error(err)
 	}
 
-	expected := map[string]string{
-		utils.MetaTCD: "1h0m0s",
+	expected := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaTCD: "1h0m0s",
+		},
 	}
-	reply := map[string]string{}
+	reply := map[string]map[string]string{}
 	if err := sS.V1GetQueueStringMetrics(context.Background(),
 		&utils.TenantID{
 			ID: "SQ1",
@@ -2880,9 +3025,11 @@ func TestStatQueueV1GetQueueStringMetricsErrNotFound(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -2896,10 +3043,12 @@ func TestStatQueueV1GetQueueStringMetricsErrNotFound(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{
-				Sum: time.Minute,
-				val: utils.DurationPointer(time.Hour),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{
+					Sum: time.Minute,
+					val: utils.DurationPointer(time.Hour),
+				},
 			},
 		},
 	}
@@ -2908,7 +3057,7 @@ func TestStatQueueV1GetQueueStringMetricsErrNotFound(t *testing.T) {
 		t.Error(err)
 	}
 
-	reply := map[string]string{}
+	reply := map[string]map[string]string{}
 	if err := sS.V1GetQueueStringMetrics(context.Background(),
 		&utils.TenantID{
 			ID: "SQ2",
@@ -2943,9 +3092,11 @@ func TestStatQueueV1GetQueueStringMetricsMissingArgs(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -2959,10 +3110,12 @@ func TestStatQueueV1GetQueueStringMetricsMissingArgs(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{
-				Sum: time.Minute,
-				val: utils.DurationPointer(time.Hour),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{
+					Sum: time.Minute,
+					val: utils.DurationPointer(time.Hour),
+				},
 			},
 		},
 	}
@@ -2972,7 +3125,7 @@ func TestStatQueueV1GetQueueStringMetricsMissingArgs(t *testing.T) {
 	}
 
 	experr := `MANDATORY_IE_MISSING: [ID]`
-	reply := map[string]string{}
+	reply := map[string]map[string]string{}
 	if err := sS.V1GetQueueStringMetrics(context.Background(), &utils.TenantID{}, &reply); err == nil ||
 		err.Error() != experr {
 		t.Errorf("expected: <%+v>, received: <%+v>", experr, err)
@@ -2992,7 +3145,7 @@ func TestStatQueueV1GetQueueStringMetricsErrGetStats(t *testing.T) {
 	sS := NewStatService(nil, cfg, filterS, nil)
 
 	experr := `SERVER_ERROR: NO_DATABASE_CONNECTION`
-	reply := map[string]string{}
+	reply := map[string]map[string]string{}
 	if err := sS.V1GetQueueStringMetrics(context.Background(),
 		&utils.TenantID{
 			ID: "SQ1",
@@ -3058,9 +3211,11 @@ func TestStatQueueGetStatQueueOK(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -3075,10 +3230,12 @@ func TestStatQueueGetStatQueueOK(t *testing.T) {
 				ExpiryTime: utils.TimePointer(time.Now()),
 			},
 		},
-		SQMetrics: map[string]StatMetric{
-			utils.MetaTCD: &StatTCD{
-				Sum: time.Minute,
-				val: utils.DurationPointer(time.Hour),
+		SQMetrics: map[string]map[string]StatMetric{
+			"default_stat": {
+				utils.MetaTCD: &StatTCD{
+					Sum: time.Minute,
+					val: utils.DurationPointer(time.Hour),
+				},
 			},
 		},
 	}
@@ -3131,7 +3288,7 @@ func TestStatQueueStoreStatQueueCacheSetErr(t *testing.T) {
 	sq := &StatQueue{
 		Tenant:    "cgrates.org",
 		ID:        "SQ1",
-		SQMetrics: make(map[string]StatMetric),
+		SQMetrics: make(map[string]map[string]StatMetric),
 		dirty:     utils.BoolPointer(true),
 	}
 
@@ -3171,9 +3328,11 @@ func TestStatQueueV1GetStatQueuesForSliceOptsErr(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -3191,9 +3350,11 @@ func TestStatQueueV1GetStatQueuesForSliceOptsErr(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaACD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaACD,
+				},
 			},
 		},
 	}
@@ -3239,9 +3400,11 @@ func TestStatQueueV1GetStatQueuesForEventBoolOptsErr(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -3259,9 +3422,11 @@ func TestStatQueueV1GetStatQueuesForEventBoolOptsErr(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaACD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaACD,
+				},
 			},
 		},
 	}
@@ -3329,9 +3494,11 @@ func TestStatQueueProcessEventErr(t *testing.T) {
 		QueueLength:  10,
 		ThresholdIDs: []string{"*none"},
 		MinItems:     5,
-		Metrics: []*MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 	}
@@ -3344,7 +3511,7 @@ func TestStatQueueProcessEventErr(t *testing.T) {
 				EventID: "SqProcessEvent",
 			},
 		},
-		SQMetrics: make(map[string]StatMetric),
+		SQMetrics: make(map[string]map[string]StatMetric),
 	}
 
 	if err := dm.SetStatQueueProfile(sqPrf, true); err != nil {
@@ -3373,4 +3540,85 @@ func TestStatQueueProcessEventErr(t *testing.T) {
 		t.Error(err)
 	}
 
+}
+
+func TestStatsAlias(t *testing.T) {
+	statsCsv := `#Tenant,Id,FilterIDs,ActivationInterval,QueueLength,TTL,MinItems,StatID,Metrics,MetricFilterIDs,Stored,Blocker,Weight,ThresholdIDs
+cgrates.org,STATS_COUNT_TC_SDC,*string:~*req.RunID:*default,,,-1,,,,,,,,
+cgrates.org,STATS_COUNT_TC_SDC,,,,,,total_calls,*sum#1,,,,,*none
+cgrates.org,STATS_COUNT_TC_SDC,,,,,,short_calls,*sum#1,*lte:~*req.Usage:6s,,,,*none`
+
+	// statsCsv := `#Tenant,Id,FilterIDs,ActivationInterval,QueueLength,TTL,MinItems,Metrics,MetricFilterIDs,Stored,Blocker,Weight,ThresholdIDs
+	// cgrates.org,STATS_COUNT_TC_SDC,*string:~*req.RunID:*default,,,-1,,,,,,,
+	// cgrates.org,STATS_COUNT_TC_SDC,,,,,,*sum#1<total_calls>,,,,,*none
+	// cgrates.org,STATS_COUNT_TC_SDC,,,,,,*sum#1<short_calls>,*lte:~*req.Usage:6s,,,,*none`
+
+	// 	_ = `#Tenant,Id,FilterIDs,ActivationInterval,QueueLength,TTL,MinItems,StatID,Metrics,MetricFilterIDs,Stored,Blocker,Weight,ThresholdIDs
+	// cgrates.org,STATS_COUNT_TC_SDC,*string:~*req.RunID:*default,,,-1,,,,,,,,
+	// cgrates.org,STATS_COUNT_TC_SDC,,,,,,total_calls,*sum#1,,,,,*none
+	// cgrates.org,STATS_COUNT_TC_SDC,,,,,,short_calls,*sum#1,*lte:~*req.Usage:6s,,,,*none`
+
+	// 	_ = `#Tenant,Id,FilterIDs,ActivationInterval,QueueLength,TTL,MinItems,Metrics,MetricFilterIDs,Stored,Blocker,Weight,ThresholdIDs
+	// cgrates.org,STATS_COUNT_TC_SDC,*string:~*req.RunID:*default,,,-1,,,,,,,
+	// cgrates.org,STATS_COUNT_TC_SDC,,,,,,*sum#1,,,,,*none
+	// cgrates.org,STATS_COUNT_TC_SDC,,,,,,*sum#1,*lte:~*req.Usage:6s,,,,*none`
+
+	// ProfileID,ProfileFilter,StatID,MetricIDs,MetricFilter
+	// test_profile,fltr1,,,
+	// test_profile,,stat1,,
+	// test_profile,,,metric1;metric2,fltr2
+	// test_profile,,,metric3,fltr3
+	// test_profile,,stat2,,
+	// test_profile,,,metric2;metric4,fltr4
+
+	// ProfileID,ProfileFilter,MetricIDs,MetricFilter
+	// test_profile1,fltr1;fltr2,,,
+	// test_profile1,,,metric1;metric2,
+	// test_profile1,,,metric3,fltr3
+	// test_profile2,fltr1;fltr4,stat2,,
+	// test_profile2,,,metric2;metric4,fltr4
+
+	tpPath := t.TempDir()
+	if err := os.WriteFile(tpPath+"/Stats.csv", []byte(statsCsv), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg := config.NewDefaultCGRConfig()
+	dataDB := NewInternalDB(nil, nil, true, nil)
+	dm := NewDataManager(dataDB, cfg.CacheCfg(), nil)
+
+	csvStorage, err := NewFileCSVStorage(utils.CSVSep, tpPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tpr := &TpReader{
+		dm:           dm,
+		lr:           csvStorage,
+		tpid:         "test",
+		sqProfiles:   make(map[utils.TenantID]*utils.TPStatProfile),
+		isInternalDB: true,
+	}
+	if err = tpr.LoadStats(); err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(utils.ToJSON(tpr.sqProfiles))
+
+	for _, tpST := range tpr.sqProfiles {
+		var st *StatQueueProfile
+		if st, err = APItoStats(tpST, tpr.timezone); err != nil {
+			return
+		}
+		fmt.Printf("tpST: %v\n", utils.ToJSON(tpST))
+		fmt.Printf("st: %v\n", utils.ToJSON(st))
+		if err = tpr.dm.SetStatQueueProfile(st, true); err != nil {
+			return
+		}
+	}
+
+	sq, err := dm.GetStatQueue("cgrates.org", "STATS_COUNT_TC_SDC", true, true, "")
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println(utils.ToJSON(sq))
 }

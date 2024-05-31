@@ -1240,7 +1240,7 @@ func (tps StatMdls) CSVHeader() (result []string) {
 func (models StatMdls) AsTPStats() (result []*utils.TPStatProfile) {
 	filterMap := make(map[string]utils.StringSet)
 	thresholdMap := make(map[string]utils.StringSet)
-	statMetricsMap := make(map[string]map[string]*utils.MetricWithFilters)
+	statMetricsMap := make(map[string]map[string]map[string]*utils.MetricWithFilters)
 	mst := make(map[string]*utils.TPStatProfile)
 	for _, model := range models {
 		key := &utils.TenantID{Tenant: model.Tenant, ID: model.ID}
@@ -1298,23 +1298,29 @@ func (models StatMdls) AsTPStats() (result []*utils.TPStatProfile) {
 			}
 			filterMap[key.TenantID()].AddSlice(strings.Split(model.FilterIDs, utils.InfieldSep))
 		}
-		if model.MetricIDs != utils.EmptyString {
+		if model.StatID != utils.EmptyString {
 			if _, has := statMetricsMap[key.TenantID()]; !has {
-				statMetricsMap[key.TenantID()] = make(map[string]*utils.MetricWithFilters)
+				statMetricsMap[key.TenantID()] = map[string]map[string]*utils.MetricWithFilters{
+					model.StatID: make(map[string]*utils.MetricWithFilters),
+				}
+			} else if _, has := statMetricsMap[key.TenantID()][model.StatID]; !has {
+				statMetricsMap[key.TenantID()][model.StatID] = make(map[string]*utils.MetricWithFilters)
 			}
-			metricIDsSplit := strings.Split(model.MetricIDs, utils.InfieldSep)
-			for _, metricID := range metricIDsSplit {
-				stsMetric, found := statMetricsMap[key.TenantID()][metricID]
-				if !found {
-					stsMetric = &utils.MetricWithFilters{
-						MetricID: metricID,
+			if model.MetricIDs != utils.EmptyString {
+				metricIDsSplit := strings.Split(model.MetricIDs, utils.InfieldSep)
+				for _, metricID := range metricIDsSplit {
+					stsMetric, found := statMetricsMap[key.TenantID()][model.StatID][metricID]
+					if !found {
+						stsMetric = &utils.MetricWithFilters{
+							MetricID: metricID,
+						}
 					}
+					if model.MetricFilterIDs != utils.EmptyString {
+						filterIDs := strings.Split(model.MetricFilterIDs, utils.InfieldSep)
+						stsMetric.FilterIDs = append(stsMetric.FilterIDs, filterIDs...)
+					}
+					statMetricsMap[key.TenantID()][model.StatID][metricID] = stsMetric
 				}
-				if model.MetricFilterIDs != utils.EmptyString {
-					filterIDs := strings.Split(model.MetricFilterIDs, utils.InfieldSep)
-					stsMetric.FilterIDs = append(stsMetric.FilterIDs, filterIDs...)
-				}
-				statMetricsMap[key.TenantID()][metricID] = stsMetric
 			}
 		}
 		mst[key.TenantID()] = st
@@ -1325,8 +1331,11 @@ func (models StatMdls) AsTPStats() (result []*utils.TPStatProfile) {
 		result[i] = st
 		result[i].FilterIDs = filterMap[tntID].AsSlice()
 		result[i].ThresholdIDs = thresholdMap[tntID].AsSlice()
-		for _, metric := range statMetricsMap[tntID] {
-			result[i].Metrics = append(result[i].Metrics, metric)
+		result[i].Metrics = make(map[string][]*utils.MetricWithFilters)
+		for sID, stat := range statMetricsMap[tntID] {
+			for _, metric := range stat {
+				result[i].Metrics[sID] = append(result[i].Metrics[sID], metric)
+			}
 		}
 		i++
 	}
@@ -1335,48 +1344,51 @@ func (models StatMdls) AsTPStats() (result []*utils.TPStatProfile) {
 
 func APItoModelStats(st *utils.TPStatProfile) (mdls StatMdls) {
 	if st != nil && len(st.Metrics) != 0 {
-		for i, metric := range st.Metrics {
-			mdl := &StatMdl{
-				Tpid:   st.TPid,
-				Tenant: st.Tenant,
-				ID:     st.ID,
-			}
-			if i == 0 {
-				for i, val := range st.FilterIDs {
+		for sID, stat := range st.Metrics {
+			for i, metric := range stat {
+				mdl := &StatMdl{
+					Tpid:   st.TPid,
+					Tenant: st.Tenant,
+					ID:     st.ID,
+					StatID: sID,
+				}
+				if i == 0 {
+					for i, val := range st.FilterIDs {
+						if i != 0 {
+							mdl.FilterIDs += utils.InfieldSep
+						}
+						mdl.FilterIDs += val
+					}
+					if st.ActivationInterval != nil {
+						if st.ActivationInterval.ActivationTime != utils.EmptyString {
+							mdl.ActivationInterval = st.ActivationInterval.ActivationTime
+						}
+						if st.ActivationInterval.ExpiryTime != utils.EmptyString {
+							mdl.ActivationInterval += utils.InfieldSep + st.ActivationInterval.ExpiryTime
+						}
+					}
+					mdl.QueueLength = st.QueueLength
+					mdl.TTL = st.TTL
+					mdl.MinItems = st.MinItems
+					mdl.Stored = st.Stored
+					mdl.Blocker = st.Blocker
+					mdl.Weight = st.Weight
+					for i, val := range st.ThresholdIDs {
+						if i != 0 {
+							mdl.ThresholdIDs += utils.InfieldSep
+						}
+						mdl.ThresholdIDs += val
+					}
+				}
+				for i, val := range metric.FilterIDs {
 					if i != 0 {
-						mdl.FilterIDs += utils.InfieldSep
+						mdl.MetricFilterIDs += utils.InfieldSep
 					}
-					mdl.FilterIDs += val
+					mdl.MetricFilterIDs += val
 				}
-				if st.ActivationInterval != nil {
-					if st.ActivationInterval.ActivationTime != utils.EmptyString {
-						mdl.ActivationInterval = st.ActivationInterval.ActivationTime
-					}
-					if st.ActivationInterval.ExpiryTime != utils.EmptyString {
-						mdl.ActivationInterval += utils.InfieldSep + st.ActivationInterval.ExpiryTime
-					}
-				}
-				mdl.QueueLength = st.QueueLength
-				mdl.TTL = st.TTL
-				mdl.MinItems = st.MinItems
-				mdl.Stored = st.Stored
-				mdl.Blocker = st.Blocker
-				mdl.Weight = st.Weight
-				for i, val := range st.ThresholdIDs {
-					if i != 0 {
-						mdl.ThresholdIDs += utils.InfieldSep
-					}
-					mdl.ThresholdIDs += val
-				}
+				mdl.MetricIDs = metric.MetricID
+				mdls = append(mdls, mdl)
 			}
-			for i, val := range metric.FilterIDs {
-				if i != 0 {
-					mdl.MetricFilterIDs += utils.InfieldSep
-				}
-				mdl.MetricFilterIDs += val
-			}
-			mdl.MetricIDs = metric.MetricID
-			mdls = append(mdls, mdl)
 		}
 	}
 	return
@@ -1389,7 +1401,7 @@ func APItoStats(tpST *utils.TPStatProfile, timezone string) (st *StatQueueProfil
 		FilterIDs:    make([]string, len(tpST.FilterIDs)),
 		QueueLength:  tpST.QueueLength,
 		MinItems:     tpST.MinItems,
-		Metrics:      make([]*MetricWithFilters, len(tpST.Metrics)),
+		Metrics:      make(map[string][]*MetricWithFilters, len(tpST.Metrics)),
 		Stored:       tpST.Stored,
 		Blocker:      tpST.Blocker,
 		Weight:       tpST.Weight,
@@ -1400,10 +1412,13 @@ func APItoStats(tpST *utils.TPStatProfile, timezone string) (st *StatQueueProfil
 			return nil, err
 		}
 	}
-	for i, metric := range tpST.Metrics {
-		st.Metrics[i] = &MetricWithFilters{
-			MetricID:  metric.MetricID,
-			FilterIDs: metric.FilterIDs,
+	for sID, stat := range tpST.Metrics {
+		st.Metrics[sID] = make([]*MetricWithFilters, len(stat))
+		for i, metric := range stat {
+			st.Metrics[sID][i] = &MetricWithFilters{
+				MetricID:  metric.MetricID,
+				FilterIDs: metric.FilterIDs,
+			}
 		}
 	}
 
@@ -1425,23 +1440,25 @@ func StatQueueProfileToAPI(st *StatQueueProfile) (tpST *utils.TPStatProfile) {
 		FilterIDs:          make([]string, len(st.FilterIDs)),
 		ActivationInterval: new(utils.TPActivationInterval),
 		QueueLength:        st.QueueLength,
-		Metrics:            make([]*utils.MetricWithFilters, len(st.Metrics)),
+		Metrics:            make(map[string][]*utils.MetricWithFilters, len(st.Metrics)),
 		Blocker:            st.Blocker,
 		Stored:             st.Stored,
 		Weight:             st.Weight,
 		MinItems:           st.MinItems,
 		ThresholdIDs:       make([]string, len(st.ThresholdIDs)),
 	}
-	for i, metric := range st.Metrics {
-		tpST.Metrics[i] = &utils.MetricWithFilters{
-			MetricID: metric.MetricID,
-		}
-		if len(metric.FilterIDs) != 0 {
-			tpST.Metrics[i].FilterIDs = make([]string, len(metric.FilterIDs))
-			copy(tpST.Metrics[i].FilterIDs, metric.FilterIDs)
+	for sID, stat := range st.Metrics {
+		tpST.Metrics[sID] = make([]*utils.MetricWithFilters, len(stat))
+		for i, metric := range stat {
+			tpST.Metrics[sID][i] = &utils.MetricWithFilters{
+				MetricID: metric.MetricID,
+			}
+			if len(metric.FilterIDs) != 0 {
+				tpST.Metrics[sID][i].FilterIDs = make([]string, len(metric.FilterIDs))
+				copy(tpST.Metrics[sID][i].FilterIDs, metric.FilterIDs)
 
+			}
 		}
-
 	}
 	if st.TTL != time.Duration(0) {
 		tpST.TTL = st.TTL.String()

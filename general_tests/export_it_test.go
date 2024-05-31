@@ -270,15 +270,17 @@ func testExpVerifyStats(t *testing.T) {
 		},
 		QueueLength: 100,
 		TTL:         10 * time.Second,
-		Metrics: []*engine.MetricWithFilters{
-			{
-				MetricID: utils.MetaACD,
-			},
-			{
-				MetricID: utils.MetaASR,
-			},
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*engine.MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaACD,
+				},
+				{
+					MetricID: utils.MetaASR,
+				},
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 		Blocker:      true,
@@ -292,8 +294,8 @@ func testExpVerifyStats(t *testing.T) {
 		&utils.TenantID{Tenant: "cgrates.org", ID: "Stat_1"}, &reply); err != nil {
 		t.Error(err)
 	}
-	sort.Slice(reply.Metrics, func(i, j int) bool {
-		return reply.Metrics[i].MetricID < reply.Metrics[j].MetricID
+	sort.Slice(reply.Metrics["default_stat"], func(i, j int) bool {
+		return reply.Metrics["default_stat"][i].MetricID < reply.Metrics["default_stat"][j].MetricID
 	})
 	if !reflect.DeepEqual(sPrf, reply) {
 		t.Errorf("Expecting: %+v \n  ,\n received: %+v",

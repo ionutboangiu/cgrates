@@ -2926,10 +2926,12 @@ func TestActionSetDDestinations(t *testing.T) {
 				rpl := &StatQueue{
 					Tenant: "cgrates",
 					ID:     "id",
-					SQMetrics: map[string]StatMetric{
-						utils.MetaDDC: &StatDDC{
-							FilterIDs: []string{"filters"},
-							Count:     7,
+					SQMetrics: map[string]map[string]StatMetric{
+						"default_stat": {
+							utils.MetaDDC: &StatDDC{
+								FilterIDs: []string{"filters"},
+								Count:     7,
+							},
 						},
 					},
 					SQItems: []SQItem{
@@ -4015,25 +4017,27 @@ func TestSetDestinationsErr(t *testing.T) {
 					SQItems: []SQItem{{
 						EventID: "ev1",
 					}},
-					SQMetrics: map[string]StatMetric{
-						utils.MetaDDC: &StatDDC{
-							FilterIDs: []string{"Test_Filter_ID"},
-							FieldValues: map[string]utils.StringSet{
-								"1001": {
-									"EVENT_1": {},
+					SQMetrics: map[string]map[string]StatMetric{
+						"default_stat": {
+							utils.MetaDDC: &StatDDC{
+								FilterIDs: []string{"Test_Filter_ID"},
+								FieldValues: map[string]utils.StringSet{
+									"1001": {
+										"EVENT_1": {},
+									},
+									"1002": {
+										"EVENT_3": {},
+									},
 								},
-								"1002": {
-									"EVENT_3": {},
+								Events: map[string]map[string]int64{
+									"Event1": {
+										"FieldValue1": 1,
+									},
+									"Event2": {},
 								},
+								MinItems: 3,
+								Count:    3,
 							},
-							Events: map[string]map[string]int64{
-								"Event1": {
-									"FieldValue1": 1,
-								},
-								"Event2": {},
-							},
-							MinItems: 3,
-							Count:    3,
 						},
 					},
 				}

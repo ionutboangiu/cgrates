@@ -593,8 +593,10 @@ func TestIDBSetStatQueueDrvNil(t *testing.T) {
 			},
 		},
 		Compressed: false,
-		SQMetrics: map[string][]byte{
-			strings.Join([]string{utils.MetaASR, "test"}, "#"): []byte("val"),
+		SQMetrics: map[string]map[string][]byte{
+			"default_stat": {
+				strings.Join([]string{utils.MetaASR, "test"}, "#"): []byte("val"),
+			},
 		},
 	}
 	if err := idb.SetStatQueueDrv(ssq, nil); err == nil {
@@ -741,9 +743,11 @@ func TestIDBTpStats(t *testing.T) {
 			FilterIDs:   []string{"FLTR_1"},
 			QueueLength: 100,
 			TTL:         "1s",
-			Metrics: []*utils.MetricWithFilters{
-				{
-					MetricID: utils.MetaASR,
+			Metrics: map[string][]*utils.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaASR,
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},
@@ -764,9 +768,11 @@ func TestIDBTpStats(t *testing.T) {
 	}
 
 	// UPDATE
-	eTPs[0].Metrics = []*utils.MetricWithFilters{
-		{
-			MetricID: utils.MetaACD,
+	eTPs[0].Metrics = map[string][]*utils.MetricWithFilters{
+		"default_stat": {
+			{
+				MetricID: utils.MetaACD,
+			},
 		},
 	}
 	if err := storDB.SetTPStats(eTPs); err != nil {
@@ -775,7 +781,7 @@ func TestIDBTpStats(t *testing.T) {
 	// READ
 	if rcv, err := storDB.GetTPStats("TP1", utils.EmptyString, utils.EmptyString); err != nil {
 		t.Error(err)
-	} else if eTPs[0].Metrics[0].MetricID != rcv[0].Metrics[0].MetricID {
+	} else if eTPs[0].Metrics["default_stat"][0].MetricID != rcv[0].Metrics["default_stat"][0].MetricID {
 		t.Errorf("Expecting: %+v,\n received:  %+v", utils.ToJSON(eTPs[0]), utils.ToJSON(rcv[0]))
 	}
 
@@ -1635,9 +1641,11 @@ func TestIDBGeTps(t *testing.T) {
 			FilterIDs:   []string{"FLTR_1"},
 			QueueLength: 100,
 			TTL:         "1s",
-			Metrics: []*utils.MetricWithFilters{
-				{
-					MetricID: utils.MetaASR,
+			Metrics: map[string][]*utils.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaASR,
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},

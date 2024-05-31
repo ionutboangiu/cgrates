@@ -358,12 +358,14 @@ func testInternalRemoteITGetStatQueueProfile(t *testing.T) {
 		QueueLength: 100,
 		TTL:         -1,
 		MinItems:    0,
-		Metrics: []*engine.MetricWithFilters{
-			{
-				MetricID: utils.MetaTCC,
-			},
-			{
-				MetricID: utils.MetaTCD,
+		Metrics: map[string][]*engine.MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCC,
+				},
+				{
+					MetricID: utils.MetaTCD,
+				},
 			},
 		},
 		Stored:       false,
@@ -382,12 +384,14 @@ func testInternalRemoteITGetStatQueueProfile(t *testing.T) {
 		QueueLength: 100,
 		TTL:         -1,
 		MinItems:    0,
-		Metrics: []*engine.MetricWithFilters{
-			{
-				MetricID: utils.MetaTCD,
-			},
-			{
-				MetricID: utils.MetaTCC,
+		Metrics: map[string][]*engine.MetricWithFilters{
+			"default_stat": {
+				{
+					MetricID: utils.MetaTCD,
+				},
+				{
+					MetricID: utils.MetaTCC,
+				},
 			},
 		},
 		Stored:       false,
@@ -1010,12 +1014,14 @@ func testInternalReplicateStats(t *testing.T) {
 			},
 			QueueLength: 10,
 			TTL:         10 * time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaACD,
-				},
-				{
-					MetricID: utils.MetaTCD,
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaACD,
+					},
+					{
+						MetricID: utils.MetaTCD,
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},

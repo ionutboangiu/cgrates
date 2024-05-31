@@ -282,6 +282,7 @@ CREATE TABLE tp_stats (
   `queue_length` int(11) NOT NULL,
   `ttl` varchar(32) NOT NULL,
   `min_items` int(11) NOT NULL,
+  `stat_id` varchar(64) NOT NULL,
   `metric_ids` varchar(128) NOT NULL,
   `metric_filter_ids` varchar(64) NOT NULL,
   `stored` BOOLEAN NOT NULL,
@@ -291,7 +292,7 @@ CREATE TABLE tp_stats (
   `created_at` TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `tpid` (`tpid`),
-  UNIQUE KEY `unique_tp_stats` (`tpid`,  `tenant`, `id`, `filter_ids`,`metric_ids`)
+  UNIQUE KEY `unique_tp_stats` (`tpid`, `tenant`, `id`, `filter_ids`, `stat_id`, `metric_ids`)
 );
 
 --

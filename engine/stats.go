@@ -305,8 +305,12 @@ func (sS *StatService) processThresholds(sQs StatQueues, opts map[string]any) (e
 			},
 			APIOpts: opts,
 		}
-		for metricID, metric := range sq.SQMetrics {
-			thEv.Event[metricID] = metric.GetValue(sS.cgrcfg.GeneralCfg().RoundingDecimals)
+		for statID, stat := range sq.SQMetrics {
+			metrics := make(map[string]any)
+			thEv.Event[statID] = metrics
+			for metricID, metric := range stat {
+				metrics[metricID] = metric.GetValue(sS.cgrcfg.GeneralCfg().RoundingDecimals)
+			}
 		}
 		var tIDs []string
 		if err := sS.connMgr.Call(context.TODO(), sS.cgrcfg.StatSCfg().ThresholdSConns,
@@ -447,7 +451,7 @@ func (sS *StatService) V1GetStatQueue(ctx *context.Context, args *utils.TenantID
 }
 
 // V1GetQueueStringMetrics returns the metrics of a Queue as string values
-func (sS *StatService) V1GetQueueStringMetrics(ctx *context.Context, args *utils.TenantID, reply *map[string]string) (err error) {
+func (sS *StatService) V1GetQueueStringMetrics(ctx *context.Context, args *utils.TenantID, reply *map[string]map[string]string) (err error) {
 	if missing := utils.MissingStructFields(args, []string{utils.ID}); len(missing) != 0 { //Params missing
 		return utils.NewErrMandatoryIeMissing(missing...)
 	}
@@ -467,16 +471,19 @@ func (sS *StatService) V1GetQueueStringMetrics(ctx *context.Context, args *utils
 		}
 		return err
 	}
-	metrics := make(map[string]string, len(sq.SQMetrics))
-	for metricID, metric := range sq.SQMetrics {
-		metrics[metricID] = metric.GetStringValue(sS.cgrcfg.GeneralCfg().RoundingDecimals)
+	metrics := make(map[string]map[string]string, len(sq.SQMetrics))
+	for statID, stat := range sq.SQMetrics {
+		metrics[statID] = make(map[string]string, len(stat))
+		for metricID, metric := range stat {
+			metrics[statID][metricID] = metric.GetStringValue(sS.cgrcfg.GeneralCfg().RoundingDecimals)
+		}
 	}
 	*reply = metrics
 	return
 }
 
 // V1GetQueueFloatMetrics returns the metrics as float64 values
-func (sS *StatService) V1GetQueueFloatMetrics(ctx *context.Context, args *utils.TenantID, reply *map[string]float64) (err error) {
+func (sS *StatService) V1GetQueueFloatMetrics(ctx *context.Context, args *utils.TenantID, reply *map[string]map[string]float64) (err error) {
 	if missing := utils.MissingStructFields(args, []string{utils.ID}); len(missing) != 0 { //Params missing
 		return utils.NewErrMandatoryIeMissing(missing...)
 	}
@@ -496,9 +503,12 @@ func (sS *StatService) V1GetQueueFloatMetrics(ctx *context.Context, args *utils.
 		}
 		return err
 	}
-	metrics := make(map[string]float64, len(sq.SQMetrics))
-	for metricID, metric := range sq.SQMetrics {
-		metrics[metricID] = metric.GetFloat64Value(sS.cgrcfg.GeneralCfg().RoundingDecimals)
+	metrics := make(map[string]map[string]float64, len(sq.SQMetrics))
+	for statID, stat := range sq.SQMetrics {
+		metrics[statID] = make(map[string]float64, len(stat))
+		for metricID, metric := range stat {
+			metrics[statID][metricID] = metric.GetFloat64Value(sS.cgrcfg.GeneralCfg().RoundingDecimals)
+		}
 	}
 	*reply = metrics
 	return
@@ -542,15 +552,18 @@ func (sS *StatService) V1ResetStatQueue(ctx *context.Context, tntID *utils.Tenan
 		return
 	}
 	sq.SQItems = make([]SQItem, 0)
-	metrics := sq.SQMetrics
-	sq.SQMetrics = make(map[string]StatMetric)
-	for id, m := range metrics {
-		var metric StatMetric
-		if metric, err = NewStatMetric(id,
-			m.GetMinItems(), m.GetFilterIDs()); err != nil {
-			return
+	sqMetrics := sq.SQMetrics
+	sq.SQMetrics = make(map[string]map[string]StatMetric)
+	for statID, stat := range sqMetrics {
+		sq.SQMetrics[statID] = make(map[string]StatMetric, len(stat))
+		for metricID, prev := range stat {
+			var metric StatMetric
+			if metric, err = NewStatMetric(metricID,
+				prev.GetMinItems(), prev.GetFilterIDs()); err != nil {
+				return
+			}
+			sq.SQMetrics[statID][metricID] = metric
 		}
-		sq.SQMetrics[id] = metric
 	}
 	sq.dirty = utils.BoolPointer(true)
 	sS.storeStatQueue(sq)

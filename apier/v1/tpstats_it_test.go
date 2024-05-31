@@ -132,9 +132,11 @@ func testTPStatsSetTPStat(t *testing.T) {
 			ExpiryTime:     "",
 		},
 		TTL: "1",
-		Metrics: []*utils.MetricWithFilters{
-			{
-				MetricID: "*sum",
+		Metrics: map[string][]*utils.MetricWithFilters{
+			utils.MetaDefault: {
+				{
+					MetricID: "*sum",
+				},
 			},
 		},
 		Blocker:      false,
@@ -167,17 +169,16 @@ func testTPStatsGetTPStatAfterSet(t *testing.T) {
 func testTPStatsUpdateTPStat(t *testing.T) {
 	var result string
 	tpStat.Weight = 21
-	tpStat.Metrics = []*utils.MetricWithFilters{
-		{
-			MetricID: "*sum",
-		},
-		{
-			MetricID: "*averege",
+	tpStat.Metrics = map[string][]*utils.MetricWithFilters{
+		"default_stat": {
+			{
+				MetricID: "*averege",
+			},
+			{
+				MetricID: "*sum",
+			},
 		},
 	}
-	sort.Slice(tpStat.Metrics, func(i, j int) bool {
-		return strings.Compare(tpStat.Metrics[i].MetricID, tpStat.Metrics[j].MetricID) == -1
-	})
 	if err := tpStatRPC.Call(context.Background(), utils.APIerSv1SetTPStat, tpStat, &result); err != nil {
 		t.Error(err)
 	} else if result != utils.OK {
@@ -192,9 +193,11 @@ func testTPStatsGetTPStatAfterUpdate(t *testing.T) {
 		t.Fatal(err)
 	}
 	sort.Strings(expectedTPS.ThresholdIDs)
-	sort.Slice(expectedTPS.Metrics, func(i, j int) bool {
-		return strings.Compare(expectedTPS.Metrics[i].MetricID, expectedTPS.Metrics[j].MetricID) == -1
-	})
+	for _, slMetrics := range expectedTPS.Metrics {
+		sort.Slice(slMetrics, func(i, j int) bool {
+			return strings.Compare(slMetrics[i].MetricID, slMetrics[j].MetricID) == -1
+		})
+	}
 	if !reflect.DeepEqual(tpStat, expectedTPS) {
 		t.Errorf("Expecting: %+v, received: %+v", tpStat, expectedTPS)
 	}

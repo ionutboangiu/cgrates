@@ -279,78 +279,92 @@ func (rpS *RouteService) costForEvent(ev *utils.CGREvent,
 	return
 }
 
-// statMetrics will query a list of statIDs and return composed metric values
+// statMetrics will query a list of StatQueue IDs and return composed metric values
 // first metric found is always returned
-func (rpS *RouteService) statMetrics(statIDs []string, tenant string) (stsMetric map[string]float64, err error) {
-	stsMetric = make(map[string]float64)
-	provStsMetrics := make(map[string][]float64)
+func (rpS *RouteService) statMetrics(sqIDs []string, tenant string) (stsMetric map[string]map[string]float64, err error) {
+	stsMetric = make(map[string]map[string]float64)
+	provStsMetrics := make(map[string]map[string][]float64)
 	if len(rpS.cgrcfg.RouteSCfg().StatSConns) != 0 {
-		for _, statID := range statIDs {
-			var metrics map[string]float64
+		for _, sqID := range sqIDs {
+			var metrics map[string]map[string]float64
 			if err = rpS.connMgr.Call(context.TODO(), rpS.cgrcfg.RouteSCfg().StatSConns, utils.StatSv1GetQueueFloatMetrics,
-				&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: tenant, ID: statID}}, &metrics); err != nil &&
+				&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: tenant, ID: sqID}}, &metrics); err != nil &&
 				err.Error() != utils.ErrNotFound.Error() {
 				utils.Logger.Warning(
-					fmt.Sprintf("<%s> error: %s getting statMetrics for stat : %s", utils.RouteS, err.Error(), statID))
+					fmt.Sprintf("<%s> error: %s getting statMetrics for stat : %s", utils.RouteS, err.Error(), sqID))
 			}
-			for key, val := range metrics {
-				//add value of metric in a slice in case that we get the same metric from different stat
-				provStsMetrics[key] = append(provStsMetrics[key], val)
+			for statID, stat := range metrics {
+				provStsMetrics[statID] = make(map[string][]float64)
+				for metricID, metric := range stat {
+					//add value of metric in a slice in case that we get the same metric from different stat
+					provStsMetrics[statID][metricID] = append(provStsMetrics[statID][metricID], metric)
+				}
 			}
 		}
-		for metric, slice := range provStsMetrics {
-			sum := 0.0
-			for _, val := range slice {
-				sum += val
+		for statID, stat := range provStsMetrics {
+			stsMetric[statID] = make(map[string]float64)
+			for metricID, slice := range stat {
+				sum := 0.0
+				for _, val := range slice {
+					sum += val
+				}
+				stsMetric[statID][metricID] = sum / float64(len(slice))
 			}
-			stsMetric[metric] = sum / float64(len(slice))
 		}
 	}
 	return
 }
 
-// statMetricsForLoadDistribution will query a list of statIDs and return the sum of metrics
+// statMetricsForLoadDistribution will query a list of StatQueue IDs and return the sum of metrics
 // first metric found is always returned
-func (rpS *RouteService) statMetricsForLoadDistribution(statIDs []string, tenant string) (result float64, err error) {
-	provStsMetrics := make(map[string][]float64)
+func (rpS *RouteService) statMetricsForLoadDistribution(sqIDs []string, tenant string) (result float64, err error) {
+	provStsMetrics := make(map[string]map[string][]float64)
 	if len(rpS.cgrcfg.RouteSCfg().StatSConns) != 0 {
-		for _, statID := range statIDs {
+		for _, statID := range sqIDs {
 			// check if we get an ID in the following form (StatID:MetricID)
 			statWithMetric := strings.Split(statID, utils.InInFieldSep)
-			var metrics map[string]float64
-			if err = rpS.connMgr.Call(context.TODO(),
-				rpS.cgrcfg.RouteSCfg().StatSConns,
+			var metrics map[string]map[string]float64
+			if err = rpS.connMgr.Call(context.TODO(), rpS.cgrcfg.RouteSCfg().StatSConns,
 				utils.StatSv1GetQueueFloatMetrics,
 				&utils.TenantIDWithAPIOpts{
 					TenantID: &utils.TenantID{
-						Tenant: tenant, ID: statWithMetric[0]}},
-				&metrics); err != nil &&
-				err.Error() != utils.ErrNotFound.Error() {
+						Tenant: tenant,
+						ID:     statWithMetric[0],
+					},
+				}, &metrics); err != nil && err.Error() != utils.ErrNotFound.Error() {
 				utils.Logger.Warning(
 					fmt.Sprintf("<%s> error: %s getting statMetrics for stat : %s",
 						utils.RouteS, err.Error(), statWithMetric[0]))
 			}
 			if len(statWithMetric) == 2 { // in case we have MetricID defined with StatID we consider only that metric
-				// check if statQueue have metric defined
-				metricVal, has := metrics[statWithMetric[1]]
-				if !has {
-					return 0, fmt.Errorf("<%s> error: %s metric %s for statID: %s",
-						utils.RouteS, utils.ErrNotFound, statWithMetric[1], statWithMetric[0])
+				for statID, stat := range metrics {
+					provStsMetrics[statID] = make(map[string][]float64)
+					// check if statQueue have metric defined
+					metricVal, has := stat[statWithMetric[1]]
+					if !has {
+						return 0, fmt.Errorf("<%s> error: %s metric %s for statID: %s",
+							utils.RouteS, utils.ErrNotFound, statWithMetric[1], statWithMetric[0])
+					}
+					provStsMetrics[statID][statWithMetric[1]] = append(provStsMetrics[statID][statWithMetric[1]], metricVal)
 				}
-				provStsMetrics[statWithMetric[1]] = append(provStsMetrics[statWithMetric[1]], metricVal)
 			} else { // otherwise we consider all metrics
-				for key, val := range metrics {
-					//add value of metric in a slice in case that we get the same metric from different stat
-					provStsMetrics[key] = append(provStsMetrics[key], val)
+				for statID, stat := range metrics {
+					provStsMetrics[statID] = make(map[string][]float64)
+					for metricID, metric := range stat {
+						//add value of metric in a slice in case that we get the same metric from different stat
+						provStsMetrics[statID][metricID] = append(provStsMetrics[statID][metricID], metric)
+					}
 				}
 			}
 		}
-		for _, slice := range provStsMetrics {
-			sum := 0.0
-			for _, val := range slice {
-				sum += val
+		for _, stat := range provStsMetrics {
+			for _, slice := range stat {
+				sum := 0.0
+				for _, val := range slice {
+					sum += val
+				}
+				result += sum
 			}
-			result += sum
 		}
 	}
 	return
@@ -442,23 +456,25 @@ func (rpS *RouteService) populateSortingData(ev *utils.CGREvent, route *Route,
 				}
 				return nil, false, err
 			}
-			//add metrics from statIDs in SortingData
-			for key, val := range metricSupp {
-				sortedSpl.SortingData[key] = val
-				sortedSpl.sortingDataF64[key] = val
-			}
-			//check if the route have the metric from sortingParameters
-			//in case that the metric don't exist
-			//we use 10000000 for *pdd and -1 for others
-			for _, metric := range extraOpts.sortingParameters {
-				if _, hasMetric := metricSupp[metric]; !hasMetric {
-					switch metric {
-					default:
-						sortedSpl.SortingData[metric] = -1.0
-						sortedSpl.sortingDataF64[metric] = -1.0
-					case utils.MetaPDD:
-						sortedSpl.SortingData[metric] = math.MaxFloat64
-						sortedSpl.sortingDataF64[metric] = math.MaxFloat64
+			for _, stat := range metricSupp {
+				//add metrics from statIDs in SortingData
+				for metricID, metric := range stat {
+					sortedSpl.SortingData[metricID] = metric
+					sortedSpl.sortingDataF64[metricID] = metric
+				}
+				//check if the route have the metric from sortingParameters
+				//in case that the metric don't exist
+				//we use math.MaxFloat64 for *pdd and -1 for others
+				for _, metric := range extraOpts.sortingParameters {
+					if _, hasMetric := stat[metric]; !hasMetric {
+						switch metric {
+						default:
+							sortedSpl.SortingData[metric] = -1.0
+							sortedSpl.sortingDataF64[metric] = -1.0
+						case utils.MetaPDD:
+							sortedSpl.SortingData[metric] = math.MaxFloat64
+							sortedSpl.sortingDataF64[metric] = math.MaxFloat64
+						}
 					}
 				}
 			}

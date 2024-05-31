@@ -104,7 +104,7 @@ func TestDspStatSv1GetQueueStringMetricsNil(t *testing.T) {
 			Tenant: "tenant",
 		},
 	}
-	var reply *map[string]string
+	var reply *map[string]map[string]string
 	result := dspSrv.StatSv1GetQueueStringMetrics(context.Background(), CGREvent, reply)
 	expected := "DISPATCHER_ERROR:NO_DATABASE_CONNECTION"
 	if result == nil || result.Error() != expected {
@@ -121,7 +121,7 @@ func TestDspStatSv1GetQueueStringMetricsErrorNil(t *testing.T) {
 			Tenant: "tenant",
 		},
 	}
-	var reply *map[string]string
+	var reply *map[string]map[string]string
 	result := dspSrv.StatSv1GetQueueStringMetrics(context.Background(), CGREvent, reply)
 	expected := "MANDATORY_IE_MISSING: [ApiKey]"
 	if result == nil || result.Error() != expected {
@@ -166,7 +166,7 @@ func TestDspStatSv1GetQueueFloatMetricsNil(t *testing.T) {
 			Tenant: "tenant",
 		},
 	}
-	var reply *map[string]float64
+	var reply *map[string]map[string]float64
 	result := dspSrv.StatSv1GetQueueFloatMetrics(context.Background(), CGREvent, reply)
 	expected := "DISPATCHER_ERROR:NO_DATABASE_CONNECTION"
 	if result == nil || result.Error() != expected {
@@ -183,7 +183,7 @@ func TestDspStatSv1GetQueueFloatMetricsErrorNil(t *testing.T) {
 			Tenant: "tenant",
 		},
 	}
-	var reply *map[string]float64
+	var reply *map[string]map[string]float64
 	result := dspSrv.StatSv1GetQueueFloatMetrics(context.Background(), CGREvent, reply)
 	expected := "MANDATORY_IE_MISSING: [ApiKey]"
 	if result == nil || result.Error() != expected {

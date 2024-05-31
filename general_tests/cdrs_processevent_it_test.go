@@ -394,11 +394,13 @@ func testV1CDRsProcessEventSts(t *testing.T) {
 	if !reflect.DeepEqual(eOut[0], cdrs[0]) {
 		t.Errorf("Expected: %+v,\nreceived: %+v", utils.ToJSON(eOut[0]), utils.ToJSON(cdrs[0]))
 	}
-	var metrics map[string]string
-	statMetrics := map[string]string{
-		utils.MetaACD: "2m30s",
-		utils.MetaASR: "100%",
-		utils.MetaTCD: "15m0s",
+	var metrics map[string]map[string]string
+	statMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaACD: "2m30s",
+			utils.MetaASR: "100%",
+			utils.MetaTCD: "15m0s",
+		},
 	}
 
 	if err := pecdrsRpc.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,

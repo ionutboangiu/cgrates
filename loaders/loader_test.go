@@ -612,25 +612,28 @@ func TestLoaderProcessStats(t *testing.T) {
 			{Path: "MinItems",
 				Type:  utils.MetaComposed,
 				Value: config.NewRSRParsersMustCompile("~*req.6", utils.InfieldSep)},
-			{Path: "MetricIDs",
+			{Path: "StatID",
 				Type:  utils.MetaComposed,
 				Value: config.NewRSRParsersMustCompile("~*req.7", utils.InfieldSep)},
-			{Path: "MetricFilterIDs",
+			{Path: "MetricIDs",
 				Type:  utils.MetaComposed,
 				Value: config.NewRSRParsersMustCompile("~*req.8", utils.InfieldSep)},
-			{Path: "Blocker",
+			{Path: "MetricFilterIDs",
 				Type:  utils.MetaComposed,
 				Value: config.NewRSRParsersMustCompile("~*req.9", utils.InfieldSep)},
-			{Path: "Stored",
+			{Path: "Blocker",
 				Type:  utils.MetaComposed,
 				Value: config.NewRSRParsersMustCompile("~*req.10", utils.InfieldSep)},
-			{Path: "Weight",
+			{Path: "Stored",
 				Type:  utils.MetaComposed,
 				Value: config.NewRSRParsersMustCompile("~*req.11", utils.InfieldSep)},
+			{Path: "Weight",
+				Type:  utils.MetaComposed,
+				Value: config.NewRSRParsersMustCompile("~*req.12", utils.InfieldSep)},
 
 			{Path: "ThresholdIDs",
 				Type:  utils.MetaComposed,
-				Value: config.NewRSRParsersMustCompile("~*req.12", utils.InfieldSep)},
+				Value: config.NewRSRParsersMustCompile("~*req.13", utils.InfieldSep)},
 		},
 	}
 	rdr := io.NopCloser(strings.NewReader(engine.StatsCSVContent))
@@ -654,10 +657,12 @@ func TestLoaderProcessStats(t *testing.T) {
 		},
 		QueueLength: 100,
 		TTL:         time.Second,
-		Metrics: []*engine.MetricWithFilters{
-			{MetricID: "*sum#~*req.Value"},
-			{MetricID: "*average#~*req.Value"},
-			{MetricID: "*sum#~*req.Usage"},
+		Metrics: map[string][]*engine.MetricWithFilters{
+			"default_stat": {
+				{MetricID: "*sum#~*req.Value"},
+				{MetricID: "*average#~*req.Value"},
+				{MetricID: "*sum#~*req.Usage"},
+			},
 		},
 		ThresholdIDs: []string{"Th1", "Th2"},
 		Blocker:      true,
@@ -669,8 +674,12 @@ func TestLoaderProcessStats(t *testing.T) {
 	aps, err := ldr.dm.GetStatQueueProfile("cgrates.org", "TestStats",
 		true, false, utils.NonTransactional)
 	//sort the slices of Metrics
-	sort.Slice(eSt1.Metrics, func(i, j int) bool { return eSt1.Metrics[i].MetricID < eSt1.Metrics[j].MetricID })
-	sort.Slice(aps.Metrics, func(i, j int) bool { return aps.Metrics[i].MetricID < aps.Metrics[j].MetricID })
+	for _, slMetrics := range eSt1.Metrics {
+		sort.Slice(slMetrics, func(i, j int) bool { return slMetrics[i].MetricID < slMetrics[j].MetricID })
+	}
+	for _, slMetrics := range aps.Metrics {
+		sort.Slice(slMetrics, func(i, j int) bool { return slMetrics[i].MetricID < slMetrics[j].MetricID })
+	}
 	sort.Strings(eSt1.ThresholdIDs)
 	sort.Strings(aps.ThresholdIDs)
 	if err != nil {
@@ -700,12 +709,21 @@ func TestLoaderProcessStatsWrongMetrics(t *testing.T) {
 		timezone:      "UTC",
 		dataTpls: map[string][]*config.FCTemplate{
 			utils.MetaStats: {
-				{Path: "MetricIDs",
+				{
+					Path:  "StatID",
 					Type:  utils.MetaComposed,
-					Value: config.NewRSRParsersMustCompile("~*req.0", utils.InfieldSep)},
-				{Path: "Stored",
+					Value: config.NewRSRParsersMustCompile("~*req.0", utils.InfieldSep),
+				},
+				{
+					Path:  "MetricIDs",
 					Type:  utils.MetaComposed,
-					Value: config.NewRSRParsersMustCompile("~*req.1", utils.InfieldSep)},
+					Value: config.NewRSRParsersMustCompile("~*req.0", utils.InfieldSep),
+				},
+				{
+					Path:  "Stored",
+					Type:  utils.MetaComposed,
+					Value: config.NewRSRParsersMustCompile("~*req.1", utils.InfieldSep),
+				},
 			},
 		},
 	}

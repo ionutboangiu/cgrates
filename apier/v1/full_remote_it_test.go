@@ -202,12 +202,14 @@ func testFullRemoteITStatQueue(t *testing.T) {
 			},
 			QueueLength: 10,
 			TTL:         10 * time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: utils.MetaACD,
-				},
-				{
-					MetricID: utils.MetaTCD,
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: utils.MetaACD,
+					},
+					{
+						MetricID: utils.MetaTCD,
+					},
 				},
 			},
 			ThresholdIDs: []string{"Val1", "Val2"},

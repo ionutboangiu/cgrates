@@ -1,8 +1,8 @@
 name: Integration Tests
 
 on:
-  # push:
-  #   branches: [master]
+  push:
+    branches: [feat/stat-groups]
   pull_request:
     branches: [master]
 

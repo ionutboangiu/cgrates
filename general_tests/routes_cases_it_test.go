@@ -201,7 +201,7 @@ func testV1RtsCaseGetRoutesAfterLoading(t *testing.T) {
 			},
 			{
 				ID:            "vendor2",
-				FilterIDs:     []string{"*gte:~*stats.STATS_VENDOR_2.*acd:1m"},
+				FilterIDs:     []string{"*gte:~*stats.STATS_VENDOR_2.default_stat.*acd:1m"},
 				RatingPlanIDs: []string{"RP_VENDOR2"},
 				Weight:        0,
 			},
@@ -252,7 +252,7 @@ func testV1RtsCaseGetRoutesAfterLoading(t *testing.T) {
 			},
 			{
 				ID:        "vendor3",
-				FilterIDs: []string{"*gte:~*stats.STATS_VENDOR_1.*tcc:6"},
+				FilterIDs: []string{"*gte:~*stats.STATS_VENDOR_1.default_stat.*tcc:6"},
 				StatIDs:   []string{"STATS_VENDOR_1"},
 				Weight:    20,
 			},

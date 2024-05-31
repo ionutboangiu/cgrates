@@ -747,9 +747,11 @@ func testActionsitSetSDestinations(t *testing.T) {
 			ID:          "DistinctMetricProfile",
 			QueueLength: 10,
 			TTL:         10 * time.Second,
-			Metrics: []*MetricWithFilters{{
-				MetricID: utils.MetaDDC,
-			}},
+			Metrics: map[string][]*MetricWithFilters{
+				"default_stat": {{
+					MetricID: utils.MetaDDC,
+				}},
+			},
 			ThresholdIDs: []string{utils.MetaNone},
 			Stored:       true,
 			Weight:       20,

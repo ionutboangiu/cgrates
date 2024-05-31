@@ -30,6 +30,101 @@ import (
 	"github.com/cgrates/cgrates/utils"
 )
 
+func (m *Migrator) migrateStats() error {
+	current := engine.CurrentDataDBVersions()
+	vrs, err := m.getVersions(utils.StatS)
+	if err != nil {
+		return err
+	}
+	migrated := true
+	var filter *engine.Filter
+	var v3sqp *v2to4StatQueueProfile
+	var v4sqp *v2to4StatQueueProfile
+	var v5sqp *engine.StatQueueProfile
+	var v2sq *v2to3StatQueue
+	var v3sq *v2to3StatQueue
+	var v4sq *engine.StatQueue
+	for {
+		version := vrs[utils.StatS]
+		for {
+			switch version {
+			default:
+				return fmt.Errorf("Unsupported version %v", version)
+			case current[utils.StatS]:
+				migrated = false
+				if m.sameDataDB {
+					break
+				}
+				if err = m.migrateCurrentStats(); err != nil {
+					return err
+				}
+				version = 3
+			case 1: // migrate from V1 to V2
+				if filter, v2sq, v3sqp, err = m.migrateV1Stats(); err != nil && err != utils.ErrNoMoreData {
+					return err
+				} else if err == utils.ErrNoMoreData {
+					break
+				}
+				version = 2
+			case 2: // migrate from V2 to V3
+				if v3sq, err = m.migrateV2Stats(v2sq); err != nil && err != utils.ErrNoMoreData {
+					return err
+				} else if err == utils.ErrNoMoreData {
+					break
+				}
+				version = 3
+			case 3: // migrate from V3 to V4
+				if v4sqp, err = m.migrateV3ToV4Stats(v3sqp); err != nil && err != utils.ErrNoMoreData {
+					return err
+				} else if err == utils.ErrNoMoreData {
+					break
+				}
+				version = 4
+			case 4: // migrate from V4 to V5
+				if v4sq, v5sqp, err = m.migrateV4toV5Stats(v3sq, v4sqp); err != nil {
+					if errors.Is(err, utils.ErrNoMoreData) {
+						break
+					}
+					return err
+				}
+			}
+			if version == current[utils.StatS] || err == utils.ErrNoMoreData {
+				break
+			}
+		}
+		if err == utils.ErrNoMoreData || !migrated {
+			break
+		}
+		if !m.dryRun {
+			if vrs[utils.StatS] == 1 {
+				if err = m.dmOut.DataManager().SetFilter(filter, true); err != nil {
+					return err
+				}
+			}
+			// Set the fresh-migrated Stats into DB
+			if err = m.dmOut.DataManager().SetStatQueueProfile(v5sqp, true); err != nil {
+				return err
+			}
+			if v4sq != nil {
+				if err = m.dmOut.DataManager().SetStatQueue(v4sq); err != nil {
+					return err
+				}
+			}
+		}
+		m.stats[utils.StatS]++
+	}
+	if m.dryRun || !migrated {
+		return nil
+	}
+	// call the remove function here
+
+	// All done, update version with current one
+	if err = m.setVersions(utils.StatS); err != nil {
+		return err
+	}
+	return m.ensureIndexesDataDB(engine.ColSqs)
+}
+
 type v1Stat struct {
 	Id              string        // Config id, unique per config instance
 	QueueLength     int           // Number of items in the stats buffer
@@ -97,7 +192,7 @@ func (m *Migrator) migrateCurrentStats() (err error) {
 	return
 }
 
-func (m *Migrator) migrateV1Stats() (filter *engine.Filter, v2Stats *engine.StatQueue, sts *engine.StatQueueProfile, err error) {
+func (m *Migrator) migrateV1Stats() (filter *engine.Filter, v2Stats *v2to3StatQueue, sts *v2to4StatQueueProfile, err error) {
 	var v1Sts *v1Stat
 	v1Sts, err = m.dmIN.getV1Stats()
 	if err != nil {
@@ -119,8 +214,8 @@ func (m *Migrator) migrateV1Stats() (filter *engine.Filter, v2Stats *engine.Stat
 	return
 }
 
-func remakeQueue(sq *engine.StatQueue) (out *engine.StatQueue) {
-	out = &engine.StatQueue{
+func remakeQueue(sq *v2to3StatQueue) (out *v2to3StatQueue) {
+	out = &v2to3StatQueue{
 		Tenant:    sq.Tenant,
 		ID:        sq.ID,
 		SQItems:   sq.SQItems,
@@ -132,7 +227,7 @@ func remakeQueue(sq *engine.StatQueue) (out *engine.StatQueue) {
 	return
 }
 
-func (m *Migrator) migrateV2Stats(v2Stats *engine.StatQueue) (v3Stats *engine.StatQueue, err error) {
+func (m *Migrator) migrateV2Stats(v2Stats *v2to3StatQueue) (v3Stats *v2to3StatQueue, err error) {
 	if v2Stats == nil {
 		// read from DB
 		v2Stats, err = m.dmIN.getV2Stats()
@@ -146,93 +241,7 @@ func (m *Migrator) migrateV2Stats(v2Stats *engine.StatQueue) (v3Stats *engine.St
 	return
 }
 
-func (m *Migrator) migrateStats() (err error) {
-	var vrs engine.Versions
-	current := engine.CurrentDataDBVersions()
-	if vrs, err = m.getVersions(utils.StatS); err != nil {
-		return
-	}
-	migrated := true
-	var filter *engine.Filter
-	var v3sts *engine.StatQueueProfile
-	var v4sts *engine.StatQueueProfile
-	var v2Stats *engine.StatQueue
-	var v3Stats *engine.StatQueue
-	for {
-		version := vrs[utils.StatS]
-		for {
-			switch version {
-			default:
-				return fmt.Errorf("Unsupported version %v", version)
-			case current[utils.StatS]:
-				migrated = false
-				if m.sameDataDB {
-					break
-				}
-				if err = m.migrateCurrentStats(); err != nil {
-					return
-				}
-				version = 3
-			case 1: // migrate from V1 to V2
-				if filter, v2Stats, v3sts, err = m.migrateV1Stats(); err != nil && err != utils.ErrNoMoreData {
-					return
-				} else if err == utils.ErrNoMoreData {
-					break
-				}
-				version = 2
-			case 2: // migrate from V2 to V3 (actual)
-				if v3Stats, err = m.migrateV2Stats(v2Stats); err != nil && err != utils.ErrNoMoreData {
-					return
-				} else if err == utils.ErrNoMoreData {
-					break
-				}
-				version = 3
-			case 3:
-				if v4sts, err = m.migrateV3ToV4Stats(v3sts); err != nil && err != utils.ErrNoMoreData {
-					return
-				} else if err == utils.ErrNoMoreData {
-					break
-				}
-				version = 4
-			}
-			if version == current[utils.StatS] || err == utils.ErrNoMoreData {
-				break
-			}
-		}
-		if err == utils.ErrNoMoreData || !migrated {
-			break
-		}
-		if !m.dryRun {
-			if vrs[utils.StatS] == 1 {
-				if err = m.dmOut.DataManager().SetFilter(filter, true); err != nil {
-					return
-				}
-			}
-			// Set the fresh-migrated Stats into DB
-			if err = m.dmOut.DataManager().SetStatQueueProfile(v4sts, true); err != nil {
-				return
-			}
-			if v3Stats != nil {
-				if err = m.dmOut.DataManager().SetStatQueue(v3Stats); err != nil {
-					return
-				}
-			}
-		}
-		m.stats[utils.StatS]++
-	}
-	if m.dryRun || !migrated {
-		return nil
-	}
-	// call the remove function here
-
-	// All done, update version wtih current one
-	if err = m.setVersions(utils.StatS); err != nil {
-		return err
-	}
-	return m.ensureIndexesDataDB(engine.ColSqs)
-}
-
-func (v1Sts v1Stat) AsStatQP() (filter *engine.Filter, sq *engine.StatQueue, stq *engine.StatQueueProfile, err error) {
+func (v1Sts v1Stat) AsStatQP() (filter *engine.Filter, sq *v2to3StatQueue, stq *v2to4StatQueueProfile, err error) {
 	var filters []*engine.FilterRule
 	if len(v1Sts.SetupInterval) == 1 {
 		x, err := engine.NewFilterRule(utils.MetaGreaterOrEqual,
@@ -377,7 +386,7 @@ func (v1Sts v1Stat) AsStatQP() (filter *engine.Filter, sq *engine.StatQueue, stq
 		Tenant: config.CgrConfig().GeneralCfg().DefaultTenant,
 		ID:     v1Sts.Id,
 		Rules:  filters}
-	stq = &engine.StatQueueProfile{
+	stq = &v2to4StatQueueProfile{
 		ID:           v1Sts.Id,
 		QueueLength:  v1Sts.QueueLength,
 		Metrics:      make([]*engine.MetricWithFilters, 0),
@@ -395,7 +404,7 @@ func (v1Sts v1Stat) AsStatQP() (filter *engine.Filter, sq *engine.StatQueue, stq
 			stq.ThresholdIDs = append(stq.ThresholdIDs, v1Sts.Triggers[i].ID)
 		}
 	}
-	sq = &engine.StatQueue{
+	sq = &v2to3StatQueue{
 		Tenant:    config.CgrConfig().GeneralCfg().DefaultTenant,
 		ID:        v1Sts.Id,
 		SQMetrics: make(map[string]engine.StatMetric),
@@ -415,15 +424,78 @@ func (v1Sts v1Stat) AsStatQP() (filter *engine.Filter, sq *engine.StatQueue, stq
 	return filter, sq, stq, nil
 }
 
-func (m *Migrator) migrateV3ToV4Stats(v3sts *engine.StatQueueProfile) (v4Cpp *engine.StatQueueProfile, err error) {
-	if v3sts == nil {
+func (m *Migrator) migrateV3ToV4Stats(v3sqp *v2to4StatQueueProfile) (*v2to4StatQueueProfile, error) {
+	var err error
+	if v3sqp == nil {
 		// read data from DataDB
-		if v3sts, err = m.dmIN.getV3Stats(); err != nil {
-			return
+		if v3sqp, err = m.dmIN.getV3Stats(); err != nil {
+			return nil, err
 		}
 	}
-	if v3sts.FilterIDs, err = migrateInlineFilterV4(v3sts.FilterIDs); err != nil {
-		return
+	if v3sqp.FilterIDs, err = migrateInlineFilterV4(v3sqp.FilterIDs); err != nil {
+		return nil, err
 	}
-	return v3sts, nil
+	return v3sqp, nil
+}
+
+func (m *Migrator) migrateV4toV5Stats(v3sq *v2to3StatQueue, v4sqp *v2to4StatQueueProfile) (*engine.StatQueue, *engine.StatQueueProfile, error) {
+	var err error
+	if v3sq == nil {
+		if v3sq, err = m.dmIN.getV2Stats(); err != nil {
+			return nil, nil, err
+		}
+	}
+	if v4sqp == nil {
+		if v4sqp, err = m.dmIN.getV3Stats(); err != nil {
+			return nil, nil, err
+		}
+	}
+	v4sq := &engine.StatQueue{
+		Tenant:  v3sq.Tenant,
+		ID:      v3sq.ID,
+		SQItems: v3sq.SQItems,
+	}
+	v4sq.SQMetrics = map[string]map[string]engine.StatMetric{
+		utils.MetaDefault: v3sq.SQMetrics,
+	}
+
+	v5sqp := &engine.StatQueueProfile{
+		Tenant:             v4sqp.Tenant,
+		ID:                 v4sqp.ID,
+		FilterIDs:          v4sqp.FilterIDs,
+		ActivationInterval: v4sqp.ActivationInterval,
+		QueueLength:        v4sqp.QueueLength,
+		TTL:                v4sqp.TTL,
+		MinItems:           v4sqp.MinItems,
+		Stored:             v4sqp.Stored,
+		Blocker:            v4sqp.Blocker,
+		Weight:             v4sqp.Weight,
+		ThresholdIDs:       v4sqp.ThresholdIDs,
+	}
+	v5sqp.Metrics = map[string][]*engine.MetricWithFilters{
+		utils.MetaDefault: v4sqp.Metrics,
+	}
+	return v4sq, v5sqp, nil
+}
+
+type v2to4StatQueueProfile struct {
+	Tenant             string
+	ID                 string
+	FilterIDs          []string
+	ActivationInterval *utils.ActivationInterval
+	QueueLength        int
+	TTL                time.Duration
+	MinItems           int
+	Metrics            []*engine.MetricWithFilters
+	Stored             bool
+	Blocker            bool
+	Weight             float64
+	ThresholdIDs       []string
+}
+
+type v2to3StatQueue struct {
+	Tenant    string
+	ID        string
+	SQItems   []engine.SQItem
+	SQMetrics map[string]engine.StatMetric
 }

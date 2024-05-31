@@ -70,7 +70,7 @@ func TestFilterIndexesCheckingDynamicPathToNotIndex(t *testing.T) {
 		Tenant:    "cgrates.org",
 		ID:        "AttrPrf3",
 		Contexts:  []string{utils.MetaAny},
-		FilterIDs: []string{"*prefix:~*req.Destination:1007", "*string:~*req.Account:1001", "*string:~*opts.TotalCost:~*stats.STS_PRF1.*tcc"},
+		FilterIDs: []string{"*prefix:~*req.Destination:1007", "*string:~*req.Account:1001", "*string:~*opts.TotalCost:~*stats.STS_PRF1.default_stat.*tcc"},
 		Attributes: []*Attribute{
 			{
 				Path:  utils.MetaReq + utils.NestingSep + "RequestType",
@@ -184,7 +184,7 @@ func TestFilterIndexesCheckingDynamicPathToNotIndexLibphNmbr(t *testing.T) {
 		ID:     "CHARGER_2",
 		FilterIDs: []string{
 			"*prefix:~*req.CGRID:TEST_ID",
-			"*string:~*opts.TotalCost:~*stats.STS_PRF1.*tcc",
+			"*string:~*opts.TotalCost:~*stats.STS_PRF1.default_stat.*tcc",
 			"*string:~*libphonenumber.<~*req.Destination:1233",
 		},
 		RunID:        "RAW",

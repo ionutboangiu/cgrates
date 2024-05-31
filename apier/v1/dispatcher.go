@@ -294,12 +294,12 @@ func (dSts *DispatcherStatSv1) GetStatQueuesForEvent(ctx *context.Context, args 
 
 // GetQueueStringMetrics implements StatSv1GetQueueStringMetrics
 func (dSts *DispatcherStatSv1) GetQueueStringMetrics(ctx *context.Context, args *utils.TenantIDWithAPIOpts,
-	reply *map[string]string) error {
+	reply *map[string]map[string]string) error {
 	return dSts.dS.StatSv1GetQueueStringMetrics(ctx, args, reply)
 }
 
 func (dSts *DispatcherStatSv1) GetQueueFloatMetrics(ctx *context.Context, args *utils.TenantIDWithAPIOpts,
-	reply *map[string]float64) error {
+	reply *map[string]map[string]float64) error {
 	return dSts.dS.StatSv1GetQueueFloatMetrics(ctx, args, reply)
 }
 

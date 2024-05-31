@@ -54,7 +54,7 @@ func (dS *DispatcherService) StatSv1GetStatQueuesForEvent(ctx *context.Context, 
 }
 
 func (dS *DispatcherService) StatSv1GetQueueStringMetrics(ctx *context.Context, args *utils.TenantIDWithAPIOpts,
-	reply *map[string]string) (err error) {
+	reply *map[string]map[string]string) (err error) {
 
 	if len(dS.cfg.DispatcherSCfg().AttributeSConns) != 0 {
 		if err = dS.authorize(utils.StatSv1GetQueueStringMetrics,
@@ -84,7 +84,7 @@ func (dS *DispatcherService) StatSv1ProcessEvent(ctx *context.Context, args *uti
 }
 
 func (dS *DispatcherService) StatSv1GetQueueFloatMetrics(ctx *context.Context, args *utils.TenantIDWithAPIOpts,
-	reply *map[string]float64) (err error) {
+	reply *map[string]map[string]float64) (err error) {
 	if len(dS.cfg.DispatcherSCfg().AttributeSConns) != 0 {
 		if err = dS.authorize(utils.StatSv1GetQueueFloatMetrics,
 			args.TenantID.Tenant,

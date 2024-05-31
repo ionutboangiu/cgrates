@@ -414,9 +414,11 @@ func testV1FIdxGetStatsIndexesHealth(t *testing.T) {
 				"*suffix:~*opts.Destination:+332|+234"},
 			QueueLength: 10,
 			TTL:         10 * time.Second,
-			Metrics: []*engine.MetricWithFilters{
-				{
-					MetricID: "*sum#~*req.Val",
+			Metrics: map[string][]*engine.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: "*sum#~*req.Val",
+					},
 				},
 			},
 			ThresholdIDs: []string{"*none"},

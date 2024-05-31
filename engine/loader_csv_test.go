@@ -988,15 +988,17 @@ func TestLoadStatQueueProfiles(t *testing.T) {
 			},
 			QueueLength: 100,
 			TTL:         "1s",
-			Metrics: []*utils.MetricWithFilters{
-				{
-					MetricID: "*sum#Value",
-				},
-				{
-					MetricID: "*sum#Usage",
-				},
-				{
-					MetricID: "*average#Value",
+			Metrics: map[string][]*utils.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: "*sum#Value",
+					},
+					{
+						MetricID: "*sum#Usage",
+					},
+					{
+						MetricID: "*average#Value",
+					},
 				},
 			},
 			ThresholdIDs: []string{"Th1", "Th2"},
@@ -1015,26 +1017,28 @@ func TestLoadStatQueueProfiles(t *testing.T) {
 			},
 			QueueLength: 100,
 			TTL:         "1s",
-			Metrics: []*utils.MetricWithFilters{
-				{
-					MetricID: "*sum#Value",
-				},
-				{
-					MetricID: "*sum#Usage",
-				},
-				{
-					FilterIDs: []string{"*string:Account:1001"},
-					MetricID:  "*sum#Cost",
-				},
-				{
-					MetricID: "*average#Value",
-				},
-				{
-					MetricID: "*average#Usage",
-				},
-				{
-					FilterIDs: []string{"*string:Account:1001"},
-					MetricID:  "*average#Cost",
+			Metrics: map[string][]*utils.MetricWithFilters{
+				"default_stat": {
+					{
+						MetricID: "*sum#Value",
+					},
+					{
+						MetricID: "*sum#Usage",
+					},
+					{
+						FilterIDs: []string{"*string:Account:1001"},
+						MetricID:  "*sum#Cost",
+					},
+					{
+						MetricID: "*average#Value",
+					},
+					{
+						MetricID: "*average#Usage",
+					},
+					{
+						FilterIDs: []string{"*string:Account:1001"},
+						MetricID:  "*average#Cost",
+					},
 				},
 			},
 			ThresholdIDs: []string{"Th"},

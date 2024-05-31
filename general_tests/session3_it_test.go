@@ -222,11 +222,13 @@ func testSes3ItThreshold1002After(t *testing.T) {
 }
 
 func testSes3ItStatMetricsAfter(t *testing.T) {
-	var metrics map[string]string
-	statMetrics := map[string]string{
-		utils.MetaACD: "5m0s",
-		utils.MetaASR: "100%",
-		utils.MetaTCD: "5m0s",
+	var metrics map[string]map[string]string
+	statMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaACD: "5m0s",
+			utils.MetaASR: "100%",
+			utils.MetaTCD: "5m0s",
+		},
 	}
 
 	if err := ses3RPC.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
@@ -254,11 +256,13 @@ func testSes3ItThreshold1002After2(t *testing.T) {
 }
 
 func testSes3ItStatMetricsAfter2(t *testing.T) {
-	var metrics map[string]string
-	statMetrics := map[string]string{
-		utils.MetaACD: "5m0s",
-		utils.MetaASR: "100%",
-		utils.MetaTCD: "10m0s",
+	var metrics map[string]map[string]string
+	statMetrics := map[string]map[string]string{
+		"default_stat": {
+			utils.MetaACD: "5m0s",
+			utils.MetaASR: "100%",
+			utils.MetaTCD: "10m0s",
+		},
 	}
 
 	if err := ses3RPC.Call(context.Background(), utils.StatSv1GetQueueStringMetrics,
