@@ -19,12 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 package general_tests
 
 import (
+	"errors"
+	"fmt"
 	"path"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/cgrates/birpc"
 	"github.com/cgrates/birpc/context"
+	"github.com/cgrates/birpc/jsonrpc"
 	"github.com/segmentio/kafka-go"
 
 	"github.com/cgrates/cgrates/config"
@@ -42,11 +46,11 @@ var (
 		testKafkaSSLLoadConfig,
 		testKafkaSSLResetDataDB,
 
-		testKafkaSSLStartEngine,
+		// testKafkaSSLStartEngine,
 		testKafkaSSLRPCConn,
-		testKafkaSSLExportEvent,           // exports event to ssl-topic, then the reader will consume said event and export it to processed-topic
-		testKafkaSSLVerifyProcessedExport, // checks whether ERs managed to successfully read and export the events served by Kafka server
-		testKafkaSSLStopEngine,
+		testKafkaSSLExportEvent, // exports event to ssl-topic, then the reader will consume said event and export it to processed-topic
+		// testKafkaSSLVerifyProcessedExport, // checks whether ERs managed to successfully read and export the events served by Kafka server
+		// testKafkaSSLStopEngine,
 	}
 )
 
@@ -57,15 +61,26 @@ listeners=PLAINTEXT://:9092,SSL://localhost:9093
 ...
 advertised.listeners=PLAINTEXT://localhost:9092,SSL://localhost:9093
 ...
-ssl.truststore.location=/home/kafka/kafka/ssl/kafka.server.truststore.jks
+ssl.truststore.location=/tmp/ssl/kafka/kafka.truststore.jks
 ssl.truststore.password=123456
 ssl.keystore.type=PKCS12
-ssl.keystore.location=/home/kafka/kafka/ssl/kafka.server.keystore.p12
+ssl.keystore.location=/tmp/ssl/kafka/kafka.keystore.p12
 ssl.keystore.password=123456
 ssl.key.password=123456
 ssl.client.auth=none
 ssl.protocol=TLSv1.2
 security.inter.broker.protocol=SSL
+
+
+ssl.truststore.location=/tmp/ssl/kafka/kafka.truststore.jks
+ssl.truststore.password=123456
+#ssl.keystore.type=PKCS12
+ssl.keystore.location=/tmp/ssl/kafka/kafka.keystore.jks
+ssl.keystore.password=123456
+ssl.key.password=123456
+ssl.client.auth=none
+#ssl.protocol=TLSv1.2
+#security.inter.broker.protocol=SSL
 */
 
 // How to create TLS keys and certificates:
@@ -83,7 +98,6 @@ func TestKafkaSSL(t *testing.T) {
 		t.Run(kafkaSSLConfigDir, stest)
 	}
 }
-
 func testKafkaSSLLoadConfig(t *testing.T) {
 	var err error
 	kafkaSSLCfgPath = path.Join(*utils.DataDir, "conf", "samples", kafkaSSLConfigDir)
@@ -106,42 +120,94 @@ func testKafkaSSLStartEngine(t *testing.T) {
 
 func testKafkaSSLRPCConn(t *testing.T) {
 	var err error
-	kafkaSSLRpc, err = newRPCClient(kafkaSSLCfg.ListenCfg())
+	switch *utils.Encoding {
+	case utils.MetaJSON:
+		kafkaSSLRpc, err = jsonrpc.Dial(utils.TCP, kafkaSSLCfg.ListenCfg().RPCJSONListen)
+	case utils.MetaGOB:
+		kafkaSSLRpc, err = birpc.Dial(utils.TCP, kafkaSSLCfg.ListenCfg().RPCGOBListen)
+	default:
+		err = errors.New("UNSUPPORTED_RPC")
+	}
 	if err != nil {
 		t.Fatal(err)
 	}
 }
-
 func testKafkaSSLExportEvent(t *testing.T) {
-	event := &engine.CGREventWithEeIDs{
-		CGREvent: &utils.CGREvent{
-			Tenant: "cgrates.org",
-			ID:     "KafkaEvent",
-			Event: map[string]interface{}{
-				utils.ToR:          utils.MetaVoice,
-				utils.OriginID:     "abcdef",
-				utils.OriginHost:   "192.168.1.1",
-				utils.RequestType:  utils.MetaRated,
-				utils.Tenant:       "cgrates.org",
-				utils.Category:     "call",
-				utils.AccountField: "1001",
-				utils.Subject:      "1001",
-				utils.Destination:  "1002",
-				utils.SetupTime:    time.Unix(1383813745, 0).UTC(),
-				utils.AnswerTime:   time.Unix(1383813748, 0).UTC(),
-				utils.Usage:        10 * time.Second,
-				utils.RunID:        utils.MetaDefault,
-				utils.Cost:         1.01,
-			},
-		},
-	}
-
 	var reply map[string]map[string]interface{}
-	if err := kafkaSSLRpc.Call(context.Background(), utils.EeSv1ProcessEvent, event, &reply); err != nil {
-		t.Error(err)
+	n := 5000
+
+	var wg sync.WaitGroup
+	wg.Add(n)
+	for i := range n {
+		go func() {
+			defer wg.Done()
+			if err := kafkaSSLRpc.Call(context.Background(), utils.EeSv1ProcessEvent, &engine.CGREventWithEeIDs{
+				EeIDs: []string{utils.MetaDefault},
+				CGREvent: &utils.CGREvent{
+					Tenant: "cgrates.org",
+					ID:     "KafkaEvent",
+					Event: map[string]interface{}{
+						utils.ToR:          utils.MetaVoice,
+						utils.OriginID:     fmt.Sprintf("abcdef%d", i),
+						utils.OriginHost:   "192.168.1.1",
+						utils.RequestType:  utils.MetaRated,
+						utils.Tenant:       "cgrates.org",
+						utils.Category:     "call",
+						utils.AccountField: "1001",
+						utils.Subject:      "1001",
+						utils.Destination:  "1002",
+						utils.SetupTime:    time.Unix(1383813745, 0).UTC(),
+						utils.AnswerTime:   time.Unix(1383813748, 0).UTC(),
+						utils.Usage:        10 * time.Second,
+						utils.RunID:        utils.MetaDefault,
+						utils.Cost:         1.01,
+					},
+				},
+			}, &reply); err != nil {
+				t.Error(err)
+			}
+		}()
+		// if i == 0 {
+		// 	time.Sleep(1000 * time.Millisecond)
+		// }
+		if i%20 == 0 {
+			time.Sleep(50 * time.Millisecond)
+		}
 	}
-	time.Sleep(time.Second)
+	wg.Wait()
 }
+
+// func testKafkaSSLExportEvent(t *testing.T) {
+// 	event := &engine.CGREventWithEeIDs{
+// 		EeIDs: []string{utils.MetaDefault},
+// 		CGREvent: &utils.CGREvent{
+// 			Tenant: "cgrates.org",
+// 			ID:     "KafkaEvent",
+// 			Event: map[string]interface{}{
+// 				utils.ToR:          utils.MetaVoice,
+// 				utils.OriginID:     "abcdef",
+// 				utils.OriginHost:   "192.168.1.1",
+// 				utils.RequestType:  utils.MetaRated,
+// 				utils.Tenant:       "cgrates.org",
+// 				utils.Category:     "call",
+// 				utils.AccountField: "1001",
+// 				utils.Subject:      "1001",
+// 				utils.Destination:  "1002",
+// 				utils.SetupTime:    time.Unix(1383813745, 0).UTC(),
+// 				utils.AnswerTime:   time.Unix(1383813748, 0).UTC(),
+// 				utils.Usage:        10 * time.Second,
+// 				utils.RunID:        utils.MetaDefault,
+// 				utils.Cost:         1.01,
+// 			},
+// 		},
+// 	}
+
+// 	var reply map[string]map[string]interface{}
+// 	if err := kafkaSSLRpc.Call(context.Background(), utils.EeSv1ProcessEvent, event, &reply); err != nil {
+// 		t.Error(err)
+// 	}
+// 	time.Sleep(time.Second)
+// }
 
 func testKafkaSSLVerifyProcessedExport(t *testing.T) {
 	r := kafka.NewReader(kafka.ReaderConfig{

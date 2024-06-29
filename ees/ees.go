@@ -21,6 +21,7 @@ package ees
 import (
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -212,13 +213,22 @@ func (eeS *EventExporterS) V1ProcessEvent(ctx *context.Context, cgrEv *engine.CG
 				ee = x.(EventExporter)
 			}
 		}
-
 		if !isCached {
+			utils.Logger.Debug("creating new exporter... - hasCache: " + strconv.FormatBool(hasCache) + " - isCached: " + strconv.FormatBool(isCached))
 			if ee, err = NewEventExporter(eeS.cfg.EEsCfg().Exporters[cfgIdx], eeS.cfg, eeS.filterS, eeS.connMgr); err != nil {
 				return
 			}
 			if hasCache {
-				eeCache.Set(eeCfg.ID, ee, nil)
+				eeS.eesMux.Lock()
+				utils.Logger.Debug("before the IFFFFF")
+				if _, has := eeCache.Get(eeCfg.ID); !has {
+					utils.Logger.Debug("INSIDE the IFFFFF")
+					eeCache.Set(eeCfg.ID, ee, nil)
+				} else {
+					utils.Logger.Debug("ELSE CASEEEE")
+					hasCache = false
+				}
+				eeS.eesMux.Unlock()
 			}
 		}
 

@@ -1,8 +1,7 @@
 {
 
-"logger": {
-    "type": "*syslog",        
-    "level": 7               
+"general": {
+    "log_level": 7               
 },
 
 "listen": {
@@ -19,50 +18,54 @@
 
 "ees": {
     "enabled": true,
+    "cache": {
+		"*kafka_json_map": {"limit": 1, "ttl": "5s", "static_ttl": false},
+	},
     "exporters": [
         {
             "id": "*default",								
             "type": "*kafka_json_map",									
-            "export_path": "localhost:9093",			
+            "export_path": "localhost:9094",			
             "opts": {
-                "kafkaTopic": "ssl-topic",
+                "kafkaTopic": "cgrates",
                 "kafkaTLS": true,
-                "kafkaCAPath": "/home/kafka/kafka/ssl/ca.pem",
+                "kafkaCAPath": "/tmp/ssl/kafka/ca.crt",
                 "kafkaSkipTLSVerify": false
             },												
-            "failed_posts_dir": "/var/spool/cgrates/failed_posts"
+            "failed_posts_dir": "/var/spool/cgrates/failed_posts",
+            "synchronous": true
         },
-        {
-            "id": "kafka_processed",								
-            "type": "*kafka_json_map",									
-            "export_path": "localhost:9092",			
-            "opts": {
-                "kafkaTopic": "processed-topic",
-                "kafkaTLS": false,
-                "kafkaCAPath": "/home/kafka/kafka/ssl/ca.pem",
-                "kafkaSkipTLSVerify": false
-            },												
-            "failed_posts_dir": "/var/spool/cgrates/failed_posts"
-        }
+        // {
+        //     "id": "kafka_processed",								
+        //     "type": "*kafka_json_map",									
+        //     "export_path": "localhost:9092",			
+        //     "opts": {
+        //         "kafkaTopic": "processed-topic",
+        //         "kafkaTLS": false,
+        //         "kafkaCAPath": "/tmp/ssl/kafka/ca.crt",
+        //         "kafkaSkipTLSVerify": false
+        //     },												
+        //     "failed_posts_dir": "/var/spool/cgrates/failed_posts"
+        // }
     ]
 },
 
 "ers": {														
-    "enabled": true,	
+    "enabled": false,	
     "sessions_conns":[],
-    "ees_conns": ["*internal"],	
+    "ees_conns": ["*localhost"],	
     "readers": [
         {
             "id": "*default",									
             "type": "*kafka_json_map",		
             "run_delay": "-1",			
             "flags": ["*dryRun"],				
-            "source_path": "localhost:9093",			
+            "source_path": "localhost:9094",			
             "ees_success_ids": ["kafka_processed"],		
             "opts": {
                 "kafkaTopic": "ssl-topic",						
                 "kafkaTLS": true,				
-                "kafkaCAPath": "/home/kafka/kafka/ssl/ca.pem",
+                "kafkaCAPath": "/tmp/ssl/kafka/ca.crt",
                 "kafkaSkipTLSVerify": false
             },
             "fields": [											

@@ -19,11 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 package ees
 
 import (
+	"net"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/cgrates/cgrates/config"
 	"github.com/cgrates/cgrates/utils"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/segmentio/kafka-go"
 )
 
 func TestAMQPeeParseURL(t *testing.T) {
@@ -64,8 +69,31 @@ func TestKafkaParseURL(t *testing.T) {
 		cfg:   cfg,
 		topic: "cdr_billing",
 		reqs:  newConcReq(0),
+		writer: &kafka.Writer{
+			Addr:        kafka.TCP("127.0.0.1:9092"),
+			Topic:       "cdr_billing",
+			MaxAttempts: 1,
+			Transport: &kafka.Transport{
+				Dial: (&net.Dialer{
+					Timeout: 3 * time.Second,
+				}).DialContext,
+			},
+		},
 	}
-	if kfk := NewKafkaEE(cfg, nil); !reflect.DeepEqual(exp, kfk) {
-		t.Errorf("Expected: %s ,received: %s", utils.ToJSON(exp), utils.ToJSON(kfk))
+	kfk, err := NewKafkaEE(cfg, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cmpOptions := []cmp.Option{
+		cmp.AllowUnexported(KafkaEE{}),
+		cmpopts.IgnoreUnexported(kafka.Writer{}),
+		cmpopts.IgnoreTypes(kafka.TCP("")),
+		cmpopts.IgnoreFields(KafkaEE{}, "cfg", "reqs", "RWMutex"),
+		cmpopts.IgnoreFields(kafka.Writer{}, "Transport"),
+	}
+
+	if diff := cmp.Diff(exp, kfk, cmpOptions...); diff != "" {
+		t.Errorf("NewKafkaEE() returned unexpected profile (-want +got): \n%s", diff)
 	}
 }

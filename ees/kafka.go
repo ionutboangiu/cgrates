@@ -21,10 +21,8 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"net"
+	"errors"
 	"os"
-	"sync"
-	"time"
 
 	"github.com/cgrates/cgrates/config"
 	"github.com/cgrates/cgrates/utils"
@@ -32,115 +30,89 @@ import (
 )
 
 // NewKafkaEE creates a kafka poster
-func NewKafkaEE(cfg *config.EventExporterCfg, dc *utils.SafeMapStorage) *KafkaEE {
-	kfkPstr := &KafkaEE{
+func NewKafkaEE(cfg *config.EventExporterCfg, dc *utils.SafeMapStorage) (*KafkaEE, error) {
+	pstr := &KafkaEE{
 		cfg:   cfg,
 		dc:    dc,
 		topic: utils.DefaultQueueID,
 		reqs:  newConcReq(cfg.ConcurrentRequests),
 	}
-	if cfg.Opts.Kafka.Topic != nil {
-		kfkPstr.topic = *cfg.Opts.Kafka.Topic
+	opts := cfg.Opts.Kafka
+	if opts.Topic != nil {
+		pstr.topic = *opts.Topic
 	}
-	if cfg.Opts.Kafka.TLS != nil && *cfg.Opts.Kafka.TLS {
-		kfkPstr.tls = true
+	var tlsCfg *tls.Config
+	if opts.TLS != nil && *opts.TLS {
+		rootCAs, err := x509.SystemCertPool()
+		if err != nil {
+			return nil, err
+		}
+		if rootCAs == nil {
+			rootCAs = x509.NewCertPool()
+		}
+
+		// Load additional CA certificates if a path is provided.
+		if opts.CAPath != nil && *opts.CAPath != "" {
+			ca, err := os.ReadFile(*opts.CAPath)
+			if err != nil {
+				return nil, err
+			}
+			if !rootCAs.AppendCertsFromPEM(ca) {
+				return nil, errors.New("failed to append certificates from PEM file")
+			}
+		}
+		tlsCfg = &tls.Config{
+			RootCAs:            rootCAs,
+			InsecureSkipVerify: opts.SkipTLSVerify != nil && *opts.SkipTLSVerify,
+		}
 	}
-	if cfg.Opts.Kafka.CAPath != nil {
-		kfkPstr.caPath = *cfg.Opts.Kafka.CAPath
+	pstr.writer = &kafka.Writer{
+		Addr:  kafka.TCP(pstr.Cfg().ExportPath), // Kafka broker address
+		Topic: pstr.topic,                       // Kafka topic to write to
+
+		// Leave it to the ExportWithAttempts function
+		// to handle the connect attempts.
+		MaxAttempts: 1,
+
+		// Set up the Kafka transport (DefaultTransport + optional TLS configuration).
+		Transport: &kafka.Transport{
+			// Dial: (&net.Dialer{
+			// 	Timeout: 3 * time.Second,
+			// }).DialContext,
+			TLS: tlsCfg,
+		},
 	}
-	if cfg.Opts.Kafka.SkipTLSVerify != nil && *cfg.Opts.Kafka.SkipTLSVerify {
-		kfkPstr.skipTLSVerify = true
-	}
-	return kfkPstr
+	return pstr, nil
 }
 
 // KafkaEE is a kafka poster
 type KafkaEE struct {
-	topic         string // identifier of the CDR queue where we publish
-	tls           bool   // if true, it will attempt to authenticate the server
-	caPath        string // path to CA pem file
-	skipTLSVerify bool   // if true, it skips certificate verification
-	writer        *kafka.Writer
+	topic  string // identifier of the CDR queue where we publish
+	writer *kafka.Writer
 
-	cfg          *config.EventExporterCfg
-	dc           *utils.SafeMapStorage
-	reqs         *concReq
-	sync.RWMutex // protect connection
+	cfg  *config.EventExporterCfg
+	dc   *utils.SafeMapStorage
+	reqs *concReq
 	bytePreparing
 }
 
 func (pstr *KafkaEE) Cfg() *config.EventExporterCfg { return pstr.cfg }
 
-func (pstr *KafkaEE) Connect() (_ error) {
-	pstr.Lock()
-	defer pstr.Unlock()
-	if pstr.writer == nil {
-		pstr.writer = &kafka.Writer{
-			Addr:  kafka.TCP(pstr.Cfg().ExportPath),
-			Topic: pstr.topic,
+func (pstr *KafkaEE) Connect() error { return nil }
 
-			// Leave it to the ExportWithAttempts function
-			// to handle the connect attempts.
-			MaxAttempts: 1,
-		}
-	}
-	if pstr.tls {
-		rootCAs, err := x509.SystemCertPool()
-		if err != nil {
-			return
-		}
-		if rootCAs == nil {
-			rootCAs = x509.NewCertPool()
-		}
-		if pstr.caPath != "" {
-			ca, err := os.ReadFile(pstr.caPath)
-			if err != nil {
-				return
-			}
-			if !rootCAs.AppendCertsFromPEM(ca) {
-				return
-			}
-		}
-		pstr.writer.Transport = &kafka.Transport{
-			Dial: (&net.Dialer{
-				Timeout:   3 * time.Second,
-				DualStack: true,
-			}).DialContext,
-			TLS: &tls.Config{
-				RootCAs:            rootCAs,
-				InsecureSkipVerify: pstr.skipTLSVerify,
-			},
-		}
-	}
-
-	return
-}
-
-func (pstr *KafkaEE) ExportEvent(content any, key string) (err error) {
+func (pstr *KafkaEE) ExportEvent(content any, key string) error {
 	pstr.reqs.get()
-	pstr.RLock()
-	if pstr.writer == nil {
-		pstr.RUnlock()
-		pstr.reqs.done()
-		return utils.ErrDisconnected
-	}
-	err = pstr.writer.WriteMessages(context.Background(), kafka.Message{
+	defer pstr.reqs.done()
+	return pstr.writer.WriteMessages(context.Background(), kafka.Message{
 		Key:   []byte(key),
 		Value: content.([]byte),
 	})
-	pstr.RUnlock()
-	pstr.reqs.done()
-	return
 }
 
-func (pstr *KafkaEE) Close() (err error) {
-	pstr.Lock()
-	if pstr.writer != nil {
-		err = pstr.writer.Close()
-		pstr.writer = nil
-	}
-	pstr.Unlock()
-	return
+func (pstr *KafkaEE) Close() error {
+	utils.Logger.Debug("closing kafka...")
+	pstr.writer.Transport.(*kafka.Transport).CloseIdleConnections()
+	return pstr.writer.Close()
 }
 
 func (pstr *KafkaEE) GetMetrics() *utils.SafeMapStorage { return pstr.dc }
