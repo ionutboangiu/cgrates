@@ -20,6 +20,7 @@ package services
 
 import (
 	"fmt"
+	"net/http"
 	"sync"
 
 	"github.com/cgrates/birpc"
@@ -34,7 +35,7 @@ import (
 // NewEventExporterService constructs EventExporterService
 func NewEventExporterService(cfg *config.CGRConfig, filterSChan chan *engine.FilterS,
 	connMgr *engine.ConnManager, server *cores.Server, intConnChan chan birpc.ClientConnector,
-	anz *AnalyzerService, srvDep map[string]*sync.WaitGroup) servmanager.Service {
+	anz *AnalyzerService, srvDep map[string]*sync.WaitGroup, muxes ...*http.ServeMux) servmanager.Service {
 	return &EventExporterService{
 		cfg:         cfg,
 		filterSChan: filterSChan,
@@ -43,6 +44,7 @@ func NewEventExporterService(cfg *config.CGRConfig, filterSChan chan *engine.Fil
 		intConnChan: intConnChan,
 		anz:         anz,
 		srvDep:      srvDep,
+		serveMuxes:  muxes,
 	}
 }
 
@@ -54,6 +56,7 @@ type EventExporterService struct {
 	filterSChan chan *engine.FilterS
 	connMgr     *engine.ConnManager
 	server      *cores.Server
+	serveMuxes  []*http.ServeMux
 	intConnChan chan birpc.ClientConnector
 
 	eeS    *ees.EventExporterS
@@ -112,7 +115,7 @@ func (es *EventExporterService) Start() error {
 	defer es.mu.Unlock()
 
 	var err error
-	es.eeS, err = ees.NewEventExporterS(es.cfg, fltrS, es.connMgr)
+	es.eeS, err = ees.NewEventExporterS(es.cfg, fltrS, es.connMgr, es.serveMuxes...)
 	if err != nil {
 		return err
 	}

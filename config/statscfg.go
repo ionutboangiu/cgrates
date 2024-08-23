@@ -37,6 +37,7 @@ type StatSCfg struct {
 	StoreInterval          time.Duration // Dump regularly from cache into dataDB
 	StoreUncompressedLimit int
 	ThresholdSConns        []string
+	EEsConns               []string
 	StringIndexedFields    *[]string
 	PrefixIndexedFields    *[]string
 	SuffixIndexedFields    *[]string
@@ -81,6 +82,16 @@ func (st *StatSCfg) loadFromJSONCfg(jsnCfg *StatServJsonCfg) (err error) {
 			st.ThresholdSConns[idx] = conn
 			if conn == utils.MetaInternal {
 				st.ThresholdSConns[idx] = utils.ConcatenatedKey(utils.MetaInternal, utils.MetaThresholds)
+			}
+		}
+	}
+	if jsnCfg.EEsConns != nil {
+		st.EEsConns = make([]string, len(jsnCfg.EEsConns))
+		for idx, conn := range jsnCfg.EEsConns {
+			// if we have the connection internal we change the name so we can have internal rpc for each subsystem
+			st.EEsConns[idx] = conn
+			if conn == utils.MetaInternal {
+				st.EEsConns[idx] = utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)
 			}
 		}
 	}
@@ -153,6 +164,16 @@ func (st *StatSCfg) AsMapInterface() (initialMP map[string]any) {
 		}
 		initialMP[utils.ThresholdSConnsCfg] = thresholdSConns
 	}
+	if st.EEsConns != nil {
+		eesConns := make([]string, len(st.EEsConns))
+		for i, item := range st.EEsConns {
+			eesConns[i] = item
+			if item == utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs) {
+				eesConns[i] = utils.MetaInternal
+			}
+		}
+		initialMP[utils.EEsConnsCfg] = eesConns
+	}
 	return
 }
 
@@ -171,6 +192,7 @@ func (st StatSCfg) Clone() (cln *StatSCfg) {
 		StoreInterval:          st.StoreInterval,
 		StoreUncompressedLimit: st.StoreUncompressedLimit,
 		NestedFields:           st.NestedFields,
+		EEsConns:               slices.Clone(st.EEsConns),
 		Opts:                   st.Opts.Clone(),
 	}
 	if st.ThresholdSConns != nil {

@@ -62,7 +62,9 @@ const CGRATES_CFG_JSON = `
 	"caps": 0,			// maximum concurrent request allowed ( 0 to disabled )
 	"caps_strategy": "*busy",	// strategy in case of concurrent requests reached	
 	"caps_stats_interval": "0",	// the interval duration we sample for caps stats ( 0 to disabled )
-	"shutdown_timeout": "1s"	// the duration to wait until all services are stopped
+	"shutdown_timeout": "1s",	// the duration to wait until all services are stopped
+	"ees_conns": [],
+	"internal_metrics_interval": "5s"
 },
 
 
@@ -841,6 +843,7 @@ const CGRATES_CFG_JSON = `
 	"store_interval": "",		// dump cache regularly to dataDB, 0 - dump at start/shutdown: <""|$dur>
 	"store_uncompressed_limit": 0,	// used to compress data
 	"thresholds_conns": [],		// connections to ThresholdS for StatUpdates, empty to disable thresholds functionality: <""|*internal|$rpc_conns_id>
+	"ees_conns": [],
 	"indexed_selects": true,	// enable profile matching exclusively on indexes
 	//"string_indexed_fields": [],	// query indexes based on these fields for faster processing
 	"prefix_indexed_fields": [],	// query indexes based on these fields for faster processing
@@ -1336,6 +1339,46 @@ const CGRATES_CFG_JSON = `
 			"value": "*now", "mandatory": true},
 		{"tag": "PreRated", "path": "*cdr.PreRated", "type": "*constant",
 			"value": "true", "mandatory": true}
+	],
+	"*prometheusAppMetrics": [
+		{"tag": "GoVersion", "path": "*exp.go_info", "type": "*variable", "value": "~*req.GoVersion"},
+		{"tag": "NodeID", "path": "*exp.cgrates_node_id", "type": "*variable", "value": "~*req.NodeID"},
+		{"tag": "Version", "path": "*exp.cgrates_version", "type": "*variable", "value": "~*req.Version"},
+		{"tag": "Goroutines", "path": "*exp.go_goroutines", "type": "*variable", "value": "~*req.Goroutines"},
+		{"tag": "Threads", "path": "*exp.go_threads", "type": "*variable", "value": "~*req.Threads"},
+		{"tag": "MemAlloc", "path": "*exp.go_memstats_alloc_bytes", "type": "*variable", "value": "~*req.MemStats.Alloc"},
+		{"tag": "MemTotalAlloc", "path": "*exp.go_memstats_alloc_bytes_total", "type": "*variable", "value": "~*req.MemStats.TotalAlloc"},
+		{"tag": "MemSys", "path": "*exp.go_memstats_sys_bytes", "type": "*variable", "value": "~*req.MemStats.Sys"},
+		{"tag": "MemMallocs", "path": "*exp.go_memstats_mallocs_total", "type": "*variable", "value": "~*req.MemStats.Mallocs"},
+		{"tag": "MemFrees", "path": "*exp.go_memstats_frees_total", "type": "*variable", "value": "~*req.MemStats.Frees"},
+		{"tag": "MemLookups", "path": "*exp.go_memstats_lookups_total", "type": "*variable", "value": "~*req.MemStats.Lookups"},
+		{"tag": "MemHeapAlloc", "path": "*exp.go_memstats_heap_alloc_bytes", "type": "*variable", "value": "~*req.MemStats.HeapAlloc"},
+		{"tag": "MemHeapSys", "path": "*exp.go_memstats_heap_sys_bytes", "type": "*variable", "value": "~*req.MemStats.HeapSys"},
+		{"tag": "MemHeapIdle", "path": "*exp.go_memstats_heap_idle_bytes", "type": "*variable", "value": "~*req.MemStats.HeapIdle"},
+		{"tag": "MemHeapInuse", "path": "*exp.go_memstats_heap_inuse_bytes", "type": "*variable", "value": "~*req.MemStats.HeapInuse"},
+		{"tag": "MemHeapReleased", "path": "*exp.go_memstats_heap_released_bytes", "type": "*variable", "value": "~*req.MemStats.HeapReleased"},
+		{"tag": "MemHeapObjects", "path": "*exp.go_memstats_heap_objects", "type": "*variable", "value": "~*req.MemStats.HeapObjects"},
+		{"tag": "MemStackInuse", "path": "*exp.go_memstats_stack_inuse_bytes", "type": "*variable", "value": "~*req.MemStats.StackInuse"},
+		{"tag": "MemStackSys", "path": "*exp.go_memstats_stack_sys_bytes", "type": "*variable", "value": "~*req.MemStats.StackSys"},
+		{"tag": "MemMSpanSys", "path": "*exp.go_memstats_mspan_sys_bytes", "type": "*variable", "value": "~*req.MemStats.MSpanSys"},
+		{"tag": "MemMSpanInuse", "path": "*exp.go_memstats_mspan_inuse_bytes", "type": "*variable", "value": "~*req.MemStats.MSpanInuse"},
+		{"tag": "MemMCacheInuse", "path": "*exp.go_memstats_mcache_inuse_bytes", "type": "*variable", "value": "~*req.MemStats.MCacheInuse"},
+		{"tag": "MemMCacheSys", "path": "*exp.go_memstats_mcache_sys_bytes", "type": "*variable", "value": "~*req.MemStats.MCacheSys"},
+		{"tag": "MemBuckHashSys", "path": "*exp.go_memstats_buck_hash_sys_bytes", "type": "*variable", "value": "~*req.MemStats.BuckHashSys"},
+		{"tag": "MemGCSys", "path": "*exp.go_memstats_gc_sys_bytes", "type": "*variable", "value": "~*req.MemStats.GCSys"},
+		{"tag": "MemOtherSys", "path": "*exp.go_memstats_other_sys_bytes", "type": "*variable", "value": "~*req.MemStats.OtherSys"},
+		{"tag": "MemNextGC", "path": "*exp.go_memstats_next_gc_bytes", "type": "*variable", "value": "~*req.MemStats.NextGC"},
+		{"tag": "MemLastGC", "path": "*exp.go_memstats_last_gc_time_seconds", "type": "*variable", "value": "~*req.MemStats.LastGC"},
+		{"tag": "GCDurationSeconds", "path": "*exp.go_gc_duration_seconds", "type": "*variable", "value": "~*req.GCDurationSeconds"},
+		{"tag": "ProcCPUTime", "path": "*exp.process_cpu_seconds_total", "type": "*variable", "value": "~*req.ProcStats.CPUTime"},
+		{"tag": "ProcMaxFDs", "path": "*exp.process_max_fds", "type": "*variable", "value": "~*req.ProcStats.MaxFDs"},
+		{"tag": "ProcOpenFDs", "path": "*exp.process_open_fds", "type": "*variable", "value": "~*req.ProcStats.OpenFDs"},
+		{"tag": "ProcResidentMemory", "path": "*exp.process_resident_memory_bytes", "type": "*variable", "value": "~*req.ProcStats.ResidentMemory"},
+		{"tag": "ProcStartTime", "path": "*exp.process_start_time_seconds", "type": "*variable", "value": "~*req.ProcStats.StartTime"},
+		{"tag": "ProcVirtualMemory", "path": "*exp.process_virtual_memory_bytes", "type": "*variable", "value": "~*req.ProcStats.VirtualMemory"},
+		{"tag": "ProcMaxVirtualMemory", "path": "*exp.process_virtual_memory_max_bytes", "type": "*variable", "value": "~*req.ProcStats.MaxVirtualMemory"},
+		{"tag": "ProcNetworkReceiveTotal", "path": "*exp.process_network_receive_bytes_total", "type": "*variable", "value": "~*req.ProcStats.NetworkReceiveTotal"},
+		{"tag": "ProcNetworkTransmitTotal", "path": "*exp.process_network_transmit_bytes_total", "type": "*variable", "value": "~*req.ProcStats.NetworkTransmitTotal"}
 	]
 },
 

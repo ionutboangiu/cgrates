@@ -21,6 +21,7 @@ package ees
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -41,7 +42,7 @@ type EventExporter interface {
 
 // NewEventExporter produces exporters
 func NewEventExporter(cfg *config.EventExporterCfg, cgrCfg *config.CGRConfig, filterS *engine.FilterS,
-	connMngr *engine.ConnManager) (ee EventExporter, err error) {
+	connMngr *engine.ConnManager, muxes ...*http.ServeMux) (ee EventExporter, err error) {
 	var dc *utils.SafeMapStorage
 	if dc, err = newEEMetrics(utils.FirstNonEmpty(
 		cfg.Timezone,
@@ -80,6 +81,8 @@ func NewEventExporter(cfg *config.EventExporterCfg, cgrCfg *config.CGRConfig, fi
 		return NewLogEE(cfg, dc), nil
 	case utils.MetaRPC:
 		return NewRpcEE(cfg, dc, connMngr)
+	case utils.MetaPrometheus:
+		return newPrometheusEE(cfg, dc, muxes...)
 	default:
 		return nil, fmt.Errorf("unsupported exporter type: <%s>", cfg.Type)
 	}

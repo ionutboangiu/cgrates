@@ -353,7 +353,7 @@ var possibleReaderTypes = utils.NewStringSet([]string{utils.MetaFileCSV,
 var possibleExporterTypes = utils.NewStringSet([]string{utils.MetaFileCSV, utils.MetaNone, utils.MetaFileFWV,
 	utils.MetaHTTPPost, utils.MetaHTTPjsonMap, utils.MetaAMQPjsonMap, utils.MetaAMQPV1jsonMap, utils.MetaSQSjsonMap,
 	utils.MetaKafkajsonMap, utils.MetaS3jsonMap, utils.MetaElastic, utils.MetaVirt, utils.MetaSQL, utils.MetaNatsjsonMap,
-	utils.MetaLog, utils.MetaRPC})
+	utils.MetaLog, utils.MetaRPC, utils.MetaPrometheus})
 
 // Loads from json configuration object, will be used for defaults, config from file and reload, might need lock
 func (cfg *CGRConfig) loadFromJSONCfg(jsnCfg *CgrJsonCfg) (err error) {

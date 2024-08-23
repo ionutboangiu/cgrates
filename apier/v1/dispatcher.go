@@ -940,7 +940,7 @@ func NewDispatcherCoreSv1(dps *dispatchers.DispatcherService) *DispatcherCoreSv1
 	return &DispatcherCoreSv1{dS: dps}
 }
 
-func (dS *DispatcherCoreSv1) Status(ctx *context.Context, args *utils.TenantWithAPIOpts, reply *map[string]any) error {
+func (dS *DispatcherCoreSv1) Status(ctx *context.Context, args *utils.TenantWithAPIOpts, reply *cores.InternalMetrics) error {
 	return dS.dS.CoreSv1Status(ctx, args, reply)
 }
 

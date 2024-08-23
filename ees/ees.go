@@ -20,6 +20,7 @@ package ees
 
 import (
 	"fmt"
+	"net/http"
 	"slices"
 	"strings"
 	"sync"
@@ -40,11 +41,12 @@ func onCacheEvicted(_ string, value any) {
 
 // NewEventExporterS initializes a new EventExporterS.
 func NewEventExporterS(cfg *config.CGRConfig, filterS *engine.FilterS,
-	connMgr *engine.ConnManager) (*EventExporterS, error) {
+	connMgr *engine.ConnManager, muxes ...*http.ServeMux) (*EventExporterS, error) {
 	eeS := &EventExporterS{
-		cfg:     cfg,
-		filterS: filterS,
-		connMgr: connMgr,
+		cfg:        cfg,
+		filterS:    filterS,
+		connMgr:    connMgr,
+		serveMuxes: muxes,
 	}
 	if err := eeS.SetupExporterCache(); err != nil {
 		return nil, fmt.Errorf("failed to set up exporter cache: %v", err)
@@ -54,9 +56,10 @@ func NewEventExporterS(cfg *config.CGRConfig, filterS *engine.FilterS,
 
 // EventExporterS is managing the EventExporters
 type EventExporterS struct {
-	cfg     *config.CGRConfig
-	filterS *engine.FilterS
-	connMgr *engine.ConnManager
+	cfg        *config.CGRConfig
+	filterS    *engine.FilterS
+	connMgr    *engine.ConnManager
+	serveMuxes []*http.ServeMux
 
 	exporterCache map[string]*ltcache.Cache // map[eeType]*ltcache.Cache
 	mu            sync.RWMutex              // protects exporterCache
@@ -94,7 +97,7 @@ func (eeS *EventExporterS) SetupExporterCache() error {
 		if chCfg.Precache {
 			for _, expCfg := range eesCfg.Exporters {
 				if expCfg.Type == chID {
-					ee, err := NewEventExporter(expCfg, eeS.cfg, eeS.filterS, eeS.connMgr)
+					ee, err := NewEventExporter(expCfg, eeS.cfg, eeS.filterS, eeS.connMgr, eeS.serveMuxes...)
 					if err != nil {
 						return fmt.Errorf("precache: failed to init EventExporter %q: %v", expCfg.ID, err)
 					}
@@ -217,7 +220,7 @@ func (eeS *EventExporterS) V1ProcessEvent(ctx *context.Context, cgrEv *engine.CG
 		}
 
 		if !isCached {
-			if ee, err = NewEventExporter(eeCfg, eeS.cfg, eeS.filterS, eeS.connMgr); err != nil {
+			if ee, err = NewEventExporter(eeCfg, eeS.cfg, eeS.filterS, eeS.connMgr, eeS.serveMuxes...); err != nil {
 				return
 			}
 			if hasCache {

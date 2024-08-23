@@ -329,6 +329,7 @@ const (
 	MetaSQL                   = "*sql"
 	MetaMySQL                 = "*mysql"
 	MetaS3jsonMap             = "*s3_json_map"
+	MetaPrometheus            = "*prometheus"
 	ConfigPath                = "/etc/cgrates/"
 	DisconnectCause           = "DisconnectCause"
 	MetaRating                = "*rating"
@@ -2439,10 +2440,11 @@ const (
 	DBPathCfg          = "db_path"
 
 	// CoreSCfg
-	CapsCfg              = "caps"
-	CapsStrategyCfg      = "caps_strategy"
-	CapsStatsIntervalCfg = "caps_stats_interval"
-	ShutdownTimeoutCfg   = "shutdown_timeout"
+	CapsCfg                    = "caps"
+	CapsStrategyCfg            = "caps_strategy"
+	CapsStatsIntervalCfg       = "caps_stats_interval"
+	ShutdownTimeoutCfg         = "shutdown_timeout"
+	InternalMetricsIntervalCfg = "internal_metrics_interval"
 
 	// AccountSCfg
 	MaxIterations = "max_iterations"

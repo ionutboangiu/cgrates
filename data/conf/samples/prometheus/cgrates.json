@@ -1,0 +1,61 @@
+{
+"general": {
+	"log_level": 7,
+},
+"data_db": {
+	"db_type": "*internal"
+},
+"stor_db": {
+	"db_type": "*internal"
+},
+"listen": {
+	"http": ":2080",
+	"http_tls": ":2280"
+},
+"cores": {
+	"internal_metrics_interval": "5s",
+	"ees_conns": ["*localhost"]
+},
+"apiers": {
+	"enabled": true
+},
+"stats": {
+	"enabled": true,
+	"store_interval": "-1",
+	"ees_conns": ["*localhost"]
+},
+"ees": {
+	"enabled": true,
+	"cache": {
+		"*prometheus": {"limit": -1, "ttl": "0", "precache": true},
+	},
+	"exporters": [
+		{
+			"id": "prom_cores",
+			"type": "*prometheus",
+			"filters": ["*string:~*opts.*subsys:*core"],
+			"export_path": "prom1",
+			"fields": [
+				{"tag": "PrometheusDefaultMetrics","type": "*template", "value": "*prometheusAppMetrics"}
+			]
+		},
+		{
+			"id": "prom_stats",
+			"type": "*prometheus",
+			"filters": ["*string:~*opts.*subsys:*stats"],
+			"export_path": "prom2",
+			"fields": [
+				{"tag": "StatID", "path": "*exp.cgrates_stats_id_label", "type": "*variable", "value": "~*req.StatID"},
+				{"tag": "StatTCD", "path": "*exp.cgrates_stats_tcd_seconds", "type": "*variable", "value": "~*req.*tcd{*duration_seconds}"},
+				{"tag": "StatTCC", "path": "*exp.cgrates_stats_tcc_units", "type": "*variable", "value": "~*req.*tcc"},
+				{"tag": "StatACD", "path": "*exp.cgrates_stats_acd_seconds", "type": "*variable", "value": "~*req.*acd{*duration_seconds}"},
+				{"tag": "StatACC", "path": "*exp.cgrates_stats_acc_units", "type": "*variable", "value": "~*req.*acc"},
+				{"tag": "StatPDD", "path": "*exp.cgrates_stats_pdd_seconds", "type": "*variable", "value": "~*req.*pdd{*duration_seconds}"},
+				{"tag": "StatASR", "path": "*exp.cgrates_stats_asr_units", "type": "*variable", "value": "~*req.*asr"},
+				{"tag": "NoSQReqStats", "path": "*exp.cgrates_stats_requests_alt", "type": "*variable", "value": "~*req.*sum#1"},
+				{"tag": "NoSQReq", "path": "*exp.cgrates_stats_requests_total", "type": "*constant", "value": "1"}
+			]
+		}
+	]
+}
+}

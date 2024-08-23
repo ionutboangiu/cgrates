@@ -39,7 +39,7 @@ func (cS *CoreSv1) Call(ctx *context.Context, serviceMethod string,
 	return utils.APIerRPCCall(cS, serviceMethod, args, reply)
 }
 
-func (cS *CoreSv1) Status(ctx *context.Context, arg *utils.TenantWithAPIOpts, reply *map[string]any) error {
+func (cS *CoreSv1) Status(ctx *context.Context, arg *utils.TenantWithAPIOpts, reply *cores.InternalMetrics) error {
 	return cS.cS.V1Status(ctx, arg, reply)
 }
 

@@ -40,8 +40,8 @@ func TestNewServer(t *testing.T) {
 	caps := engine.NewCaps(0, utils.MetaBusy)
 
 	expected := &Server{
-		httpMux:  http.NewServeMux(),
-		httpsMux: http.NewServeMux(),
+		HTTPMux:  http.NewServeMux(),
+		HTTPSMux: http.NewServeMux(),
 		caps:     caps,
 	}
 	rcv := NewServer(caps)

@@ -668,6 +668,7 @@ type StatServJsonCfg struct {
 	Store_interval           *string
 	Store_uncompressed_limit *int
 	Thresholds_conns         *[]string
+	EEsConns                 []string `json:"ees_conns"`
 	String_indexed_fields    *[]string
 	Prefix_indexed_fields    *[]string
 	Suffix_indexed_fields    *[]string
@@ -935,8 +936,10 @@ type SentryPeerJsonCfg struct {
 }
 
 type CoreSJsonCfg struct {
-	Caps                *int
-	Caps_strategy       *string
-	Caps_stats_interval *string
-	Shutdown_timeout    *string
+	Caps                    *int
+	Caps_strategy           *string
+	Caps_stats_interval     *string
+	Shutdown_timeout        *string
+	InternalMetricsInterval *string  `json:"internal_metrics_interval"`
+	EEsConns                []string `json:"ees_conns"`
 }

@@ -562,7 +562,7 @@ func main() {
 
 	// init CoreSv1
 
-	coreS := services.NewCoreService(cfg, caps, server, internalCoreSv1Chan, anz, cpuProf, shdWg, shdChan, srvDep)
+	coreS := services.NewCoreService(cfg, caps, server, internalCoreSv1Chan, anz, cpuProf, shdWg, shdChan, connManager, srvDep)
 	shdWg.Add(1)
 	if err := coreS.Start(); err != nil {
 		log.Fatalf("<%s> error received: <%s>, exiting!", utils.InitS, err.Error())
@@ -632,7 +632,7 @@ func main() {
 		services.NewHTTPAgent(cfg, filterSChan, server, connManager, srvDep),      // no reload
 		ldrs, anz, dspS, dspH, dmService, storDBService,
 		services.NewEventExporterService(cfg, filterSChan,
-			connManager, server, internalEEsChan, anz, srvDep),
+			connManager, server, internalEEsChan, anz, srvDep, server.HTTPMux, server.HTTPSMux),
 		services.NewEventReaderService(cfg, filterSChan,
 			shdChan, connManager, server, internalERsChan, anz, srvDep),
 		services.NewSIPAgent(cfg, filterSChan, shdChan, connManager, srvDep),

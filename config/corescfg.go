@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 package config
 
 import (
+	"slices"
 	"time"
 
 	"github.com/cgrates/cgrates/utils"
@@ -26,10 +27,12 @@ import (
 
 // CoreSCfg the config for the coreS
 type CoreSCfg struct {
-	Caps              int
-	CapsStrategy      string
-	CapsStatsInterval time.Duration
-	ShutdownTimeout   time.Duration
+	Caps                    int
+	CapsStrategy            string
+	CapsStatsInterval       time.Duration
+	ShutdownTimeout         time.Duration
+	InternalMetricsInterval time.Duration
+	EEsConns                []string
 }
 
 func (cS *CoreSCfg) loadFromJSONCfg(jsnCfg *CoreSJsonCfg) (err error) {
@@ -52,16 +55,42 @@ func (cS *CoreSCfg) loadFromJSONCfg(jsnCfg *CoreSJsonCfg) (err error) {
 			return
 		}
 	}
+	if jsnCfg.InternalMetricsInterval != nil {
+		if cS.InternalMetricsInterval, err = utils.ParseDurationWithNanosecs(*jsnCfg.InternalMetricsInterval); err != nil {
+			return
+		}
+	}
+	if jsnCfg.EEsConns != nil {
+		cS.EEsConns = make([]string, len(jsnCfg.EEsConns))
+		for idx, conn := range jsnCfg.EEsConns {
+			// if we have the connection internal we change the name so we can have internal rpc for each subsystem
+			cS.EEsConns[idx] = conn
+			if conn == utils.MetaInternal {
+				cS.EEsConns[idx] = utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)
+			}
+		}
+	}
 	return
 }
 
 // AsMapInterface returns the config as a map[string]any
 func (cS *CoreSCfg) AsMapInterface() map[string]any {
 	mp := map[string]any{
-		utils.CapsCfg:              cS.Caps,
-		utils.CapsStrategyCfg:      cS.CapsStrategy,
-		utils.CapsStatsIntervalCfg: cS.CapsStatsInterval.String(),
-		utils.ShutdownTimeoutCfg:   cS.ShutdownTimeout.String(),
+		utils.CapsCfg:                    cS.Caps,
+		utils.CapsStrategyCfg:            cS.CapsStrategy,
+		utils.CapsStatsIntervalCfg:       cS.CapsStatsInterval.String(),
+		utils.ShutdownTimeoutCfg:         cS.ShutdownTimeout.String(),
+		utils.InternalMetricsIntervalCfg: cS.InternalMetricsInterval.String(),
+	}
+	if cS.EEsConns != nil {
+		eesConns := make([]string, len(cS.EEsConns))
+		for i, item := range cS.EEsConns {
+			eesConns[i] = item
+			if item == utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAttributes) {
+				eesConns[i] = utils.MetaInternal
+			}
+		}
+		mp[utils.EEsConnsCfg] = eesConns
 	}
 	if cS.CapsStatsInterval == 0 {
 		mp[utils.CapsStatsIntervalCfg] = "0"
@@ -75,9 +104,11 @@ func (cS *CoreSCfg) AsMapInterface() map[string]any {
 // Clone returns a deep copy of CoreSCfg
 func (cS CoreSCfg) Clone() *CoreSCfg {
 	return &CoreSCfg{
-		Caps:              cS.Caps,
-		CapsStrategy:      cS.CapsStrategy,
-		CapsStatsInterval: cS.CapsStatsInterval,
-		ShutdownTimeout:   cS.ShutdownTimeout,
+		Caps:                    cS.Caps,
+		CapsStrategy:            cS.CapsStrategy,
+		CapsStatsInterval:       cS.CapsStatsInterval,
+		ShutdownTimeout:         cS.ShutdownTimeout,
+		InternalMetricsInterval: cS.InternalMetricsInterval,
+		EEsConns:                slices.Clone(cS.EEsConns),
 	}
 }

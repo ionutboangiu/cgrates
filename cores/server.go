@@ -38,14 +38,15 @@ import (
 	"github.com/cgrates/cgrates/analyzers"
 	"github.com/cgrates/cgrates/engine"
 	"github.com/cgrates/cgrates/utils"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/net/websocket"
 )
 
 func NewServer(caps *engine.Caps) (s *Server) {
 	return &Server{
-		httpMux:         http.NewServeMux(),
-		httpsMux:        http.NewServeMux(),
+		HTTPMux:         http.NewServeMux(),
+		HTTPSMux:        http.NewServeMux(),
 		stopBiRPCServer: make(chan struct{}, 1),
 		caps:            caps,
 		rpcSrv:          birpc.NewServer(),
@@ -60,8 +61,8 @@ type Server struct {
 	rpcSrv          *birpc.Server
 	birpcSrv        *birpc.BirpcServer
 	stopBiRPCServer chan struct{} // used in order to fully stop the biRPC
-	httpsMux        *http.ServeMux
-	httpMux         *http.ServeMux
+	HTTPSMux        *http.ServeMux
+	HTTPMux         *http.ServeMux
 	caps            *engine.Caps
 	anz             *analyzers.AnalyzerService
 }
@@ -91,11 +92,11 @@ func (s *Server) RpcUnregisterName(name string) {
 }
 
 func (s *Server) RegisterHttpFunc(pattern string, handler func(http.ResponseWriter, *http.Request)) {
-	if s.httpMux != nil {
-		s.httpMux.HandleFunc(pattern, handler)
+	if s.HTTPMux != nil {
+		s.HTTPMux.HandleFunc(pattern, handler)
 	}
-	if s.httpsMux != nil {
-		s.httpsMux.HandleFunc(pattern, handler)
+	if s.HTTPSMux != nil {
+		s.HTTPSMux.HandleFunc(pattern, handler)
 	}
 	s.Lock()
 	s.httpEnabled = true
@@ -103,11 +104,11 @@ func (s *Server) RegisterHttpFunc(pattern string, handler func(http.ResponseWrit
 }
 
 func (s *Server) RegisterHttpHandler(pattern string, handler http.Handler) {
-	if s.httpMux != nil {
-		s.httpMux.Handle(pattern, handler)
+	if s.HTTPMux != nil {
+		s.HTTPMux.Handle(pattern, handler)
 	}
-	if s.httpsMux != nil {
-		s.httpsMux.Handle(pattern, handler)
+	if s.HTTPSMux != nil {
+		s.HTTPSMux.Handle(pattern, handler)
 	}
 	s.Lock()
 	s.httpEnabled = true
@@ -203,9 +204,9 @@ func (s *Server) ServeHTTP(addr, jsonRPCURL, wsRPCURL, promURL, pprofPath string
 
 		utils.Logger.Info("<HTTP> enabling handler for JSON-RPC")
 		if useBasicAuth {
-			s.httpMux.HandleFunc(jsonRPCURL, use(s.handleRequest, basicAuth(userList)))
+			s.HTTPMux.HandleFunc(jsonRPCURL, use(s.handleRequest, basicAuth(userList)))
 		} else {
-			s.httpMux.HandleFunc(jsonRPCURL, s.handleRequest)
+			s.HTTPMux.HandleFunc(jsonRPCURL, s.handleRequest)
 		}
 	}
 	if wsRPCURL != "" {
@@ -215,9 +216,9 @@ func (s *Server) ServeHTTP(addr, jsonRPCURL, wsRPCURL, promURL, pprofPath string
 		utils.Logger.Info("<HTTP> enabling handler for WebSocket connections")
 		wsHandler := websocket.Handler(s.handleWebSocket)
 		if useBasicAuth {
-			s.httpMux.HandleFunc(wsRPCURL, use(wsHandler.ServeHTTP, basicAuth(userList)))
+			s.HTTPMux.HandleFunc(wsRPCURL, use(wsHandler.ServeHTTP, basicAuth(userList)))
 		} else {
-			s.httpMux.Handle(wsRPCURL, wsHandler)
+			s.HTTPMux.Handle(wsRPCURL, wsHandler)
 		}
 	}
 	if promURL != "" {
@@ -225,11 +226,14 @@ func (s *Server) ServeHTTP(addr, jsonRPCURL, wsRPCURL, promURL, pprofPath string
 		s.httpEnabled = true
 		s.Unlock()
 		utils.Logger.Info(fmt.Sprintf("<HTTP> prometheus metrics endpoint registered at %q", promURL))
-		promHandler := promhttp.Handler()
+		// promHandler := promhttp.Handler()
+		registry := prometheus.NewRegistry()
+		promHandler := promhttp.InstrumentMetricHandler(registry, promhttp.HandlerFor(registry, promhttp.HandlerOpts{Registry: registry}))
+		// promHandler := promhttp.InstrumentMetricHandler(prometheus.DefaultRegisterer, promhttp.HandlerFor(pstr.registry, promhttp.HandlerOpts{Registry: pstr.registry}))
 		if useBasicAuth {
-			s.httpMux.HandleFunc(promURL, use(promHandler.ServeHTTP, basicAuth(userList)))
+			s.HTTPMux.HandleFunc(promURL, use(promHandler.ServeHTTP, basicAuth(userList)))
 		} else {
-			s.httpMux.Handle(promURL, promHandler)
+			s.HTTPMux.Handle(promURL, promHandler)
 		}
 	}
 	if pprofPath != "" {
@@ -241,17 +245,17 @@ func (s *Server) ServeHTTP(addr, jsonRPCURL, wsRPCURL, promURL, pprofPath string
 		}
 		utils.Logger.Info(fmt.Sprintf("<HTTP> profiling endpoints registered at %q", pprofPath))
 		if useBasicAuth {
-			s.httpMux.HandleFunc(pprofPath, use(pprof.Index, basicAuth(userList)))
-			s.httpMux.HandleFunc(pprofPath+"cmdline", use(pprof.Cmdline, basicAuth(userList)))
-			s.httpMux.HandleFunc(pprofPath+"profile", use(pprof.Profile, basicAuth(userList)))
-			s.httpMux.HandleFunc(pprofPath+"symbol", use(pprof.Symbol, basicAuth(userList)))
-			s.httpMux.HandleFunc(pprofPath+"trace", use(pprof.Trace, basicAuth(userList)))
+			s.HTTPMux.HandleFunc(pprofPath, use(pprof.Index, basicAuth(userList)))
+			s.HTTPMux.HandleFunc(pprofPath+"cmdline", use(pprof.Cmdline, basicAuth(userList)))
+			s.HTTPMux.HandleFunc(pprofPath+"profile", use(pprof.Profile, basicAuth(userList)))
+			s.HTTPMux.HandleFunc(pprofPath+"symbol", use(pprof.Symbol, basicAuth(userList)))
+			s.HTTPMux.HandleFunc(pprofPath+"trace", use(pprof.Trace, basicAuth(userList)))
 		} else {
-			s.httpMux.HandleFunc(pprofPath, pprof.Index)
-			s.httpMux.HandleFunc(pprofPath+"cmdline", pprof.Cmdline)
-			s.httpMux.HandleFunc(pprofPath+"profile", pprof.Profile)
-			s.httpMux.HandleFunc(pprofPath+"symbol", pprof.Symbol)
-			s.httpMux.HandleFunc(pprofPath+"trace", pprof.Trace)
+			s.HTTPMux.HandleFunc(pprofPath, pprof.Index)
+			s.HTTPMux.HandleFunc(pprofPath+"cmdline", pprof.Cmdline)
+			s.HTTPMux.HandleFunc(pprofPath+"profile", pprof.Profile)
+			s.HTTPMux.HandleFunc(pprofPath+"symbol", pprof.Symbol)
+			s.HTTPMux.HandleFunc(pprofPath+"trace", pprof.Trace)
 		}
 	}
 	if !s.httpEnabled {
@@ -261,7 +265,7 @@ func (s *Server) ServeHTTP(addr, jsonRPCURL, wsRPCURL, promURL, pprofPath string
 		utils.Logger.Info("<HTTP> enabling basic auth")
 	}
 	utils.Logger.Info(fmt.Sprintf("<HTTP> start listening at <%s>", addr))
-	if err := http.ListenAndServe(addr, s.httpMux); err != nil {
+	if err := http.ListenAndServe(addr, s.HTTPMux); err != nil {
 		log.Printf("<HTTP>Error: %s when listening ", err)
 		shdChan.CloseOnce()
 	}
@@ -466,9 +470,9 @@ func (s *Server) ServeHTTPTLS(addr, serverCrt, serverKey, caCert string, serverP
 		s.Unlock()
 		utils.Logger.Info("<HTTPS> enabling handler for JSON-RPC")
 		if useBasicAuth {
-			s.httpsMux.HandleFunc(jsonRPCURL, use(s.handleRequest, basicAuth(userList)))
+			s.HTTPSMux.HandleFunc(jsonRPCURL, use(s.handleRequest, basicAuth(userList)))
 		} else {
-			s.httpsMux.HandleFunc(jsonRPCURL, s.handleRequest)
+			s.HTTPSMux.HandleFunc(jsonRPCURL, s.handleRequest)
 		}
 	}
 	if wsRPCURL != "" {
@@ -478,9 +482,9 @@ func (s *Server) ServeHTTPTLS(addr, serverCrt, serverKey, caCert string, serverP
 		utils.Logger.Info("<HTTPS> enabling handler for WebSocket connections")
 		wsHandler := websocket.Handler(s.handleWebSocket)
 		if useBasicAuth {
-			s.httpsMux.HandleFunc(wsRPCURL, use(wsHandler.ServeHTTP, basicAuth(userList)))
+			s.HTTPSMux.HandleFunc(wsRPCURL, use(wsHandler.ServeHTTP, basicAuth(userList)))
 		} else {
-			s.httpsMux.Handle(wsRPCURL, wsHandler)
+			s.HTTPSMux.Handle(wsRPCURL, wsHandler)
 		}
 	}
 	if promURL != "" {
@@ -490,9 +494,9 @@ func (s *Server) ServeHTTPTLS(addr, serverCrt, serverKey, caCert string, serverP
 		utils.Logger.Info(fmt.Sprintf("<HTTPS> prometheus metrics endpoint registered at %q", promURL))
 		promHandler := promhttp.Handler()
 		if useBasicAuth {
-			s.httpsMux.HandleFunc(promURL, use(promHandler.ServeHTTP, basicAuth(userList)))
+			s.HTTPSMux.HandleFunc(promURL, use(promHandler.ServeHTTP, basicAuth(userList)))
 		} else {
-			s.httpsMux.Handle(promURL, promHandler)
+			s.HTTPSMux.Handle(promURL, promHandler)
 		}
 	}
 	if pprofPath != "" {
@@ -504,17 +508,17 @@ func (s *Server) ServeHTTPTLS(addr, serverCrt, serverKey, caCert string, serverP
 		}
 		utils.Logger.Info(fmt.Sprintf("<HTTPS> profiling endpoints registered at %q", pprofPath))
 		if useBasicAuth {
-			s.httpsMux.HandleFunc(pprofPath, use(pprof.Index, basicAuth(userList)))
-			s.httpsMux.HandleFunc(pprofPath+"cmdline", use(pprof.Cmdline, basicAuth(userList)))
-			s.httpsMux.HandleFunc(pprofPath+"profile", use(pprof.Profile, basicAuth(userList)))
-			s.httpsMux.HandleFunc(pprofPath+"symbol", use(pprof.Symbol, basicAuth(userList)))
-			s.httpsMux.HandleFunc(pprofPath+"trace", use(pprof.Trace, basicAuth(userList)))
+			s.HTTPSMux.HandleFunc(pprofPath, use(pprof.Index, basicAuth(userList)))
+			s.HTTPSMux.HandleFunc(pprofPath+"cmdline", use(pprof.Cmdline, basicAuth(userList)))
+			s.HTTPSMux.HandleFunc(pprofPath+"profile", use(pprof.Profile, basicAuth(userList)))
+			s.HTTPSMux.HandleFunc(pprofPath+"symbol", use(pprof.Symbol, basicAuth(userList)))
+			s.HTTPSMux.HandleFunc(pprofPath+"trace", use(pprof.Trace, basicAuth(userList)))
 		} else {
-			s.httpsMux.HandleFunc(pprofPath, pprof.Index)
-			s.httpsMux.HandleFunc(pprofPath+"cmdline", pprof.Cmdline)
-			s.httpsMux.HandleFunc(pprofPath+"profile", pprof.Profile)
-			s.httpsMux.HandleFunc(pprofPath+"symbol", pprof.Symbol)
-			s.httpsMux.HandleFunc(pprofPath+"trace", pprof.Trace)
+			s.HTTPSMux.HandleFunc(pprofPath, pprof.Index)
+			s.HTTPSMux.HandleFunc(pprofPath+"cmdline", pprof.Cmdline)
+			s.HTTPSMux.HandleFunc(pprofPath+"profile", pprof.Profile)
+			s.HTTPSMux.HandleFunc(pprofPath+"symbol", pprof.Symbol)
+			s.HTTPSMux.HandleFunc(pprofPath+"trace", pprof.Trace)
 		}
 	}
 	if !s.httpEnabled {
@@ -530,7 +534,7 @@ func (s *Server) ServeHTTPTLS(addr, serverCrt, serverKey, caCert string, serverP
 	}
 	httpSrv := http.Server{
 		Addr:      addr,
-		Handler:   s.httpsMux,
+		Handler:   s.HTTPSMux,
 		TLSConfig: config,
 	}
 	utils.Logger.Info(fmt.Sprintf("<HTTPS> start listening at <%s>", addr))

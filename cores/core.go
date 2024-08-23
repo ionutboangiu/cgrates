@@ -19,12 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 package cores
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"path"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 	"runtime/pprof"
 	"sync"
 	"time"
@@ -33,22 +35,26 @@ import (
 	"github.com/cgrates/cgrates/config"
 	"github.com/cgrates/cgrates/engine"
 	"github.com/cgrates/cgrates/utils"
+	"github.com/prometheus/procfs"
 )
 
 func NewCoreService(cfg *config.CGRConfig, caps *engine.Caps, fileCPU *os.File, stopChan chan struct{},
-	shdWg *sync.WaitGroup, shdChan *utils.SyncedChan) *CoreService {
+	shdWg *sync.WaitGroup, shdChan *utils.SyncedChan, connMgr *engine.ConnManager) *CoreService {
 	var st *engine.CapsStats
 	if caps.IsLimited() && cfg.CoreSCfg().CapsStatsInterval != 0 {
 		st = engine.NewCapsStats(cfg.CoreSCfg().CapsStatsInterval, caps, stopChan)
 	}
-	return &CoreService{
+	cS := &CoreService{
 		shdWg:     shdWg,
 		shdChan:   shdChan,
 		cfg:       cfg,
 		CapsStats: st,
 		fileCPU:   fileCPU,
 		caps:      caps,
+		connMgr:   connMgr,
 	}
+	go cS.computeAndSendMetrics(stopChan)
+	return cS
 }
 
 type CoreService struct {
@@ -64,7 +70,49 @@ type CoreService struct {
 	fileCPUMux sync.Mutex
 	fileCPU    *os.File
 
-	caps *engine.Caps
+	caps    *engine.Caps
+	connMgr *engine.ConnManager
+}
+
+// computeAndSendMetrics computes internal metrics at the specified interval and sends them to StatS.
+// Continues to run until a signal is received on the stopChan channel.
+func (cS *CoreService) computeAndSendMetrics(stopChan <-chan struct{}) {
+	interval := cS.cfg.CoreSCfg().InternalMetricsInterval
+	if interval == 0 {
+		return
+	}
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			metrics := InternalMetrics{}
+			_ = cS.V1Status(context.TODO(), nil, &metrics)
+			b, err := json.Marshal(metrics)
+			if err != nil {
+				utils.Logger.Warning(fmt.Sprintf("<%s> %v", utils.CoreS, err))
+			}
+			var eventMetrics map[string]any
+			if err := json.Unmarshal(b, &eventMetrics); err != nil {
+				utils.Logger.Warning(fmt.Sprintf("<%s> %v", utils.CoreS, err))
+			}
+			cgrEv := &utils.CGREvent{
+				Tenant: cS.cfg.GeneralCfg().DefaultTenant,
+				ID:     utils.GenUUID(),
+				Event:  eventMetrics,
+				APIOpts: map[string]any{
+					utils.MetaSubsys: utils.MetaCore,
+				},
+			}
+			var reply map[string]map[string]any // statqueue IDs
+			if err := cS.connMgr.Call(context.TODO(), cS.cfg.CoreSCfg().EEsConns,
+				utils.EeSv1ProcessEvent, cgrEv, &reply); err != nil {
+				utils.Logger.Warning(fmt.Sprintf("<%s> failed to send internal metrics to StatS: %v", utils.CoreS, err))
+			}
+		case <-stopChan:
+			return
+		}
+	}
 }
 
 // Shutdown is called to shutdown the service
@@ -278,27 +326,203 @@ func (cS *CoreService) StopMemoryProfiling() error {
 }
 
 // V1Status returns the status of the engine
-func (cS *CoreService) V1Status(_ *context.Context, _ *utils.TenantWithAPIOpts, reply *map[string]any) (err error) {
-	memstats := new(runtime.MemStats)
-	runtime.ReadMemStats(memstats)
-	response := make(map[string]any)
-	response[utils.NodeID] = cS.cfg.GeneralCfg().NodeID
-	response[utils.MemoryUsage] = utils.SizeFmt(float64(memstats.HeapAlloc), "")
-	response[utils.ActiveGoroutines] = runtime.NumGoroutine()
-	if response[utils.VersionName], err = utils.GetCGRVersion(); err != nil {
-		utils.Logger.Err(err.Error())
-		err = nil
+func (cS *CoreService) V1Status(_ *context.Context, _ *utils.TenantWithAPIOpts, reply *InternalMetrics) (err error) {
+	metrics, err := computeInternalMetrics()
+	if err != nil {
+		return err
 	}
-	response[utils.RunningSince] = utils.GetStartTime()
-	response[utils.GoVersion] = runtime.Version()
+	metrics.NodeID = cS.cfg.GeneralCfg().NodeID
 	if cS.cfg.CoreSCfg().Caps != 0 {
-		response[utils.CAPSAllocated] = cS.caps.Allocated()
+		metrics.CapsStats.Allocated = cS.caps.Allocated()
 		if cS.cfg.CoreSCfg().CapsStatsInterval != 0 {
-			response[utils.CAPSPeak] = cS.CapsStats.GetPeak()
+			metrics.CapsStats.Peak = cS.CapsStats.GetPeak()
 		}
 	}
-	*reply = response
+	*reply = metrics
 	return
+}
+
+type InternalMetrics struct {
+	GoVersion         string //`json:"go_info"`         // Gauge (make the value 1 and add the version as label)
+	NodeID            string //`json:"cgrates_node_id"` // Gauge (make the value 1 and add the id as label)
+	Version           string //`json:"cgrates_version"` // Gauge (make the value 1 and add the id as label)
+	RunningSince      string
+	Goroutines        int //`json:"go_goroutines"` // Gauge
+	Threads           int //`json:"go_threads"`    // Gauge
+	MemStats          GoMemStats
+	GCDurationSeconds Summary //`json:"go_gc_duration_seconds"` // Summary
+	ProcStats         ProcStats
+	CapsStats         CapsStats
+}
+
+type GoMemStats struct {
+	Alloc        uint64  //`json:"go_memstats_alloc_bytes"`          // Gauge
+	TotalAlloc   uint64  //`json:"go_memstats_alloc_bytes_total"`    // Counter
+	Sys          uint64  //`json:"go_memstats_sys_bytes"`            // Gauge
+	Mallocs      uint64  //`json:"go_memstats_mallocs_total"`        // Counter
+	Frees        uint64  //`json:"go_memstats_frees_total"`          // Counter
+	Lookups      uint64  //`json:"go_memstats_lookups_total"`        // Counter
+	HeapAlloc    uint64  //`json:"go_memstats_heap_alloc_bytes"`     // Gauge
+	HeapSys      uint64  //`json:"go_memstats_heap_sys_bytes"`       // Gauge
+	HeapIdle     uint64  //`json:"go_memstats_heap_idle_bytes"`      // Gauge
+	HeapInuse    uint64  //`json:"go_memstats_heap_inuse_bytes"`     // Gauge
+	HeapReleased uint64  //`json:"go_memstats_heap_released_bytes"`  // Gauge
+	HeapObjects  uint64  //`json:"go_memstats_heap_objects"`         // Gauge
+	StackInuse   uint64  //`json:"go_memstats_stack_inuse_bytes"`    // Gauge
+	StackSys     uint64  //`json:"go_memstats_stack_sys_bytes"`      // Gauge
+	MSpanSys     uint64  //`json:"go_memstats_mspan_sys_bytes"`      // Gauge
+	MSpanInuse   uint64  //`json:"go_memstats_mspan_inuse_bytes"`    // Gauge
+	MCacheInuse  uint64  //`json:"go_memstats_mcache_inuse_bytes"`   // Gauge
+	MCacheSys    uint64  //`json:"go_memstats_mcache_sys_bytes"`     // Gauge
+	BuckHashSys  uint64  //`json:"go_memstats_buck_hash_sys_bytes"`  // Gauge
+	GCSys        uint64  //`json:"go_memstats_gc_sys_bytes"`         // Gauge
+	OtherSys     uint64  //`json:"go_memstats_other_sys_bytes"`      // Gauge
+	NextGC       uint64  //`json:"go_memstats_next_gc_bytes"`        // Gauge
+	LastGC       float64 //`json:"go_memstats_last_gc_time_seconds"` // Gauge
+}
+type Summary struct { // Summary
+	Quantiles []Quantile //`json:"go_gc_duration_seconds"`
+	Sum       float64    //`json:"go_gc_duration_seconds_sum"`
+	Count     uint64     //`json:"go_gc_duration_seconds_count"`
+}
+type Quantile struct {
+	Quantile float64 //`json:"quantile"`
+	Value    float64 //`json:"value"`
+}
+
+type ProcStats struct {
+	CPUTime              float64 //`json:"process_cpu_seconds_total"`            // Counter
+	MaxFDs               uint64  //`json:"process_max_fds"`                      // Gauge
+	OpenFDs              int     //`json:"process_open_fds"`                     // Gauge
+	ResidentMemory       int     //`json:"process_resident_memory_bytes"`        // Gauge
+	StartTime            float64 //`json:"process_start_time_seconds"`           // Gauge
+	VirtualMemory        uint    //`json:"process_virtual_memory_bytes"`         // Gauge
+	MaxVirtualMemory     uint64  //`json:"process_virtual_memory_max_bytes"`     // Gauge
+	NetworkReceiveTotal  float64 //`json:"process_network_receive_bytes_total"`  // Counter
+	NetworkTransmitTotal float64 //`json:"process_network_transmit_bytes_total"` // Counter
+}
+
+type CapsStats struct {
+	Allocated int //`json:"cgrates_caps_allocated"`
+	Peak      int //`json:"cgrates_caps_peak"`
+}
+
+func computeInternalMetrics() (InternalMetrics, error) {
+	vers, err := utils.GetCGRVersion()
+	if err != nil {
+		return InternalMetrics{}, err
+	}
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	memStats := GoMemStats{
+		Alloc:        m.Alloc,
+		TotalAlloc:   m.TotalAlloc,
+		Sys:          m.Sys,
+		Mallocs:      m.Mallocs,
+		Frees:        m.Frees,
+		HeapAlloc:    m.HeapAlloc,
+		HeapSys:      m.HeapSys,
+		HeapIdle:     m.HeapIdle,
+		HeapInuse:    m.HeapInuse,
+		HeapReleased: m.HeapReleased,
+		HeapObjects:  m.HeapObjects,
+		StackInuse:   m.StackInuse,
+		StackSys:     m.StackSys,
+		MSpanInuse:   m.MSpanInuse,
+		MSpanSys:     m.MSpanSys,
+		MCacheInuse:  m.MCacheInuse,
+		MCacheSys:    m.MCacheSys,
+		BuckHashSys:  m.BuckHashSys,
+		GCSys:        m.GCSys,
+		OtherSys:     m.OtherSys,
+		NextGC:       m.NextGC,
+		Lookups:      m.Lookups,
+	}
+
+	threads, _ := runtime.ThreadCreateProfile(nil)
+
+	var stats debug.GCStats
+	stats.PauseQuantiles = make([]time.Duration, 5)
+	debug.ReadGCStats(&stats)
+	quantiles := make([]Quantile, 0, 5)
+	// Add the first quantile separately
+	quantiles = append(quantiles, Quantile{
+		Quantile: 0.0,
+		Value:    stats.PauseQuantiles[0].Seconds(),
+	})
+	for idx, pq := range stats.PauseQuantiles[1:] {
+		q := Quantile{
+			Quantile: float64(idx+1) / float64(len(stats.PauseQuantiles)-1),
+			Value:    pq.Seconds(),
+		}
+		quantiles = append(quantiles, q)
+	}
+	gcDurSeconds := Summary{
+		Quantiles: quantiles,
+		Count:     uint64(stats.NumGC),
+		Sum:       stats.PauseTotal.Seconds(),
+	}
+	memStats.LastGC = float64(stats.LastGC.UnixNano()) / 1e9
+
+	// Process metrics
+	pid := os.Getpid()
+	p, err := procfs.NewProc(pid)
+	if err != nil {
+		return InternalMetrics{}, err
+	}
+
+	procStats := ProcStats{}
+	if stat, err := p.Stat(); err == nil {
+		procStats.CPUTime = stat.CPUTime()
+		procStats.VirtualMemory = stat.VirtualMemory()
+		procStats.ResidentMemory = stat.ResidentMemory()
+		if startTime, err := stat.StartTime(); err == nil {
+			procStats.StartTime = startTime
+		} else {
+			return InternalMetrics{}, err
+		}
+	} else {
+		return InternalMetrics{}, err
+	}
+	if fds, err := p.FileDescriptorsLen(); err == nil {
+		procStats.OpenFDs = fds
+	} else {
+		return InternalMetrics{}, err
+	}
+
+	if limits, err := p.Limits(); err == nil {
+		procStats.MaxFDs = limits.OpenFiles
+		procStats.MaxVirtualMemory = limits.AddressSpace
+	} else {
+		return InternalMetrics{}, err
+	}
+
+	if netstat, err := p.Netstat(); err == nil {
+		var inOctets, outOctets float64
+		if netstat.IpExt.InOctets != nil {
+			inOctets = *netstat.IpExt.InOctets
+		}
+		if netstat.IpExt.OutOctets != nil {
+			outOctets = *netstat.IpExt.OutOctets
+		}
+		procStats.NetworkReceiveTotal = inOctets
+		procStats.NetworkTransmitTotal = outOctets
+	} else {
+		return InternalMetrics{}, err
+	}
+
+	return InternalMetrics{
+		GoVersion:         runtime.Version(),
+		Version:           vers,
+		RunningSince:      utils.GetStartTime(),
+		Goroutines:        runtime.NumGoroutine(),
+		Threads:           threads,
+		MemStats:          memStats,
+		GCDurationSeconds: gcDurSeconds,
+		ProcStats:         procStats,
+	}, nil
 }
 
 // Sleep is used to test the concurrent requests mechanism

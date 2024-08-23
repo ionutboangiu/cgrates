@@ -23,6 +23,7 @@ import (
 
 	"github.com/cgrates/birpc/context"
 	"github.com/cgrates/cgrates/config"
+	"github.com/cgrates/cgrates/cores"
 	"github.com/cgrates/cgrates/dispatchers"
 	"github.com/cgrates/cgrates/engine"
 	"github.com/cgrates/cgrates/sessions"
@@ -181,7 +182,7 @@ type ConfigSv1Interface interface {
 }
 
 type CoreSv1Interface interface {
-	Status(ctx *context.Context, arg *utils.TenantWithAPIOpts, reply *map[string]any) error
+	Status(ctx *context.Context, arg *utils.TenantWithAPIOpts, reply *cores.InternalMetrics) error
 	Ping(ctx *context.Context, ign *utils.CGREvent, reply *string) error
 	Sleep(ctx *context.Context, arg *utils.DurationArgs, reply *string) error
 }

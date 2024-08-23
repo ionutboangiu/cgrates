@@ -127,7 +127,7 @@ func (dS *DispatcherService) CoreSv1StartMemoryProfiling(ctx *context.Context, p
 		utils.CoreSv1StartMemoryProfiling, params, reply,
 	)
 }
-func (dS *DispatcherService) CoreSv1Status(ctx *context.Context, args *utils.TenantWithAPIOpts, reply *map[string]any) (err error) {
+func (dS *DispatcherService) CoreSv1Status(ctx *context.Context, args *utils.TenantWithAPIOpts, reply *cores.InternalMetrics) (err error) {
 	tnt := dS.cfg.GeneralCfg().DefaultTenant
 	if args != nil && len(args.Tenant) != 0 {
 		tnt = args.Tenant

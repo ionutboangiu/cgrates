@@ -276,6 +276,44 @@ func (sS *StatService) storeStatQueue(sq *StatQueue) {
 	}
 }
 
+// eeSProcessEvent will send the event to be processed by the EEs component.
+func (sS *StatService) eeSProcessEvent(sQs StatQueues) error {
+	if len(sS.cgrcfg.StatSCfg().EEsConns) == 0 {
+		return nil
+	}
+	var withErrs bool
+	for _, sq := range sQs {
+		evWithOpts := &CGREventWithEeIDs{
+			CGREvent: &utils.CGREvent{
+				Tenant: sq.Tenant,
+				ID:     utils.GenUUID(),
+				Event: map[string]any{
+					utils.EventType: utils.StatUpdate,
+					utils.StatID:    sq.ID,
+				},
+				APIOpts: map[string]any{
+					utils.MetaSubsys: utils.MetaStats,
+				},
+			},
+			// EeIDs:    sS.cgrcfg.StatSCfg().ExporterIDs, // to be added?
+		}
+		for metricID, metric := range sq.SQMetrics {
+			evWithOpts.Event[metricID] = metric.GetValue(sS.cgrcfg.GeneralCfg().RoundingDecimals)
+		}
+		var reply map[string]map[string]any
+		if err := sS.connMgr.Call(context.TODO(), sS.cgrcfg.StatSCfg().EEsConns,
+			utils.EeSv1ProcessEvent, evWithOpts, &reply); err != nil {
+			utils.Logger.Warning(fmt.Sprintf(
+				"<StatS> failed to export event %s: %v", utils.ToJSON(evWithOpts), err))
+			withErrs = true
+		}
+	}
+	if withErrs {
+		return utils.ErrPartiallyExecuted
+	}
+	return nil
+}
+
 // processThresholds will pass the event for statQueue to ThresholdS
 func (sS *StatService) processThresholds(sQs StatQueues, opts map[string]any) (err error) {
 	if len(sS.cgrcfg.StatSCfg().ThresholdSConns) == 0 {
@@ -357,8 +395,13 @@ func (sS *StatService) processEvent(tnt string, args *utils.CGREvent) (statQueue
 		sS.storeStatQueue(sq)
 
 	}
-	if sS.processThresholds(matchSQs, args.APIOpts) != nil ||
-		withErrors {
+	if sS.processThresholds(matchSQs, args.APIOpts) != nil {
+		withErrors = true
+	}
+	if err := sS.eeSProcessEvent(matchSQs); err != nil {
+		withErrors = true
+	}
+	if withErrors {
 		err = utils.ErrPartiallyExecuted
 	}
 	matchSQs.unlock()
