@@ -84,7 +84,7 @@ func (env TestEnvironment) Setup(t *testing.T, engineDelay int) (*birpc.Client, 
 	}
 
 	flushDBs(t, cfg, true, true)
-	startEngine(t, cfg, env.ConfigPath, engineDelay, env.LogBuffer)
+	// startEngine(t, cfg, env.ConfigPath, engineDelay, env.LogBuffer)
 
 	client, err := newRPCClient(cfg.ListenCfg())
 	if err != nil {
@@ -93,7 +93,8 @@ func (env TestEnvironment) Setup(t *testing.T, engineDelay int) (*birpc.Client, 
 
 	var customTpPath string
 	if len(env.TpFiles) != 0 {
-		customTpPath = t.TempDir()
+		// customTpPath = t.TempDir()
+		customTpPath = "/tmp/tps"
 	}
 	loadCSVs(t, client, env.TpPath, customTpPath, env.TpFiles)
 

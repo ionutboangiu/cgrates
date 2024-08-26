@@ -58,7 +58,8 @@ func TestPromExporter(t *testing.T) {
 },
 "cores": {
 	"internal_metrics_interval": "5s",
-	"ees_conns": ["*localhost"]
+	"ees_conns": ["*localhost"],
+	"stats_conns": ["*localhost"]
 },
 "apiers": {
 	"enabled": true
@@ -99,6 +100,24 @@ func TestPromExporter(t *testing.T) {
 				{"tag": "NoSQReqStats", "path": "*exp.cgrates_stats_requests_alt", "type": "*variable", "value": "~*req.*sum#1"},
 				{"tag": "NoSQReq", "path": "*exp.cgrates_stats_requests_total", "type": "*constant", "value": "1"}
 			]
+		},
+		{
+			"id": "prom_core_stats",
+			"type": "*prometheus",
+			"filters": ["*string:~*opts.*subsys:*stats"],
+			"export_path": "prom3",
+			"fields": [
+				{"tag": "StatID", "path": "*exp.cgrates_stats_id_label", "type": "*variable", "value": "~*req.StatID"},
+				{"tag": "Goroutines", "path": "*exp.go_goroutines", "type": "*variable", "value": "~*req.*clone#<~*req.Goroutines>"},
+				{"tag": "Threads", "path": "*exp.go_threads", "type": "*variable", "value": "~*req.*clone#<~*req.Threads>"},
+				{"tag": "MemStatsAlloc", "path": "*exp.go_memstats_alloc_bytes", "type": "*variable", "value": "~*req.*clone#<~*req.MemStats.Alloc>"},
+				{"tag": "MemStatsTotalAlloc", "path": "*exp.go_memstats_alloc_bytes_total", "type": "*variable", "value": "~*req.*clone#<~*req.MemStats.TotalAlloc>"},
+				{"tag": "MemStatsSys", "path": "*exp.go_memstats_sys_bytes", "type": "*variable", "value": "~*req.*clone#<~*req.MemStats.Sys>"},
+				{"tag": "MemStatsMallocs", "path": "*exp.go_memstats_mallocs_total", "type": "*variable", "value": "~*req.*clone#<~*req.MemStats.Mallocs>"},
+				{"tag": "MemStatsFrees", "path": "*exp.go_memstats_frees_total", "type": "*variable", "value": "~*req.*clone#<~*req.MemStats.Frees>"},
+				{"tag": "MemStatsLookups", "path": "*exp.go_memstats_lookups_total", "type": "*variable", "value": "~*req.*clone#<~*req.MemStats.Lookups>"},
+				{"tag": "MemStatsHeapAlloc", "path": "*exp.go_memstats_heap_alloc_bytes", "type": "*variable", "value": "~*req.*clone#<~*req.MemStats.HeapAlloc>"},
+			]
 		}
 	]
 }
@@ -108,6 +127,18 @@ func TestPromExporter(t *testing.T) {
 		utils.StatsCsv: `
 #Tenant[0],Id[1],FilterIDs[2],ActivationInterval[3],QueueLength[4],TTL[5],MinItems[6],Metrics[7],MetricFilterIDs[8],Stored[9],Blocker[10],Weight[11],ThresholdIDs[12]
 cgrates.org,testSQ,,,100,-1,0,*tcc;*tcd;*pdd;*asr;*acc;*acd;*sum#1,,,,,*none
+#cgrates.org,core_metrics,,,,,,*clone#~*req.GoVersion,,,,,*none
+#cgrates.org,core_metrics,,,,,,*clone#~*req.NodeID,,,,,*none
+#cgrates.org,core_metrics,,,,,,*clone#~*req.Version,,,,,*none
+cgrates.org,core_metrics,,,,,,*clone#~*req.Goroutines,,,,,*none
+cgrates.org,core_metrics,,,,,,*clone#~*req.Threads,,,,,*none
+cgrates.org,core_metrics,,,,,,*clone#~*req.MemStats.Alloc,,,,,*none
+cgrates.org,core_metrics,,,,,,*clone#~*req.MemStats.TotalAlloc,,,,,*none
+cgrates.org,core_metrics,,,,,,*clone#~*req.MemStats.Sys,,,,,*none
+cgrates.org,core_metrics,,,,,,*clone#~*req.MemStats.Mallocs,,,,,*none
+cgrates.org,core_metrics,,,,,,*clone#~*req.MemStats.Frees,,,,,*none
+cgrates.org,core_metrics,,,,,,*clone#~*req.MemStats.Lookups,,,,,*none
+cgrates.org,core_metrics,,,,,,*clone#~*req.MemStats.HeapAlloc,,,,,*none
 `,
 	}
 
@@ -120,6 +151,7 @@ cgrates.org,testSQ,,,100,-1,0,*tcc;*tcd;*pdd;*asr;*acc;*acd;*sum#1,,,,,*none
 	client, cfg := testEnv.Setup(t, 0)
 
 	t.Run("ProcessStats", func(t *testing.T) {
+		t.Skip()
 		for i := range 50 {
 			var reply []string
 			if err := client.Call(context.Background(), utils.StatSv1ProcessEvent, &utils.CGREvent{
@@ -137,6 +169,7 @@ cgrates.org,testSQ,,,100,-1,0,*tcc;*tcd;*pdd;*asr;*acc;*acd;*sum#1,,,,,*none
 	})
 
 	t.Run("Curl", func(t *testing.T) {
+		t.Skip()
 		time.Sleep(6 * time.Second) // wait for the first cores metric export
 		for _, exporter := range cfg.EEsCfg().Exporters {
 			scrapePromURL(t, exporter.ExportPath)

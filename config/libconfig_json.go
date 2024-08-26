@@ -942,4 +942,5 @@ type CoreSJsonCfg struct {
 	Shutdown_timeout        *string
 	InternalMetricsInterval *string  `json:"internal_metrics_interval"`
 	EEsConns                []string `json:"ees_conns"`
+	StatSConns              []string `json:"stats_conns"`
 }

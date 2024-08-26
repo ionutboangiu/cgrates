@@ -13,7 +13,7 @@ if [ -n "${GIT_TAG_LOG}" ]; then
     GIT_COMMIT_HASH=""
 fi
 
-go install -ldflags "-X 'github.com/cgrates/cgrates/utils.GitCommitDate=$GIT_COMMIT_DATE' \
+go install -gcflags="all=-N -l" -ldflags "-X 'github.com/cgrates/cgrates/utils.GitCommitDate=$GIT_COMMIT_DATE' \
                      -X 'github.com/cgrates/cgrates/utils.GitCommitHash=$GIT_COMMIT_HASH'" \
            github.com/cgrates/cgrates/cmd/cgr-engine
 cr=$?

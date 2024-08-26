@@ -1,9 +1,10 @@
 {
 "general": {
 	"log_level": 7,
+	"reply_timeout": "50m"
 },
 "data_db": {
-	"db_type": "*internal"
+	"db_type": "*redis"
 },
 "stor_db": {
 	"db_type": "*internal"
@@ -13,8 +14,9 @@
 	"http_tls": ":2280"
 },
 "cores": {
-	"internal_metrics_interval": "5s",
-	"ees_conns": ["*localhost"]
+	"internal_metrics_interval": "20s",
+	"ees_conns": ["*localhost"],
+	"stats_conns": ["*localhost"]
 },
 "apiers": {
 	"enabled": true
@@ -41,7 +43,7 @@
 		},
 		{
 			"id": "prom_stats",
-			"type": "*prometheus",
+			"type": "*none",
 			"filters": ["*string:~*opts.*subsys:*stats"],
 			"export_path": "prom2",
 			"fields": [
@@ -54,6 +56,24 @@
 				{"tag": "StatASR", "path": "*exp.cgrates_stats_asr_units", "type": "*variable", "value": "~*req.*asr"},
 				{"tag": "NoSQReqStats", "path": "*exp.cgrates_stats_requests_alt", "type": "*variable", "value": "~*req.*sum#1"},
 				{"tag": "NoSQReq", "path": "*exp.cgrates_stats_requests_total", "type": "*constant", "value": "1"}
+			]
+		},
+		{
+			"id": "prom_core_stats",
+			"type": "*prometheus",
+			"filters": ["*string:~*opts.*subsys:*stats"],
+			"export_path": "prom3",
+			"fields": [
+				{"tag": "StatID", "path": "*exp.cgrates_stats_id_label", "type": "*variable", "value": "~*req.StatID"},
+				{"tag": "Goroutines", "path": "*exp.go_goroutines", "type": "*variable", "value": "~*req.*clone#<~*req.Goroutines>"},
+				{"tag": "Threads", "path": "*exp.go_threads", "type": "*variable", "value": "~*req.*clone#<~*req.Threads>"},
+				{"tag": "MemStatsAlloc", "path": "*exp.go_memstats_alloc_bytes", "type": "*variable", "value": "~*req.*clone#<~*req.MemStats.Alloc>"},
+				{"tag": "MemStatsTotalAlloc", "path": "*exp.go_memstats_alloc_bytes_total", "type": "*variable", "value": "~*req.*clone#<~*req.MemStats.TotalAlloc>"},
+				{"tag": "MemStatsSys", "path": "*exp.go_memstats_sys_bytes", "type": "*variable", "value": "~*req.*clone#<~*req.MemStats.Sys>"},
+				{"tag": "MemStatsMallocs", "path": "*exp.go_memstats_mallocs_total", "type": "*variable", "value": "~*req.*clone#<~*req.MemStats.Mallocs>"},
+				{"tag": "MemStatsFrees", "path": "*exp.go_memstats_frees_total", "type": "*variable", "value": "~*req.*clone#<~*req.MemStats.Frees>"},
+				{"tag": "MemStatsLookups", "path": "*exp.go_memstats_lookups_total", "type": "*variable", "value": "~*req.*clone#<~*req.MemStats.Lookups>"},
+				{"tag": "MemStatsHeapAlloc", "path": "*exp.go_memstats_heap_alloc_bytes", "type": "*variable", "value": "~*req.*clone#<~*req.MemStats.HeapAlloc>"},
 			]
 		}
 	]

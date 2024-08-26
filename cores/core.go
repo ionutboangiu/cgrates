@@ -83,7 +83,7 @@ func (cS *CoreService) computeAndSendMetrics(stopChan <-chan struct{}) {
 	}
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
-	for {
+	for range 1 {
 		select {
 		case <-ticker.C:
 			metrics := InternalMetrics{}
@@ -104,9 +104,9 @@ func (cS *CoreService) computeAndSendMetrics(stopChan <-chan struct{}) {
 					utils.MetaSubsys: utils.MetaCore,
 				},
 			}
-			var reply map[string]map[string]any // statqueue IDs
-			if err := cS.connMgr.Call(context.TODO(), cS.cfg.CoreSCfg().EEsConns,
-				utils.EeSv1ProcessEvent, cgrEv, &reply); err != nil {
+			var reply []string // statqueue IDs
+			if err := cS.connMgr.Call(context.TODO(), cS.cfg.CoreSCfg().StatSConns,
+				utils.StatSv1ProcessEvent, cgrEv, &reply); err != nil {
 				utils.Logger.Warning(fmt.Sprintf("<%s> failed to send internal metrics to StatS: %v", utils.CoreS, err))
 			}
 		case <-stopChan:

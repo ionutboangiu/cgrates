@@ -54,6 +54,7 @@ func NewStatMetric(metricID string, minItems int, filterIDs []string) (sm StatMe
 		utils.MetaSum:      NewStatSum,
 		utils.MetaAverage:  NewStatAverage,
 		utils.MetaDistinct: NewStatDistinct,
+		utils.MetaClone:    NewStatClone,
 	}
 	// split the metricID
 	// in case of *sum we have *sum#~*req.FieldName
@@ -1645,4 +1646,112 @@ func (dst *StatDistinct) GetCompressFactor(events map[string]int) map[string]int
 		}
 	}
 	return events
+}
+
+func NewStatClone(minItems int, extraParams string, filterIDs []string) (StatMetric, error) {
+	return &StatClone{
+		Val:       utils.StatsNA,
+		FieldName: extraParams,
+		FilterIDs: filterIDs,
+	}, nil
+}
+
+type StatClone struct {
+	FilterIDs []string
+	Val       float64
+	FieldName string
+	cachedVal *float64
+}
+
+// getValue returns tcd.val
+func (s *StatClone) getValue(roundingDecimal int) float64 {
+	if s.cachedVal != nil {
+		return *s.cachedVal
+	}
+	if s.Val != utils.StatsNA {
+		s.cachedVal = utils.Float64Pointer(utils.Round(
+			s.Val, roundingDecimal, utils.MetaRoundingMiddle))
+	} else {
+		s.cachedVal = utils.Float64Pointer(utils.StatsNA)
+	}
+	return *s.cachedVal
+}
+
+func (s *StatClone) GetStringValue(roundingDecimal int) (valStr string) {
+	if val := s.getValue(roundingDecimal); val == utils.StatsNA {
+		valStr = utils.NotAvailable
+	} else {
+		valStr = strconv.FormatFloat(s.getValue(roundingDecimal), 'f', -1, 64)
+	}
+	return
+}
+
+func (s *StatClone) GetValue(roundingDecimal int) any {
+	return s.getValue(roundingDecimal)
+}
+
+func (s *StatClone) GetFloat64Value(roundingDecimal int) (v float64) {
+	return s.getValue(roundingDecimal)
+}
+
+func (s *StatClone) getFieldVal(ev utils.DataProvider) (float64, error) {
+	ival, err := utils.DPDynamicInterface(s.FieldName, ev)
+	if err != nil {
+		if err == utils.ErrNotFound {
+			err = utils.ErrPrefix(err, s.FieldName)
+		}
+		return 0, err
+	}
+	val, err := utils.IfaceAsFloat64(ival)
+	if err != nil {
+		return 0, err
+	}
+	return val, nil
+}
+
+func (s *StatClone) AddEvent(evID string, ev utils.DataProvider) error {
+	v, err := s.getFieldVal(ev)
+	if err != nil {
+		return err
+	}
+	s.Val = v
+	return nil
+}
+
+func (s *StatClone) AddOneEvent(ev utils.DataProvider) error {
+	v, err := s.getFieldVal(ev)
+	if err != nil {
+		return err
+	}
+	s.Val = v
+	return nil
+}
+
+func (s *StatClone) RemEvent(_ string) error {
+	s.Val = utils.StatsNA
+	return nil
+}
+
+func (s *StatClone) Marshal(ms Marshaler) ([]byte, error) {
+	return ms.Marshal(s)
+}
+
+func (s *StatClone) LoadMarshaled(ms Marshaler, marshaled []byte) error {
+	return ms.Unmarshal(marshaled, &s)
+}
+
+func (s *StatClone) GetFilterIDs() []string {
+	return s.FilterIDs
+}
+
+func (s *StatClone) GetMinItems() (minIts int) {
+	return 0
+}
+
+func (s *StatClone) Compress(_ int64, _ string, _ int) []string {
+	return nil
+}
+
+func (s *StatClone) GetCompressFactor(_ map[string]int) map[string]int {
+	return nil
 }

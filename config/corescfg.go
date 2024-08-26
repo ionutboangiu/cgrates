@@ -33,6 +33,7 @@ type CoreSCfg struct {
 	ShutdownTimeout         time.Duration
 	InternalMetricsInterval time.Duration
 	EEsConns                []string
+	StatSConns              []string
 }
 
 func (cS *CoreSCfg) loadFromJSONCfg(jsnCfg *CoreSJsonCfg) (err error) {
@@ -70,6 +71,16 @@ func (cS *CoreSCfg) loadFromJSONCfg(jsnCfg *CoreSJsonCfg) (err error) {
 			}
 		}
 	}
+	if jsnCfg.StatSConns != nil {
+		cS.StatSConns = make([]string, len(jsnCfg.StatSConns))
+		for idx, conn := range jsnCfg.StatSConns {
+			// if we have the connection internal we change the name so we can have internal rpc for each subsystem
+			cS.StatSConns[idx] = conn
+			if conn == utils.MetaInternal {
+				cS.StatSConns[idx] = utils.ConcatenatedKey(utils.MetaInternal, utils.MetaStats)
+			}
+		}
+	}
 	return
 }
 
@@ -92,6 +103,16 @@ func (cS *CoreSCfg) AsMapInterface() map[string]any {
 		}
 		mp[utils.EEsConnsCfg] = eesConns
 	}
+	if cS.StatSConns != nil {
+		statsConns := make([]string, len(cS.StatSConns))
+		for i, item := range cS.StatSConns {
+			statsConns[i] = item
+			if item == utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAttributes) {
+				statsConns[i] = utils.MetaInternal
+			}
+		}
+		mp[utils.StatSConnsCfg] = statsConns
+	}
 	if cS.CapsStatsInterval == 0 {
 		mp[utils.CapsStatsIntervalCfg] = "0"
 	}
@@ -110,5 +131,6 @@ func (cS CoreSCfg) Clone() *CoreSCfg {
 		ShutdownTimeout:         cS.ShutdownTimeout,
 		InternalMetricsInterval: cS.InternalMetricsInterval,
 		EEsConns:                slices.Clone(cS.EEsConns),
+		StatSConns:              slices.Clone(cS.StatSConns),
 	}
 }

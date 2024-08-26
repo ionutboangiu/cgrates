@@ -64,6 +64,7 @@ const CGRATES_CFG_JSON = `
 	"caps_stats_interval": "0",	// the interval duration we sample for caps stats ( 0 to disabled )
 	"shutdown_timeout": "1s",	// the duration to wait until all services are stopped
 	"ees_conns": [],
+	"stats_conns": [],
 	"internal_metrics_interval": "5s"
 },
 

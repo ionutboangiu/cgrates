@@ -478,6 +478,8 @@ func (sq *StatQueue) UnmarshalJSON(data []byte) (err error) {
 			metric = new(StatAverage)
 		case utils.MetaDistinct:
 			metric = new(StatDistinct)
+		case utils.MetaClone:
+			metric = new(StatClone)
 		default:
 			return fmt.Errorf("unsupported metric type <%s>", metricSplit[0])
 		}

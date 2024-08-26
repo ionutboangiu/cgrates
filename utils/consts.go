@@ -1009,6 +1009,7 @@ const (
 	MetaSum      = "*sum"
 	MetaAverage  = "*average"
 	MetaDistinct = "*distinct"
+	MetaClone    = "*clone"
 	MetaRAR      = "*rar"
 	MetaDMR      = "*dmr"
 	MetaCoA      = "*coa"
