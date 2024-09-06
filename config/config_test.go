@@ -719,7 +719,7 @@ func TestCgrCfgJSONDefaultSChargerSCfg(t *testing.T) {
 }
 
 func TestCgrCfgJSONDefaultsResLimCfg(t *testing.T) {
-	eResLiCfg := &ResourceSConfig{
+	eResLiCfg := &ResourceSCfg{
 		Enabled:             false,
 		IndexedSelects:      true,
 		ThresholdSConns:     []string{},
@@ -727,7 +727,7 @@ func TestCgrCfgJSONDefaultsResLimCfg(t *testing.T) {
 		StringIndexedFields: nil,
 		PrefixIndexedFields: &[]string{},
 		SuffixIndexedFields: &[]string{},
-		Opts: &ResourcesOpts{
+		Opts: ResourceSOpts{
 			UsageID: utils.EmptyString,
 			Units:   1,
 		},
@@ -1372,7 +1372,7 @@ func TestLoadResourceSCfgError(t *testing.T) {
             "string_indexed_fields": "*req.index1",
 		},	
 	}`
-	expected := "json: cannot unmarshal string into Go struct field ResourceSJsonCfg.String_indexed_fields of type []string"
+	expected := "json: cannot unmarshal string into Go struct field .string_indexed_fields of type []string"
 	cgrConfig := NewDefaultCGRConfig()
 	if cgrCfgJSON, err := NewCgrJsonCfgFromBytes([]byte(cfgJSONStr)); err != nil {
 		t.Error(err)
@@ -1862,7 +1862,7 @@ func TestChargersConfig(t *testing.T) {
 }
 
 func TestResourceSConfig(t *testing.T) {
-	expected := &ResourceSConfig{
+	expected := &ResourceSCfg{
 		Enabled:             false,
 		IndexedSelects:      true,
 		StoreInterval:       0,
@@ -1870,7 +1870,7 @@ func TestResourceSConfig(t *testing.T) {
 		PrefixIndexedFields: &[]string{},
 		SuffixIndexedFields: &[]string{},
 		NestedFields:        false,
-		Opts: &ResourcesOpts{
+		Opts: ResourceSOpts{
 			UsageID: "",
 			Units:   1,
 		},

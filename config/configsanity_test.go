@@ -1091,7 +1091,7 @@ func TestConfigSanityChargerS(t *testing.T) {
 
 func TestConfigSanityResourceLimiter(t *testing.T) {
 	cfg := NewDefaultCGRConfig()
-	cfg.resourceSCfg = &ResourceSConfig{
+	cfg.resourceSCfg = &ResourceSCfg{
 		Enabled:         true,
 		ThresholdSConns: []string{utils.MetaInternal},
 	}

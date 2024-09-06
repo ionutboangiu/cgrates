@@ -637,25 +637,6 @@ type ChargerSJsonCfg struct {
 	Nested_fields         *bool // applies when indexed fields is not defined
 }
 
-type ResourcesOptsJson struct {
-	UsageID  *string  `json:"*usageID"`
-	UsageTTL *string  `json:"*usageTTL"`
-	Units    *float64 `json:"*units"`
-}
-
-// ResourceLimiter service config section
-type ResourceSJsonCfg struct {
-	Enabled               *bool
-	Indexed_selects       *bool
-	Thresholds_conns      *[]string
-	Store_interval        *string
-	String_indexed_fields *[]string
-	Prefix_indexed_fields *[]string
-	Suffix_indexed_fields *[]string
-	Nested_fields         *bool // applies when indexed fields is not defined
-	Opts                  *ResourcesOptsJson
-}
-
 type StatsOptsJson struct {
 	ProfileIDs           *[]string `json:"*profileIDs"`
 	ProfileIgnoreFilters *bool     `json:"*profileIgnoreFilters"`

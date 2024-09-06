@@ -25,66 +25,6 @@ import (
 	"github.com/cgrates/cgrates/utils"
 )
 
-func TestResourceSConfigloadFromJsonCfgCase1(t *testing.T) {
-	cfgJSON := &ResourceSJsonCfg{
-		Enabled:               utils.BoolPointer(true),
-		Indexed_selects:       utils.BoolPointer(true),
-		Thresholds_conns:      &[]string{utils.MetaInternal, "*conn1"},
-		Store_interval:        utils.StringPointer("2s"),
-		String_indexed_fields: &[]string{"*req.index1"},
-		Prefix_indexed_fields: &[]string{"*req.index1"},
-		Suffix_indexed_fields: &[]string{"*req.index1"},
-		Nested_fields:         utils.BoolPointer(true),
-	}
-	expected := &ResourceSConfig{
-		Enabled:             true,
-		IndexedSelects:      true,
-		StoreInterval:       2 * time.Second,
-		ThresholdSConns:     []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaThresholds), "*conn1"},
-		StringIndexedFields: &[]string{"*req.index1"},
-		PrefixIndexedFields: &[]string{"*req.index1"},
-		SuffixIndexedFields: &[]string{"*req.index1"},
-		NestedFields:        true,
-		Opts: &ResourcesOpts{
-			Units: 1,
-		},
-	}
-	cfg := NewDefaultCGRConfig()
-	if err := cfg.resourceSCfg.loadFromJSONCfg(cfgJSON); err != nil {
-		t.Error(err)
-	} else if !reflect.DeepEqual(expected, cfg.resourceSCfg) {
-		t.Errorf("Expected %+v \n, received %+v", utils.ToJSON(expected), utils.ToJSON(cfg.resourceSCfg))
-	}
-	cfg.resourceSCfg.Opts.loadFromJSONCfg(nil)
-	if reflect.DeepEqual(nil, cfg.resourceSCfg.Opts) {
-		t.Error("expected nil")
-	}
-	cfgJson := &ResourcesOptsJson{
-		UsageTTL: utils.StringPointer("1000"),
-	}
-	if err := cfg.resourceSCfg.Opts.loadFromJSONCfg(cfgJson); err != nil {
-		t.Error(err)
-	}
-	cfgJsonFail := &ResourcesOptsJson{
-		UsageTTL: utils.StringPointer("test"),
-	}
-	if err := cfg.resourceSCfg.Opts.loadFromJSONCfg(cfgJsonFail); err == nil {
-		t.Error(err)
-	}
-
-}
-
-func TestResourceSConfigloadFromJsonCfgCase2(t *testing.T) {
-	cfgJSON := &ResourceSJsonCfg{
-		Store_interval: utils.StringPointer("2ss"),
-	}
-	expected := "time: unknown unit \"ss\" in duration \"2ss\""
-	jsonCfg := NewDefaultCGRConfig()
-	if err := jsonCfg.resourceSCfg.loadFromJSONCfg(cfgJSON); err == nil || err.Error() != expected {
-		t.Errorf("Expected %+v, received %+v", expected, err)
-	}
-}
-
 func TestResourceSConfigAsMapInterface(t *testing.T) {
 	cfgJSONStr := `{
 	"resources": {},	
@@ -149,7 +89,7 @@ func TestResourceSConfigAsMapInterface1(t *testing.T) {
 }
 
 func TestResourceSConfigClone(t *testing.T) {
-	ban := &ResourceSConfig{
+	ban := &ResourceSCfg{
 		Enabled:             true,
 		IndexedSelects:      true,
 		StoreInterval:       2 * time.Second,
@@ -158,7 +98,7 @@ func TestResourceSConfigClone(t *testing.T) {
 		PrefixIndexedFields: &[]string{"*req.index1"},
 		SuffixIndexedFields: &[]string{"*req.index1"},
 		NestedFields:        true,
-		Opts: &ResourcesOpts{
+		Opts: ResourceSOpts{
 			UsageTTL: utils.DurationPointer(1 * time.Second),
 		},
 	}

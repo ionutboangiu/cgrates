@@ -152,7 +152,7 @@ func newCGRConfig(config []byte) (cfg *CGRConfig, err error) {
 	cfg.dnsAgentCfg = new(DNSAgentCfg)
 	cfg.attributeSCfg = &AttributeSCfg{Opts: &AttributesOpts{}}
 	cfg.chargerSCfg = new(ChargerSCfg)
-	cfg.resourceSCfg = &ResourceSConfig{Opts: &ResourcesOpts{}}
+	cfg.resourceSCfg = &ResourceSCfg{}
 	cfg.statsCfg = &StatSCfg{Opts: &StatsOpts{}}
 	cfg.trendsCfg = new(TrendSCfg)
 	cfg.rankingsCfg = new(RankingSCfg)
@@ -313,7 +313,7 @@ type CGRConfig struct {
 	dnsAgentCfg      *DNSAgentCfg      // DNSAgent config
 	attributeSCfg    *AttributeSCfg    // AttributeS config
 	chargerSCfg      *ChargerSCfg      // ChargerS config
-	resourceSCfg     *ResourceSConfig  // ResourceS config
+	resourceSCfg     *ResourceSCfg     // ResourceS config
 	statsCfg         *StatSCfg         // StatS config
 	trendsCfg        *TrendSCfg        // TrendS config
 	rankingsCfg      *RankingSCfg      // Rankings config
@@ -620,12 +620,15 @@ func (cfg *CGRConfig) loadChargerSCfg(jsnCfg *CgrJsonCfg) (err error) {
 }
 
 // loadResourceSCfg loads the ResourceS section of the configuration
-func (cfg *CGRConfig) loadResourceSCfg(jsnCfg *CgrJsonCfg) (err error) {
-	var jsnRLSCfg *ResourceSJsonCfg
-	if jsnRLSCfg, err = jsnCfg.ResourceSJsonCfg(); err != nil {
-		return
+func (cfg *CGRConfig) loadResourceSCfg(jsnCfg *CgrJsonCfg) error {
+	rawCfg, hasKey := (*jsnCfg)[RESOURCES_JSON]
+	if !hasKey {
+		return nil
 	}
-	return cfg.resourceSCfg.loadFromJSONCfg(jsnRLSCfg)
+	if err := json.Unmarshal(*rawCfg, cfg.resourceSCfg); err != nil {
+		return err
+	}
+	return nil
 }
 
 // loadStatSCfg loads the StatS section of the configuration
@@ -896,7 +899,7 @@ func (cfg *CGRConfig) ChargerSCfg() *ChargerSCfg {
 }
 
 // ResourceSCfg returns the config for ResourceS
-func (cfg *CGRConfig) ResourceSCfg() *ResourceSConfig { // not done
+func (cfg *CGRConfig) ResourceSCfg() *ResourceSCfg { // not done
 	cfg.lks[RESOURCES_JSON].Lock()
 	defer cfg.lks[RESOURCES_JSON].Unlock()
 	return cfg.resourceSCfg

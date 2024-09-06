@@ -1177,32 +1177,6 @@ func TestDfFilterSJsonCfg(t *testing.T) {
 	}
 }
 
-func TestDfResourceLimiterSJsonCfg(t *testing.T) {
-	eCfg := &ResourceSJsonCfg{
-		Enabled:               utils.BoolPointer(false),
-		Indexed_selects:       utils.BoolPointer(true),
-		Thresholds_conns:      &[]string{},
-		Store_interval:        utils.StringPointer(""),
-		String_indexed_fields: nil,
-		Prefix_indexed_fields: &[]string{},
-		Suffix_indexed_fields: &[]string{},
-		Nested_fields:         utils.BoolPointer(false),
-		Opts: &ResourcesOptsJson{
-			UsageID: utils.StringPointer(utils.EmptyString),
-			Units:   utils.Float64Pointer(1),
-		},
-	}
-	dfCgrJSONCfg, err := NewCgrJsonCfgFromBytes([]byte(CGRATES_CFG_JSON))
-	if err != nil {
-		t.Error(err)
-	}
-	if cfg, err := dfCgrJSONCfg.ResourceSJsonCfg(); err != nil {
-		t.Error(err)
-	} else if !reflect.DeepEqual(eCfg, cfg) {
-		t.Errorf("Expected: %s, received: %s", utils.ToJSON(eCfg), utils.ToJSON(cfg))
-	}
-}
-
 func TestDfStatServiceJsonCfg(t *testing.T) {
 	eCfg := &StatServJsonCfg{
 		Enabled:                  utils.BoolPointer(false),

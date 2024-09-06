@@ -19,101 +19,121 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 package config
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/cgrates/cgrates/utils"
 )
 
-type ResourcesOpts struct {
+type ResourceSOpts struct {
 	UsageID  string
 	UsageTTL *time.Duration
 	Units    float64
 }
 
-// ResourceSConfig is resorces section config
-type ResourceSConfig struct {
+func (ro *ResourceSOpts) UnmarshalJSON(data []byte) error {
+	var temp struct {
+		UsageID  *string  `json:"*usageID"`
+		UsageTTL *string  `json:"*usageTTL"`
+		Units    *float64 `json:"*units"`
+	}
+	if err := json.Unmarshal(data, &temp); err != nil {
+		return err
+	}
+	if temp.UsageID != nil {
+		ro.UsageID = *temp.UsageID
+	}
+	if temp.UsageTTL != nil {
+		ttl, err := utils.ParseDurationWithNanosecs(*temp.UsageTTL)
+		if err != nil {
+			return err
+		}
+		ro.UsageTTL = &ttl
+	}
+	if temp.Units != nil {
+		ro.Units = *temp.Units
+	}
+	return nil
+}
+
+// ResourceSCfg stores the configuration settings parsed from the "resources" section.
+type ResourceSCfg struct {
 	Enabled             bool
 	IndexedSelects      bool
 	ThresholdSConns     []string
-	StoreInterval       time.Duration // Dump regularly from cache into dataDB
+	StoreInterval       time.Duration
 	StringIndexedFields *[]string
 	PrefixIndexedFields *[]string
 	SuffixIndexedFields *[]string
 	NestedFields        bool
-	Opts                *ResourcesOpts
+	Opts                ResourceSOpts
 }
 
-func (resOpts *ResourcesOpts) loadFromJSONCfg(jsnCfg *ResourcesOptsJson) (err error) {
-	if jsnCfg == nil {
-		return
+func (rc *ResourceSCfg) UnmarshalJSON(data []byte) error {
+	var temp struct {
+		Enabled             *bool          `json:"enabled"`
+		IndexedSelects      *bool          `json:"indexed_selects"`
+		ThresholdSConns     []string       `json:"thresholds_conns"`
+		StoreInterval       *string        `json:"store_interval"`
+		StringIndexedFields []string       `json:"string_indexed_fields"`
+		PrefixIndexedFields []string       `json:"prefix_indexed_fields"`
+		SuffixIndexedFields []string       `json:"suffix_indexed_fields"`
+		NestedFields        *bool          `json:"nested_fields"`
+		Opts                *ResourceSOpts `json:"opts"`
 	}
-	if jsnCfg.UsageID != nil {
-		resOpts.UsageID = *jsnCfg.UsageID
+
+	// Ensure opts is updated instead of overwritten.
+	temp.Opts = &rc.Opts
+
+	if err := json.Unmarshal(data, &temp); err != nil {
+		return err
 	}
-	if jsnCfg.UsageTTL != nil {
-		var ttl time.Duration
-		if ttl, err = utils.ParseDurationWithNanosecs(*jsnCfg.UsageTTL); err != nil {
+	if temp.Enabled != nil {
+		rc.Enabled = *temp.Enabled
+	}
+	if temp.IndexedSelects != nil {
+		rc.IndexedSelects = *temp.IndexedSelects
+	}
+	if temp.ThresholdSConns != nil {
+		rc.ThresholdSConns = subInternalConns(temp.ThresholdSConns, utils.MetaThresholds)
+	}
+	if temp.StoreInterval != nil {
+		var err error
+		if rc.StoreInterval, err = utils.ParseDurationWithNanosecs(*temp.StoreInterval); err != nil {
 			return err
 		}
-		resOpts.UsageTTL = utils.DurationPointer(ttl)
 	}
-	if jsnCfg.Units != nil {
-		resOpts.Units = *jsnCfg.Units
+	if temp.StringIndexedFields != nil {
+		rc.StringIndexedFields = &temp.StringIndexedFields
 	}
-	return
+	if temp.PrefixIndexedFields != nil {
+		rc.PrefixIndexedFields = &temp.PrefixIndexedFields
+	}
+	if temp.SuffixIndexedFields != nil {
+		rc.SuffixIndexedFields = &temp.SuffixIndexedFields
+	}
+	if temp.NestedFields != nil {
+		rc.NestedFields = *temp.NestedFields
+	}
+	return nil
 }
 
-func (rlcfg *ResourceSConfig) loadFromJSONCfg(jsnCfg *ResourceSJsonCfg) (err error) {
-	if jsnCfg == nil {
-		return
-	}
-	if jsnCfg.Enabled != nil {
-		rlcfg.Enabled = *jsnCfg.Enabled
-	}
-	if jsnCfg.Indexed_selects != nil {
-		rlcfg.IndexedSelects = *jsnCfg.Indexed_selects
-	}
-	if jsnCfg.Thresholds_conns != nil {
-		rlcfg.ThresholdSConns = make([]string, len(*jsnCfg.Thresholds_conns))
-		for idx, conn := range *jsnCfg.Thresholds_conns {
-			// if we have the connection internal we change the name so we can have internal rpc for each subsystem
-			rlcfg.ThresholdSConns[idx] = conn
-			if conn == utils.MetaInternal {
-				rlcfg.ThresholdSConns[idx] = utils.ConcatenatedKey(utils.MetaInternal, utils.MetaThresholds)
-			}
+// subInternalConns substitutes any internal connection ID (*internal) with a modified version
+// that includes the subsystem name, using the format *internal:subsystem.
+func subInternalConns(conns []string, subsys string) []string {
+	updated := make([]string, len(conns))
+	for i, c := range conns {
+		if c == utils.MetaInternal {
+			updated[i] = utils.MetaInternal + utils.ConcatenatedKeySep + subsys
+		} else {
+			updated[i] = c
 		}
 	}
-	if jsnCfg.Store_interval != nil {
-		if rlcfg.StoreInterval, err = utils.ParseDurationWithNanosecs(*jsnCfg.Store_interval); err != nil {
-			return
-		}
-	}
-	if jsnCfg.String_indexed_fields != nil {
-		sif := make([]string, len(*jsnCfg.String_indexed_fields))
-		copy(sif, *jsnCfg.String_indexed_fields)
-		rlcfg.StringIndexedFields = &sif
-	}
-	if jsnCfg.Prefix_indexed_fields != nil {
-		pif := make([]string, len(*jsnCfg.Prefix_indexed_fields))
-		copy(pif, *jsnCfg.Prefix_indexed_fields)
-		rlcfg.PrefixIndexedFields = &pif
-	}
-	if jsnCfg.Suffix_indexed_fields != nil {
-		sif := make([]string, len(*jsnCfg.Suffix_indexed_fields))
-		copy(sif, *jsnCfg.Suffix_indexed_fields)
-		rlcfg.SuffixIndexedFields = &sif
-	}
-	if jsnCfg.Nested_fields != nil {
-		rlcfg.NestedFields = *jsnCfg.Nested_fields
-	}
-	if jsnCfg.Opts != nil {
-		err = rlcfg.Opts.loadFromJSONCfg(jsnCfg.Opts)
-	}
-	return
+	return updated
 }
 
 // AsMapInterface returns the config as a map[string]any
-func (rlcfg *ResourceSConfig) AsMapInterface() (initialMP map[string]any) {
+func (rlcfg *ResourceSCfg) AsMapInterface() (initialMP map[string]any) {
 	opts := map[string]any{
 		utils.MetaUsageIDCfg: rlcfg.Opts.UsageID,
 		utils.MetaUnitsCfg:   rlcfg.Opts.Units,
@@ -159,8 +179,8 @@ func (rlcfg *ResourceSConfig) AsMapInterface() (initialMP map[string]any) {
 	return
 }
 
-func (resOpts *ResourcesOpts) Clone() (cln *ResourcesOpts) {
-	cln = &ResourcesOpts{
+func (resOpts ResourceSOpts) Clone() (cln ResourceSOpts) {
+	cln = ResourceSOpts{
 		UsageID: resOpts.UsageID,
 		Units:   resOpts.Units,
 	}
@@ -172,8 +192,8 @@ func (resOpts *ResourcesOpts) Clone() (cln *ResourcesOpts) {
 }
 
 // Clone returns a deep copy of ResourceSConfig
-func (rlcfg ResourceSConfig) Clone() (cln *ResourceSConfig) {
-	cln = &ResourceSConfig{
+func (rlcfg ResourceSCfg) Clone() (cln *ResourceSCfg) {
+	cln = &ResourceSCfg{
 		Enabled:        rlcfg.Enabled,
 		IndexedSelects: rlcfg.IndexedSelects,
 		StoreInterval:  rlcfg.StoreInterval,

@@ -347,18 +347,6 @@ func (cgrJsn CgrJsonCfg) ChargerServJsonCfg() (*ChargerSJsonCfg, error) {
 	return cfg, nil
 }
 
-func (jsnCfg CgrJsonCfg) ResourceSJsonCfg() (*ResourceSJsonCfg, error) {
-	rawCfg, hasKey := jsnCfg[RESOURCES_JSON]
-	if !hasKey {
-		return nil, nil
-	}
-	cfg := new(ResourceSJsonCfg)
-	if err := json.Unmarshal(*rawCfg, cfg); err != nil {
-		return nil, err
-	}
-	return cfg, nil
-}
-
 func (jsnCfg CgrJsonCfg) StatSJsonCfg() (*StatServJsonCfg, error) {
 	rawCfg, hasKey := jsnCfg[STATS_JSON]
 	if !hasKey {
