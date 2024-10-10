@@ -4,9 +4,19 @@ permissions: {}
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+      - workflows/ignore-paths
+    paths-ignore:
+      - 'docs/**'
+      - README.md
   pull_request:
-    branches: [master]
+    branches:
+      - master
+      - workflows/ignore-paths
+    paths-ignore:
+      - 'docs/**'
+      - README.md
   workflow_dispatch:
 
 jobs:
