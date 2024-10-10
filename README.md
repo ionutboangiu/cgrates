@@ -1,6 +1,7 @@
 ## Real-time Online/Offline Charging System (OCS) for Telecom & ISP environments
 
-[![Build Status](https://github.com/cgrates/cgrates/actions/workflows/build.yaml/badge.svg)](https://github.com/cgrates/cgrates/actions/workflows/build.yaml/)
+[![Build Status](https://github.com/cgrates/cgrates/actions/workflows/build.yaml/badge.svg?branch=master)](https://github.com/cgrates/cgrates/actions/workflows/build.yaml?query=branch%3Amaster+event%3Apush)
+[![Integration Tests Status](https://github.com/cgrates/cgrates/actions/workflows/integration_tests.yaml/badge.svg?branch=master)](https://github.com/cgrates/cgrates/actions/workflows/integration_tests.yaml?query=event%3Apush+branch%3Amaster)
 [![Documentation Status](https://readthedocs.org/projects/cgrates/badge/?version=latest)](https://cgrates.readthedocs.io/en/latest/?badge=latest)
 [![GoDoc](https://pkg.go.dev/badge/github.com/cgrates/cgrates)](https://pkg.go.dev/github.com/cgrates/cgrates@master)
 
