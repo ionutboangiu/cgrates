@@ -106,12 +106,12 @@ type DiameterAgent struct {
 }
 
 // ListenAndServe is called when DiameterAgent is started, usually from within cmd/cgr-engine
-func (da *DiameterAgent) ListenAndServe(stopChan <-chan struct{}) (err error) {
+func (da *DiameterAgent) ListenAndServe(caps *engine.Caps, stopChan <-chan struct{}) (err error) {
 	utils.Logger.Info(fmt.Sprintf("<%s> Start listening on <%s>", utils.DiameterAgent, da.cgrCfg.DiameterAgentCfg().Listen))
 	srv := &diam.Server{
 		Network: da.cgrCfg.DiameterAgentCfg().ListenNet,
 		Addr:    da.cgrCfg.DiameterAgentCfg().Listen,
-		Handler: da.handlers(),
+		Handler: da.handlers(caps),
 		Dict:    nil,
 	}
 	// used to control the server state
@@ -133,7 +133,7 @@ func (da *DiameterAgent) ListenAndServe(stopChan <-chan struct{}) (err error) {
 }
 
 // Creates the message handlers
-func (da *DiameterAgent) handlers() diam.Handler {
+func (da *DiameterAgent) handlers(caps *engine.Caps) diam.Handler {
 	settings := &sm.Settings{
 		OriginHost:       datatype.DiameterIdentity(da.cgrCfg.DiameterAgentCfg().OriginHost),
 		OriginRealm:      datatype.DiameterIdentity(da.cgrCfg.DiameterAgentCfg().OriginRealm),
@@ -164,15 +164,19 @@ func (da *DiameterAgent) handlers() diam.Handler {
 		settings.HostIPAddresses[i] = datatype.Address(host)
 	}
 
+	handleMessage := capsLimit(caps, da.handleMessage)
+	handleRAA := capsLimit(caps, da.handleRAA)
+	handleDPA := capsLimit(caps, da.handleDPA)
+
 	dSM := sm.New(settings)
 	if da.cgrCfg.DiameterAgentCfg().SyncedConnReqs {
-		dSM.HandleFunc(all, da.handleMessage)
-		dSM.HandleFunc(raa, da.handleRAA)
-		dSM.HandleFunc(dpa, da.handleDPA)
+		dSM.HandleFunc(all, handleMessage)
+		dSM.HandleFunc(raa, handleRAA)
+		dSM.HandleFunc(dpa, handleDPA)
 	} else {
-		dSM.HandleFunc(all, da.handleMessageAsync)
-		dSM.HandleFunc(raa, func(c diam.Conn, m *diam.Message) { go da.handleRAA(c, m) })
-		dSM.HandleFunc(dpa, func(c diam.Conn, m *diam.Message) { go da.handleDPA(c, m) })
+		dSM.HandleFunc(all, func(c diam.Conn, m *diam.Message) { go handleMessage(c, m) })
+		dSM.HandleFunc(raa, func(c diam.Conn, m *diam.Message) { go handleRAA(c, m) })
+		dSM.HandleFunc(dpa, func(c diam.Conn, m *diam.Message) { go handleDPA(c, m) })
 	}
 	go da.handleConns(dSM.HandshakeNotify())
 	go func() {
@@ -183,9 +187,20 @@ func (da *DiameterAgent) handlers() diam.Handler {
 	return dSM
 }
 
-// handleMessageAsync will dispatch the message into it's own goroutine
-func (da *DiameterAgent) handleMessageAsync(c diam.Conn, m *diam.Message) {
-	go da.handleMessage(c, m)
+// capsLimit wraps a Diameter message handler with caps limiting functionality, if limited.
+func capsLimit(caps *engine.Caps, dh func(c diam.Conn, m *diam.Message)) func(c diam.Conn, m *diam.Message) {
+	if !caps.IsLimited() {
+		return dh // caps functionality disabled; return original handler
+	}
+	return func(c diam.Conn, m *diam.Message) {
+		if err := caps.Allocate(); err != nil {
+			// If allocation fails, send a DIAMETER_TOO_BUSY (Result-Code 3004) response.
+			writeOnConn(c, diamBareErr(m, diam.TooBusy))
+			return
+		}
+		defer caps.Deallocate()
+		dh(c, m) // call the original handler
+	}
 }
 
 // handleALL is the handler of all messages coming in via Diameter
