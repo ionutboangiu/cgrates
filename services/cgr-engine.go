@@ -247,7 +247,7 @@ func (cgr *CGREngine) InitServices(setVersions bool) {
 		NewKamailioAgent(cgr.cfg, cgr.cM, cgr.srvDep, srvIdxr),
 		NewJanusAgent(cgr.cfg, cgr.iFilterSCh, cgr.clsCh, cgr.cM, cgr.srvDep, srvIdxr),
 		NewAsteriskAgent(cgr.cfg, cgr.cM, cgr.srvDep, srvIdxr),                           // partial reload
-		NewRadiusAgent(cgr.cfg, cgr.iFilterSCh, cgr.cM, cgr.srvDep, srvIdxr),             // partial reload
+		NewRadiusAgent(cgr.cfg, cgr.iFilterSCh, cgr.cM, cgr.caps, cgr.srvDep, srvIdxr),   // partial reload
 		NewDiameterAgent(cgr.cfg, cgr.iFilterSCh, cgr.cM, cgr.caps, cgr.srvDep, srvIdxr), // partial reload
 		NewHTTPAgent(cgr.cfg, cgr.iFilterSCh, cgr.clsCh, cgr.cM, cgr.srvDep, srvIdxr),    // no reload
 		NewSIPAgent(cgr.cfg, cgr.iFilterSCh, cgr.cM, cgr.srvDep, srvIdxr),

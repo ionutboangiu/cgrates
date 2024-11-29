@@ -42,7 +42,7 @@ const (
 )
 
 func NewRadiusAgent(cgrCfg *config.CGRConfig, filterS *engine.FilterS,
-	connMgr *engine.ConnManager) (ra *RadiusAgent, err error) {
+	connMgr *engine.ConnManager, caps *engine.Caps) (ra *RadiusAgent, err error) {
 	dts := make(map[string]*radigo.Dictionary, len(cgrCfg.RadiusAgentCfg().ClientDictionaries))
 	for clntID, dictPath := range cgrCfg.RadiusAgentCfg().ClientDictionaries {
 		utils.Logger.Info(
@@ -53,7 +53,7 @@ func NewRadiusAgent(cgrCfg *config.CGRConfig, filterS *engine.FilterS,
 		}
 	}
 	dicts := radigo.NewDictionaries(dts)
-	ra = &RadiusAgent{cgrCfg: cgrCfg, filterS: filterS, connMgr: connMgr}
+	ra = &RadiusAgent{cgrCfg: cgrCfg, filterS: filterS, connMgr: connMgr, caps: caps}
 	secrets := radigo.NewSecrets(cgrCfg.RadiusAgentCfg().ClientSecrets)
 	ra.rsAuth = radigo.NewServer(cgrCfg.RadiusAgentCfg().ListenNet,
 		cgrCfg.RadiusAgentCfg().ListenAuth, secrets, dicts,
@@ -69,6 +69,7 @@ func NewRadiusAgent(cgrCfg *config.CGRConfig, filterS *engine.FilterS,
 type RadiusAgent struct {
 	cgrCfg  *config.CGRConfig // reference for future config reloads
 	connMgr *engine.ConnManager
+	caps    *engine.Caps
 	filterS *engine.FilterS
 	rsAuth  *radigo.Server
 	rsAcct  *radigo.Server
@@ -76,6 +77,12 @@ type RadiusAgent struct {
 
 // handleAuth handles RADIUS Authorization request
 func (ra *RadiusAgent) handleAuth(req *radigo.Packet) (rpl *radigo.Packet, err error) {
+	if ra.caps.IsLimited() {
+		if err := ra.caps.Allocate(); err != nil {
+			return nil, err
+		}
+		defer ra.caps.Deallocate()
+	}
 	req.SetAVPValues()             // populate string values in AVPs
 	dcdr := newRADataProvider(req) // dcdr will provide information from request
 	rpl = req.Reply()
@@ -121,6 +128,12 @@ func (ra *RadiusAgent) handleAuth(req *radigo.Packet) (rpl *radigo.Packet, err e
 // handleAcct handles RADIUS Accounting request
 // supports: Acct-Status-Type = Start, Interim-Update, Stop
 func (ra *RadiusAgent) handleAcct(req *radigo.Packet) (rpl *radigo.Packet, err error) {
+	if ra.caps.IsLimited() {
+		if err := ra.caps.Allocate(); err != nil {
+			return nil, err
+		}
+		defer ra.caps.Deallocate()
+	}
 	req.SetAVPValues()             // populate string values in AVPs
 	dcdr := newRADataProvider(req) // dcdr will provide information from request
 	rpl = req.Reply()
