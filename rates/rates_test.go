@@ -908,7 +908,7 @@ func TestRateSMatchingRateProfileForEventErrFltr(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	var ignoredRPfIDs utils.StringSet
+	var ignoredRPIDs utils.StringSet
 	_, err = rateS.matchingRateProfileForEvent(context.TODO(), "cgrates.org", []string{},
 		&utils.CGREvent{
 			Tenant: "cgrates.org",
@@ -918,7 +918,7 @@ func TestRateSMatchingRateProfileForEventErrFltr(t *testing.T) {
 				utils.Destination:  1002,
 				utils.AnswerTime:   time.Date(9999, 7, 21, 10, 0, 0, 0, time.UTC).Add(-10 * time.Second),
 			},
-		}, false, ignoredRPfIDs)
+		}, false, ignoredRPIDs)
 	expectedErr := "NOT_FOUND"
 	if err == nil || err.Error() != expectedErr {
 		t.Errorf("\nExpected <%+v>, \nReceived <%+v>", expectedErr, err)
