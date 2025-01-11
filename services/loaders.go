@@ -53,21 +53,10 @@ type LoaderService struct {
 
 // Start should handle the service start
 func (ldrs *LoaderService) Start(_ *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-			utils.FilterS,
-			utils.DataDB,
-		},
-		registry, ldrs.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	ldrs.cl = srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	fs := srvDeps[utils.FilterS].(*FilterService)
-	dbs := srvDeps[utils.DataDB].(*DataDBService)
+	ldrs.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	fs := registry.Lookup(utils.FilterS).(*FilterService)
+	dbs := registry.Lookup(utils.DataDB).(*DataDBService)
 
 	ldrs.Lock()
 	defer ldrs.Unlock()
@@ -93,19 +82,9 @@ func (ldrs *LoaderService) Start(_ *utils.SyncedChan, registry *servmanager.Serv
 
 // Reload handles the change of config
 func (ldrs *LoaderService) Reload(_ *utils.SyncedChan, registry *servmanager.ServiceRegistry) error {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.ConnManager,
-			utils.FilterS,
-			utils.DataDB,
-		},
-		registry, ldrs.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	fs := srvDeps[utils.FilterS].(*FilterService)
-	dbs := srvDeps[utils.DataDB].(*DataDBService)
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	fs := registry.Lookup(utils.FilterS).(*FilterService)
+	dbs := registry.Lookup(utils.DataDB).(*DataDBService)
 	close(ldrs.stopChan)
 	ldrs.stopChan = make(chan struct{})
 

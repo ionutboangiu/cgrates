@@ -51,31 +51,18 @@ type DispatcherService struct {
 
 // Start should handle the sercive start
 func (dspS *DispatcherService) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-			utils.CacheS,
-			utils.FilterS,
-			utils.DataDB,
-			utils.AttributeS,
-		},
-		registry, dspS.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	dspS.cl = srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
+	dspS.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
 	dspS.connMgr = cms.ConnManager()
-	cacheS := srvDeps[utils.CacheS].(*CacheService)
+	cacheS := registry.Lookup(utils.CacheS).(*CacheService)
 	if err = cacheS.WaitToPrecache(shutdown,
 		utils.CacheDispatcherProfiles,
 		utils.CacheDispatcherHosts,
 		utils.CacheDispatcherFilterIndexes); err != nil {
 		return
 	}
-	fs := srvDeps[utils.FilterS].(*FilterService)
-	dbs := srvDeps[utils.DataDB].(*DataDBService)
+	fs := registry.Lookup(utils.FilterS).(*FilterService)
+	dbs := registry.Lookup(utils.DataDB).(*DataDBService)
 
 	dspS.Lock()
 	defer dspS.Unlock()

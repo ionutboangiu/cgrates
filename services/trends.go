@@ -53,29 +53,16 @@ type TrendService struct {
 // Start should handle the sercive start
 func (trs *TrendService) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
 	trs.srvDep[utils.DataDB].Add(1)
-
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-			utils.CacheS,
-			utils.FilterS,
-			utils.DataDB,
-		},
-		registry, trs.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	trs.cl = srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	cacheS := srvDeps[utils.CacheS].(*CacheService)
+	trs.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	cacheS := registry.Lookup(utils.CacheS).(*CacheService)
 	if err = cacheS.WaitToPrecache(shutdown,
 		utils.CacheTrendProfiles,
 		utils.CacheTrends); err != nil {
 		return err
 	}
-	fs := srvDeps[utils.FilterS].(*FilterService)
-	dbs := srvDeps[utils.DataDB].(*DataDBService)
+	fs := registry.Lookup(utils.FilterS).(*FilterService)
+	dbs := registry.Lookup(utils.DataDB).(*DataDBService)
 
 	trs.Lock()
 	defer trs.Unlock()

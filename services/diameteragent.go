@@ -55,17 +55,8 @@ type DiameterAgent struct {
 
 // Start should handle the sercive start
 func (da *DiameterAgent) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) error {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.ConnManager,
-			utils.FilterS,
-		},
-		registry, da.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	fs := srvDeps[utils.FilterS].(*FilterService)
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	fs := registry.Lookup(utils.FilterS).(*FilterService)
 
 	da.Lock()
 	defer da.Unlock()
@@ -102,17 +93,8 @@ func (da *DiameterAgent) Reload(shutdown *utils.SyncedChan, registry *servmanage
 	}
 	close(da.stopChan)
 
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.ConnManager,
-			utils.FilterS,
-		},
-		registry, da.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	fs := srvDeps[utils.FilterS].(*FilterService)
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	fs := registry.Lookup(utils.FilterS).(*FilterService)
 	return da.start(fs.FilterS(), cms.ConnManager(), da.caps, shutdown)
 }
 

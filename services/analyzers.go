@@ -58,12 +58,7 @@ type AnalyzerService struct {
 
 // Start should handle the sercive start
 func (anz *AnalyzerService) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	cls, err := WaitForServiceState(utils.StateServiceUP, utils.CommonListenerS, registry,
-		anz.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return
-	}
-	anz.cl = cls.(*CommonListenerService).CLS()
+	anz.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
 
 	anz.Lock()
 	defer anz.Unlock()
@@ -85,13 +80,9 @@ func (anz *AnalyzerService) Start(shutdown *utils.SyncedChan, registry *servmana
 }
 
 func (anz *AnalyzerService) start(registry *servmanager.ServiceRegistry) {
-	fs, err := WaitForServiceState(utils.StateServiceUP, utils.FilterS, registry,
-		anz.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return
-	}
 	anz.Lock()
-	anz.anz.SetFilterS(fs.(*FilterService).FilterS())
+	fs := registry.Lookup(utils.FilterS).(*FilterService).FilterS()
+	anz.anz.SetFilterS(fs)
 
 	srv, _ := engine.NewService(anz.anz)
 	// srv, _ := birpc.NewService(apis.NewAnalyzerSv1(anz.anz), "", false)

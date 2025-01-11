@@ -48,21 +48,10 @@ type CacheService struct {
 
 // Start should handle the sercive start
 func (cS *CacheService) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.DataDB,
-			utils.ConnManager,
-			utils.CoreS,
-		},
-		registry, cS.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	cS.cl = srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	dbs := srvDeps[utils.DataDB].(*DataDBService)
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	cs := srvDeps[utils.CoreS].(*CoreService)
+	cS.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	dbs := registry.Lookup(utils.DataDB).(*DataDBService)
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	cs := registry.Lookup(utils.CoreS).(*CoreService)
 
 	cS.mu.Lock()
 	defer cS.mu.Unlock()

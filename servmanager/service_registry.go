@@ -20,20 +20,22 @@ package servmanager
 
 import (
 	"sync"
+
+	"github.com/cgrates/cgrates/utils"
 )
 
 // ServiceRegistry provides concurrent-safe registration and lookup of Service instances
-// indexed by their unique names.
+// indexed by their unique names. The Service instances are stored in an ordered map.
 type ServiceRegistry struct {
 	mu       sync.RWMutex
-	services map[string]Service
+	services *utils.OrderedMap[string, Service]
 }
 
 // NewServiceRegistry returns an initialized registry for managing services.
 // The registry is safe for concurrent access.
 func NewServiceRegistry() *ServiceRegistry {
 	return &ServiceRegistry{
-		services: make(map[string]Service),
+		services: utils.NewOrderedMap[string, Service](),
 	}
 }
 
@@ -41,7 +43,8 @@ func NewServiceRegistry() *ServiceRegistry {
 func (r *ServiceRegistry) Lookup(id string) Service {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	return r.services[id]
+	svc, _ := r.services.Get(id)
+	return svc
 }
 
 // Register adds or updates Services using their name as the unique identifier.
@@ -50,7 +53,7 @@ func (r *ServiceRegistry) Register(svcs ...Service) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	for _, svc := range svcs {
-		r.services[svc.ServiceName()] = svc
+		r.services.Set(svc.ServiceName(), svc)
 	}
 }
 
@@ -59,7 +62,7 @@ func (r *ServiceRegistry) Unregister(ids ...string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	for _, id := range ids {
-		delete(r.services, id)
+		r.services.Delete(id)
 	}
 }
 
@@ -68,9 +71,5 @@ func (r *ServiceRegistry) Unregister(ids ...string) {
 func (r *ServiceRegistry) List() []Service {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	srvs := make([]Service, 0, len(r.services))
-	for _, s := range r.services {
-		srvs = append(srvs, s)
-	}
-	return srvs
+	return r.services.Values()
 }

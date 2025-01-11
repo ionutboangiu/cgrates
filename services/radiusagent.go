@@ -53,17 +53,8 @@ type RadiusAgent struct {
 
 // Start should handle the sercive start
 func (rad *RadiusAgent) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.ConnManager,
-			utils.FilterS,
-		},
-		registry, rad.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return
-	}
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	fs := srvDeps[utils.FilterS].(*FilterService)
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	fs := registry.Lookup(utils.FilterS).(*FilterService)
 
 	rad.Lock()
 	defer rad.Unlock()

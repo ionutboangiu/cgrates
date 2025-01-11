@@ -78,23 +78,14 @@ func (es *EventExporterService) Shutdown(_ *servmanager.ServiceRegistry) error {
 
 // Start should handle the service start
 func (es *EventExporterService) Start(_ *utils.SyncedChan, registry *servmanager.ServiceRegistry) error {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-			utils.FilterS,
-		},
-		registry, es.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	es.cl = srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	fs := srvDeps[utils.FilterS].(*FilterService).FilterS()
+	es.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	fs := registry.Lookup(utils.FilterS).(*FilterService).FilterS()
 
 	es.mu.Lock()
 	defer es.mu.Unlock()
 
+	var err error
 	es.eeS, err = ees.NewEventExporterS(es.cfg, fs, cms.ConnManager())
 	if err != nil {
 		return err

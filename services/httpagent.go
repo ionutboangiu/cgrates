@@ -52,19 +52,9 @@ type HTTPAgent struct {
 
 // Start should handle the sercive start
 func (ha *HTTPAgent) Start(_ *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-			utils.FilterS,
-		},
-		registry, ha.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	cl := srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService).ConnManager()
-	fs := srvDeps[utils.FilterS].(*FilterService)
+	cl := registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService).ConnManager()
+	fs := registry.Lookup(utils.FilterS).(*FilterService)
 
 	ha.Lock()
 	defer ha.Unlock()

@@ -55,28 +55,16 @@ type ActionService struct {
 
 // Start should handle the service start
 func (acts *ActionService) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-			utils.CacheS,
-			utils.FilterS,
-			utils.DataDB,
-		},
-		registry, acts.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	acts.cl = srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	cacheS := srvDeps[utils.CacheS].(*CacheService)
+	acts.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	cacheS := registry.Lookup(utils.CacheS).(*CacheService)
 	if err = cacheS.WaitToPrecache(shutdown,
 		utils.CacheActionProfiles,
 		utils.CacheActionProfilesFilterIndexes); err != nil {
 		return err
 	}
-	fs := srvDeps[utils.FilterS].(*FilterService).FilterS()
-	dbs := srvDeps[utils.DataDB].(*DataDBService).DataManager()
+	fs := registry.Lookup(utils.FilterS).(*FilterService).FilterS()
+	dbs := registry.Lookup(utils.DataDB).(*DataDBService).DataManager()
 
 	acts.Lock()
 	defer acts.Unlock()

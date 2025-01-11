@@ -50,20 +50,9 @@ type TPeService struct {
 
 // Start should handle the service start
 func (ts *TPeService) Start(_ *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-			utils.DataDB,
-		},
-		registry, ts.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	ts.cl = srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	cm := srvDeps[utils.ConnManager].(*ConnManagerService).ConnManager()
-	dbs := srvDeps[utils.DataDB].(*DataDBService).DataManager()
+	ts.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	cm := registry.Lookup(utils.ConnManager).(*ConnManagerService).ConnManager()
+	dbs := registry.Lookup(utils.DataDB).(*DataDBService).DataManager()
 
 	ts.tpes = tpes.NewTPeS(ts.cfg, dbs, cm)
 	ts.stopChan = make(chan struct{})

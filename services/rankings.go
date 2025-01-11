@@ -54,29 +54,16 @@ type RankingService struct {
 // Start should handle the sercive start
 func (ran *RankingService) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
 	ran.srvDep[utils.DataDB].Add(1)
-
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-			utils.CacheS,
-			utils.FilterS,
-			utils.DataDB,
-		},
-		registry, ran.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	ran.cl = srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	cacheS := srvDeps[utils.CacheS].(*CacheService)
+	ran.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	cacheS := registry.Lookup(utils.CacheS).(*CacheService)
 	if err = cacheS.WaitToPrecache(shutdown,
 		utils.CacheRankingProfiles,
 		utils.CacheRankings); err != nil {
 		return err
 	}
-	fs := srvDeps[utils.FilterS].(*FilterService)
-	dbs := srvDeps[utils.DataDB].(*DataDBService)
+	fs := registry.Lookup(utils.FilterS).(*FilterService)
+	dbs := registry.Lookup(utils.DataDB).(*DataDBService)
 
 	ran.Lock()
 	defer ran.Unlock()

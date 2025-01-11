@@ -51,23 +51,11 @@ type CDRService struct {
 
 // Start should handle the sercive start
 func (cs *CDRService) Start(_ *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-			utils.FilterS,
-			utils.DataDB,
-			utils.StorDB,
-		},
-		registry, cs.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	cs.cl = srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	fs := srvDeps[utils.FilterS].(*FilterService).FilterS()
-	dbs := srvDeps[utils.DataDB].(*DataDBService)
-	sdbs := srvDeps[utils.StorDB].(*StorDBService).DB()
+	cs.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	fs := registry.Lookup(utils.FilterS).(*FilterService).FilterS()
+	dbs := registry.Lookup(utils.DataDB).(*DataDBService)
+	sdbs := registry.Lookup(utils.StorDB).(*StorDBService).DB()
 
 	cs.Lock()
 	defer cs.Unlock()

@@ -59,17 +59,8 @@ type CoreService struct {
 
 // Start should handle the service start
 func (cS *CoreService) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) error {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-		},
-		registry, cS.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	cS.cl = srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
+	cS.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
 
 	cS.mu.Lock()
 	defer cS.mu.Unlock()

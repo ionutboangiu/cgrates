@@ -77,29 +77,17 @@ func (rs *RateService) Shutdown(_ *servmanager.ServiceRegistry) (err error) {
 
 // Start should handle the service start
 func (rs *RateService) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-			utils.CacheS,
-			utils.FilterS,
-			utils.DataDB,
-		},
-		registry, rs.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	rs.cl = srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	cacheS := srvDeps[utils.CacheS].(*CacheService)
+	rs.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	cacheS := registry.Lookup(utils.CacheS).(*CacheService)
 	if err = cacheS.WaitToPrecache(shutdown,
 		utils.CacheRateProfiles,
 		utils.CacheRateProfilesFilterIndexes,
 		utils.CacheRateFilterIndexes); err != nil {
 		return err
 	}
-	fs := srvDeps[utils.FilterS].(*FilterService).FilterS()
-	dbs := srvDeps[utils.DataDB].(*DataDBService).DataManager()
+	fs := registry.Lookup(utils.FilterS).(*FilterService).FilterS()
+	dbs := registry.Lookup(utils.DataDB).(*DataDBService).DataManager()
 
 	rs.Lock()
 	rs.rateS = rates.NewRateS(rs.cfg, fs, dbs)

@@ -55,19 +55,9 @@ type EventReaderService struct {
 
 // Start should handle the sercive start
 func (erS *EventReaderService) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-			utils.FilterS,
-		},
-		registry, erS.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	erS.cl = srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	fs := srvDeps[utils.FilterS].(*FilterService)
+	erS.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	fs := registry.Lookup(utils.FilterS).(*FilterService)
 
 	erS.Lock()
 	defer erS.Unlock()

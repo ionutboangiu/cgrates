@@ -49,12 +49,6 @@ type ConnManagerService struct {
 // Start handles the service start.
 func (s *ConnManagerService) Start(_ *utils.SyncedChan, registry *servmanager.ServiceRegistry) error {
 	s.anz = registry.Lookup(utils.AnalyzerS).(*AnalyzerService)
-	if s.anz.ShouldRun() { // wait for AnalyzerS only if it should run
-		if _, err := WaitForServiceState(utils.StateServiceInit, utils.AnalyzerS, registry,
-			s.cfg.GeneralCfg().ConnectTimeout); err != nil {
-			return err
-		}
-	}
 	s.connMgr = engine.NewConnManager(s.cfg)
 	return nil
 }

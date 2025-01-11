@@ -50,23 +50,11 @@ type AdminSv1Service struct {
 // Start should handle the sercive start
 // For this service the start should be called from RAL Service
 func (apiService *AdminSv1Service) Start(_ *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-			utils.FilterS,
-			utils.DataDB,
-			utils.StorDB,
-		},
-		registry, apiService.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	apiService.cl = srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	fs := srvDeps[utils.FilterS].(*FilterService)
-	dbs := srvDeps[utils.DataDB].(*DataDBService)
-	sdbs := srvDeps[utils.StorDB].(*StorDBService)
+	apiService.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	fs := registry.Lookup(utils.FilterS).(*FilterService)
+	dbs := registry.Lookup(utils.DataDB).(*DataDBService)
+	sdbs := registry.Lookup(utils.StorDB).(*StorDBService)
 
 	apiService.Lock()
 	defer apiService.Unlock()

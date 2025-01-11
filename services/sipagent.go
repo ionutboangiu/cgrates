@@ -49,17 +49,8 @@ type SIPAgent struct {
 
 // Start should handle the sercive start
 func (sip *SIPAgent) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.ConnManager,
-			utils.FilterS,
-		},
-		registry, sip.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return
-	}
-	cm := srvDeps[utils.ConnManager].(*ConnManagerService).ConnManager()
-	fs := srvDeps[utils.FilterS].(*FilterService).FilterS()
+	cm := registry.Lookup(utils.ConnManager).(*ConnManagerService).ConnManager()
+	fs := registry.Lookup(utils.FilterS).(*FilterService).FilterS()
 
 	sip.Lock()
 	defer sip.Unlock()

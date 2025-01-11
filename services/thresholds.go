@@ -55,29 +55,17 @@ type ThresholdService struct {
 func (thrs *ThresholdService) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
 	thrs.srvDep[utils.DataDB].Add(1)
 
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-			utils.CacheS,
-			utils.FilterS,
-			utils.DataDB,
-		},
-		registry, thrs.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	thrs.cl = srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	cacheS := srvDeps[utils.CacheS].(*CacheService)
+	thrs.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	cacheS := registry.Lookup(utils.CacheS).(*CacheService)
 	if err = cacheS.WaitToPrecache(shutdown,
 		utils.CacheThresholdProfiles,
 		utils.CacheThresholds,
 		utils.CacheThresholdFilterIndexes); err != nil {
 		return
 	}
-	fs := srvDeps[utils.FilterS].(*FilterService)
-	dbs := srvDeps[utils.DataDB].(*DataDBService)
+	fs := registry.Lookup(utils.FilterS).(*FilterService)
+	dbs := registry.Lookup(utils.DataDB).(*DataDBService)
 
 	thrs.Lock()
 	defer thrs.Unlock()

@@ -47,17 +47,8 @@ type GuardianService struct {
 
 // Start handles the service start.
 func (s *GuardianService) Start(_ *utils.SyncedChan, registry *servmanager.ServiceRegistry) error {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-		},
-		registry, s.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	s.cl = srvDeps[utils.CommonListenerS].(*CommonListenerService).CLS()
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
+	s.cl = registry.Lookup(utils.CommonListenerS).(*CommonListenerService).CLS()
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
 
 	s.mu.Lock()
 	defer s.mu.Unlock()

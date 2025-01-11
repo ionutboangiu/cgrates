@@ -52,15 +52,10 @@ type RegistrarCService struct {
 func (dspS *RegistrarCService) Start(_ *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
 	dspS.Lock()
 	defer dspS.Unlock()
-
-	cms, err := WaitForServiceState(utils.StateServiceUP, utils.ConnManager, registry, dspS.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return
-	}
-
 	dspS.stopChan = make(chan struct{})
 	dspS.rldChan = make(chan struct{})
-	dspS.dspS = registrarc.NewRegistrarCService(dspS.cfg, cms.(*ConnManagerService).ConnManager())
+	cm := registry.Lookup(utils.ConnManager).(*ConnManagerService).ConnManager()
+	dspS.dspS = registrarc.NewRegistrarCService(dspS.cfg, cm)
 	go dspS.dspS.ListenAndServe(dspS.stopChan, dspS.rldChan)
 	return
 }

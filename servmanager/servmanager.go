@@ -58,14 +58,12 @@ func (m *ServiceManager) StartServices(shutdown *utils.SyncedChan) {
 		// runs only at startup
 		if svc.ShouldRun() && !IsServiceInState(svc, utils.StateServiceUP) {
 			m.shdWg.Add(1)
-			go func() {
-				if err := svc.Start(shutdown, m.registry); err != nil {
-					utils.Logger.Err(fmt.Sprintf("<%s> failed to start <%s> service: %v", utils.ServiceManager, svc.ServiceName(), err))
-					shutdown.CloseOnce()
-				}
-				close(svc.StateChan(utils.StateServiceUP))
-				utils.Logger.Info(fmt.Sprintf("<%s> started <%s> service", utils.ServiceManager, svc.ServiceName()))
-			}()
+			if err := svc.Start(shutdown, m.registry); err != nil {
+				utils.Logger.Err(fmt.Sprintf("<%s> failed to start <%s> service: %v", utils.ServiceManager, svc.ServiceName(), err))
+				shutdown.CloseOnce()
+			}
+			close(svc.StateChan(utils.StateServiceUP))
+			utils.Logger.Info(fmt.Sprintf("<%s> started <%s> service", utils.ServiceManager, svc.ServiceName()))
 		}
 	}
 	// startServer()

@@ -52,10 +52,6 @@ type DataDBService struct {
 
 // Start handles the service start.
 func (db *DataDBService) Start(_ *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	cms, err := WaitForServiceState(utils.StateServiceUP, utils.ConnManager, registry, db.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return
-	}
 	db.Lock()
 	defer db.Unlock()
 	db.oldDBCfg = db.cfg.DataDbCfg().Clone()
@@ -68,7 +64,8 @@ func (db *DataDBService) Start(_ *utils.SyncedChan, registry *servmanager.Servic
 		utils.Logger.Crit(fmt.Sprintf("Could not configure dataDb: %s exiting!", err))
 		return
 	}
-	db.dm = engine.NewDataManager(dbConn, db.cfg.CacheCfg(), cms.(*ConnManagerService).ConnManager())
+	cm := registry.Lookup(utils.ConnManager).(*ConnManagerService).ConnManager()
+	db.dm = engine.NewDataManager(dbConn, db.cfg.CacheCfg(), cm)
 
 	if db.setVersions {
 		err = engine.OverwriteDBVersions(dbConn)

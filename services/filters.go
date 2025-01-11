@@ -45,22 +45,12 @@ type FilterService struct {
 
 // Start handles the service start.
 func (s *FilterService) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) error {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.ConnManager,
-			utils.CacheS,
-			utils.DataDB,
-		},
-		registry, s.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	cacheS := registry.Lookup(utils.CacheS).(*CacheService)
+	if err := cacheS.WaitToPrecache(shutdown, utils.CacheFilters); err != nil {
 		return err
 	}
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	cacheS := srvDeps[utils.CacheS].(*CacheService)
-	if err = cacheS.WaitToPrecache(shutdown, utils.CacheFilters); err != nil {
-		return err
-	}
-	dbs := srvDeps[utils.DataDB].(*DataDBService)
+	dbs := registry.Lookup(utils.DataDB).(*DataDBService)
 
 	s.mu.Lock()
 	defer s.mu.Unlock()

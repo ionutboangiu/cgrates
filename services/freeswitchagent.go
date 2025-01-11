@@ -46,15 +46,11 @@ type FreeswitchAgent struct {
 
 // Start should handle the sercive start
 func (fS *FreeswitchAgent) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	cms, err := WaitForServiceState(utils.StateServiceUP, utils.ConnManager, registry, fS.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return
-	}
-
 	fS.Lock()
 	defer fS.Unlock()
 
-	fS.fS = agents.NewFSsessions(fS.cfg.FsAgentCfg(), fS.cfg.GeneralCfg().DefaultTimezone, cms.(*ConnManagerService).ConnManager())
+	cm := registry.Lookup(utils.ConnManager).(*ConnManagerService).ConnManager()
+	fS.fS = agents.NewFSsessions(fS.cfg.FsAgentCfg(), fS.cfg.GeneralCfg().DefaultTimezone, cm)
 
 	go fS.connect(shutdown)
 	return

@@ -47,15 +47,11 @@ type KamailioAgent struct {
 
 // Start should handle the sercive start
 func (kam *KamailioAgent) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	cms, err := WaitForServiceState(utils.StateServiceUP, utils.ConnManager, registry, kam.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return
-	}
-
 	kam.Lock()
 	defer kam.Unlock()
 
-	kam.kam = agents.NewKamailioAgent(kam.cfg.KamAgentCfg(), cms.(*ConnManagerService).ConnManager(),
+	cm := registry.Lookup(utils.ConnManager).(*ConnManagerService).ConnManager()
+	kam.kam = agents.NewKamailioAgent(kam.cfg.KamAgentCfg(), cm,
 		utils.FirstNonEmpty(kam.cfg.KamAgentCfg().Timezone, kam.cfg.GeneralCfg().DefaultTimezone))
 
 	go kam.connect(kam.kam, shutdown)

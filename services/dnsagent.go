@@ -49,17 +49,8 @@ type DNSAgent struct {
 
 // Start should handle the service start
 func (dns *DNSAgent) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.ConnManager,
-			utils.FilterS,
-		},
-		registry, dns.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	fs := srvDeps[utils.FilterS].(*FilterService)
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	fs := registry.Lookup(utils.FilterS).(*FilterService)
 
 	dns.Lock()
 	defer dns.Unlock()
@@ -75,17 +66,8 @@ func (dns *DNSAgent) Start(shutdown *utils.SyncedChan, registry *servmanager.Ser
 
 // Reload handles the change of config
 func (dns *DNSAgent) Reload(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	srvDeps, err := WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.ConnManager,
-			utils.FilterS,
-		},
-		registry, dns.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return err
-	}
-	cms := srvDeps[utils.ConnManager].(*ConnManagerService)
-	fs := srvDeps[utils.FilterS].(*FilterService)
+	cms := registry.Lookup(utils.ConnManager).(*ConnManagerService)
+	fs := registry.Lookup(utils.FilterS).(*FilterService)
 
 	dns.Lock()
 	defer dns.Unlock()

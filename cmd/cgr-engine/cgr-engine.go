@@ -297,17 +297,8 @@ func cgrRunPreload(cfg *config.CGRConfig, loaderIDs string,
 
 func cgrInitServiceManagerV1(cfg *config.CGRConfig, srvMngr *servmanager.ServiceManager,
 	registry *servmanager.ServiceRegistry) {
-	srvDeps, err := services.WaitForServicesToReachState(utils.StateServiceUP,
-		[]string{
-			utils.CommonListenerS,
-			utils.ConnManager,
-		},
-		registry, cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return
-	}
-	cl := srvDeps[utils.CommonListenerS].(*services.CommonListenerService).CLS()
-	cms := srvDeps[utils.ConnManager].(*services.ConnManagerService)
+	cl := registry.Lookup(utils.CommonListenerS).(*services.CommonListenerService).CLS()
+	cms := registry.Lookup(utils.ConnManager).(*services.ConnManagerService)
 	srv, _ := birpc.NewService(apis.NewServiceManagerV1(srvMngr), utils.EmptyString, false)
 	if !cfg.DispatcherSCfg().Enabled {
 		cl.RpcRegister(srv)

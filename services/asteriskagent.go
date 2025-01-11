@@ -47,11 +47,6 @@ type AsteriskAgent struct {
 
 // Start should handle the sercive start
 func (ast *AsteriskAgent) Start(shutdown *utils.SyncedChan, registry *servmanager.ServiceRegistry) (err error) {
-	cms, err := WaitForServiceState(utils.StateServiceUP, utils.ConnManager, registry, ast.cfg.GeneralCfg().ConnectTimeout)
-	if err != nil {
-		return
-	}
-
 	ast.Lock()
 	defer ast.Unlock()
 
@@ -63,8 +58,9 @@ func (ast *AsteriskAgent) Start(shutdown *utils.SyncedChan, registry *servmanage
 	}
 	ast.stopChan = make(chan struct{})
 	ast.smas = make([]*agents.AsteriskAgent, len(ast.cfg.AsteriskAgentCfg().AsteriskConns))
+	cm := registry.Lookup(utils.ConnManager).(*ConnManagerService).ConnManager()
 	for connIdx := range ast.cfg.AsteriskAgentCfg().AsteriskConns { // Instantiate connections towards asterisk servers
-		ast.smas[connIdx] = agents.NewAsteriskAgent(ast.cfg, connIdx, cms.(*ConnManagerService).ConnManager())
+		ast.smas[connIdx] = agents.NewAsteriskAgent(ast.cfg, connIdx, cm)
 		go listenAndServe(ast.smas[connIdx], ast.stopChan)
 	}
 	return
