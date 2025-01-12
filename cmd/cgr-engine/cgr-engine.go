@@ -136,12 +136,11 @@ func runCGREngine(fs []string) (err error) {
 	coreS := services.NewCoreService(cfg, caps, cpuPrfF, shdWg)
 	cacheS := services.NewCacheService(cfg)
 	fltrS := services.NewFilterService(cfg)
-	dspS := services.NewDispatcherService(cfg)
 	ldrs := services.NewLoaderService(cfg)
 	efs := services.NewExportFailoverService(cfg)
 	adminS := services.NewAdminSv1Service(cfg)
 	sessionS := services.NewSessionService(cfg)
-	attrS := services.NewAttributeService(cfg, dspS)
+	attrS := services.NewAttributeService(cfg)
 	chrgS := services.NewChargerService(cfg)
 	routeS := services.NewRouteService(cfg)
 	resourceS := services.NewResourceService(cfg, srvDep)
@@ -166,6 +165,7 @@ func runCGREngine(fs []string) (err error) {
 	actionS := services.NewActionService(cfg)
 	accS := services.NewAccountService(cfg)
 	tpeS := services.NewTPeService(cfg)
+	dspS := services.NewDispatcherService(cfg)
 
 	srvManager := servmanager.NewServiceManager(shdWg, cfg, registry, []servmanager.Service{
 		gvS,
@@ -179,7 +179,6 @@ func runCGREngine(fs []string) (err error) {
 		coreS,
 		cacheS,
 		fltrS,
-		dspS,
 		ldrs,
 		efs,
 		adminS,
@@ -209,6 +208,7 @@ func runCGREngine(fs []string) (err error) {
 		actionS,
 		accS,
 		tpeS,
+		dspS,
 	})
 
 	defer func() {
