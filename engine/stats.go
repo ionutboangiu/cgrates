@@ -28,12 +28,13 @@ import (
 	"github.com/cgrates/cgrates/config"
 	"github.com/cgrates/cgrates/guardian"
 	"github.com/cgrates/cgrates/utils"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // NewStatService initializes a StatService
 func NewStatService(dm *DataManager, cgrcfg *config.CGRConfig,
 	filterS *FilterS, connMgr *ConnManager) *StatS {
-	return &StatS{
+	s := &StatS{
 		dm:               dm,
 		connMgr:          connMgr,
 		fltrS:            filterS,
@@ -42,6 +43,17 @@ func NewStatService(dm *DataManager, cgrcfg *config.CGRConfig,
 		loopStopped:      make(chan struct{}),
 		stopBackup:       make(chan struct{}),
 	}
+
+	if len(cgrcfg.StatSCfg().Opts.PrometheusStatIDs) != 0 {
+		s.promMetrics = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Namespace: "cgrates",
+			Subsystem: "stats",
+			Name:      "metrics",
+			Help:      "Current values for StatQueue metrics",
+		}, []string{"tenant", "queue", "metric"})
+		prometheus.MustRegister(s.promMetrics)
+	}
+	return s
 }
 
 // StatS builds stats for events
@@ -52,8 +64,9 @@ type StatS struct {
 	cfg              *config.CGRConfig
 	loopStopped      chan struct{}
 	stopBackup       chan struct{}
-	storedStatQueues utils.StringSet // keep a record of stats which need saving, map[statsTenantID]bool
 	ssqMux           sync.RWMutex    // protects storedStatQueues
+	storedStatQueues utils.StringSet // keep a record of stats which need saving, map[statsTenantID]bool
+	promMetrics      *prometheus.GaugeVec
 }
 
 // Reload stops the backupLoop and restarts it
@@ -420,14 +433,23 @@ func (sS *StatS) processEvent(ctx *context.Context, tnt string, args *utils.CGRE
 		return
 	}
 	if len(promIDs) != 0 {
-		if err = exportToPrometheus(matchSQs, utils.NewStringSet(promIDs)); err != nil {
-			utils.Logger.Warning(
-				fmt.Sprintf("<StatS> Failed to export the queues to Prometheus: error: %s",
-					err.Error()))
-			err = utils.ErrPartiallyExecuted
-		}
+		sS.updatePrometheusMetrics(matchSQs, utils.NewStringSet(promIDs))
 	}
 	return
+}
+
+// updatePrometheusMetrics updates Prometheus metrics for the specified StatQueues.
+// Only queues with IDs in promIDs are processed.
+func (s *StatS) updatePrometheusMetrics(sqs StatQueues, promIDs utils.StringSet) {
+	for _, sq := range sqs {
+		if _, has := promIDs[sq.ID]; !has {
+			continue
+		}
+		for id, metric := range sq.SQMetrics {
+			v, _ := metric.GetValue().Float64() // approximate values are acceptable for monitoring
+			s.promMetrics.WithLabelValues(sq.Tenant, sq.ID, id).Set(v)
+		}
+	}
 }
 
 // V1ProcessEvent implements StatV1 method for processing an Event

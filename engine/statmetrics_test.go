@@ -3662,7 +3662,9 @@ func TestStatMetricsStatASRAddEventErr3(t *testing.T) {
 }
 
 func TestExportToPrometheusOK(t *testing.T) {
-
+	s := StatS{
+		gauges: make(map[string]*prometheus.GaugeVec),
+	}
 	matchSQs := StatQueues{
 		&StatQueue{
 			Tenant: "cgrates.org",
@@ -3689,7 +3691,7 @@ func TestExportToPrometheusOK(t *testing.T) {
 	}
 	gaugeVal := prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Subsystem: "stats",
-		Name:      getStatTenantID(matchSQs[0].TenantID()),
+		Name:      sanitizeStatQueueID(matchSQs[0].TenantID()),
 		Help:      "Metrics exported as gauge, depending on metricID's ID.",
 	}, []string{"metricID"})
 
@@ -3699,7 +3701,7 @@ func TestExportToPrometheusOK(t *testing.T) {
 		}
 	}
 
-	if err := exportToPrometheus(matchSQs, promIDs); err != nil {
+	if err := s.updatePrometheusMetrics(matchSQs, promIDs); err != nil {
 		t.Error(err)
 	}
 
