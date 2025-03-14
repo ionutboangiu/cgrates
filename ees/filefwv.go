@@ -30,7 +30,7 @@ import (
 	"github.com/cgrates/cgrates/utils"
 )
 
-func NewFileFWVee(cfg *config.EventExporterCfg, cgrCfg *config.CGRConfig, filterS *engine.FilterS, em *utils.ExporterMetrics) (fFwv *FileFWVee, err error) {
+func NewFileFWVee(cfg *config.EventExporterCfg, cgrCfg *config.CGRConfig, filterS *engine.FilterS, em *exporterMetrics) (fFwv *FileFWVee, err error) {
 	fFwv = &FileFWVee{
 		cfg: cfg,
 		em:  em,
@@ -45,7 +45,7 @@ func NewFileFWVee(cfg *config.EventExporterCfg, cgrCfg *config.CGRConfig, filter
 // FileFWVee implements EventExporter interface for .fwv files
 type FileFWVee struct {
 	cfg  *config.EventExporterCfg
-	em   *utils.ExporterMetrics
+	em   *exporterMetrics
 	file io.WriteCloser
 	sync.Mutex
 	slicePreparing
@@ -134,4 +134,4 @@ func (fFwv *FileFWVee) Close() (err error) {
 	return
 }
 
-func (fFwv *FileFWVee) GetMetrics() *utils.ExporterMetrics { return fFwv.em }
+func (fFwv *FileFWVee) GetMetrics() *exporterMetrics { return fFwv.em }

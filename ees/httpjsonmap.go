@@ -33,7 +33,7 @@ import (
 )
 
 func NewHTTPjsonMapEE(cfg *config.EventExporterCfg, cgrCfg *config.CGRConfig, filterS *engine.FilterS,
-	em *utils.ExporterMetrics) (pstrJSON *HTTPjsonMapEE, err error) {
+	em *exporterMetrics) (pstrJSON *HTTPjsonMapEE, err error) {
 	pstrJSON = &HTTPjsonMapEE{
 		cfg:    cfg,
 		em:     em,
@@ -47,7 +47,7 @@ func NewHTTPjsonMapEE(cfg *config.EventExporterCfg, cgrCfg *config.CGRConfig, fi
 // HTTPjsonMapEE implements EventExporter interface for .csv files
 type HTTPjsonMapEE struct {
 	cfg    *config.EventExporterCfg
-	em     *utils.ExporterMetrics
+	em     *exporterMetrics
 	client *http.Client
 	reqs   *concReq
 
@@ -91,7 +91,7 @@ func (httpEE *HTTPjsonMapEE) ExportEvent(content any, _ string) (err error) {
 
 func (httpEE *HTTPjsonMapEE) Close() (_ error) { return }
 
-func (httpEE *HTTPjsonMapEE) GetMetrics() *utils.ExporterMetrics { return httpEE.em }
+func (httpEE *HTTPjsonMapEE) GetMetrics() *exporterMetrics { return httpEE.em }
 
 func (httpEE *HTTPjsonMapEE) PrepareMap(mp *utils.CGREvent) (any, error) {
 	body, err := json.Marshal(mp.Event)

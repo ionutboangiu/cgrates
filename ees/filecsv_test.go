@@ -32,7 +32,7 @@ import (
 )
 
 func TestFileCsvGetMetrics(t *testing.T) {
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 	fCsv := &FileCSVee{em: em}
 
 	if rcv := fCsv.GetMetrics(); !reflect.DeepEqual(rcv, fCsv.em) {
@@ -59,7 +59,7 @@ func TestFileCsvComposeHeader(t *testing.T) {
 		filterS:   filterS,
 		file:      nopCloser{byteBuff},
 		csvWriter: csvNW,
-		em:        &utils.ExporterMetrics{},
+		em:        &exporterMetrics{},
 	}
 	fCsv.Cfg().Fields = []*config.FCTemplate{
 		{
@@ -122,7 +122,7 @@ func TestFileCsvComposeTrailer(t *testing.T) {
 		filterS:   filterS,
 		file:      nopCloser{byteBuff},
 		csvWriter: csvNW,
-		em:        &utils.ExporterMetrics{},
+		em:        &exporterMetrics{},
 	}
 	fCsv.Cfg().Fields = []*config.FCTemplate{
 		{
@@ -179,7 +179,7 @@ func TestFileCsvExportEvent(t *testing.T) {
 	filterS := engine.NewFilterS(cfg, nil, newDM)
 	byteBuff := new(bytes.Buffer)
 	csvNW := csv.NewWriter(byteBuff)
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 	fCsv := &FileCSVee{
 		cfg:       cfg.EEsCfg().Exporters[0],
 		cgrCfg:    cfg,
@@ -212,7 +212,7 @@ func TestFileCsvOnEvictedTrailer(t *testing.T) {
 		filterS:   filterS,
 		file:      nopCloserWrite{byteBuff},
 		csvWriter: csvNW,
-		em:        &utils.ExporterMetrics{},
+		em:        &exporterMetrics{},
 	}
 	fCsv.Cfg().Fields = []*config.FCTemplate{
 		{
@@ -246,7 +246,7 @@ func TestFileCsvOnEvictedClose(t *testing.T) {
 		filterS:   filterS,
 		file:      nopCloserError{byteBuff},
 		csvWriter: csvNW,
-		em:        &utils.ExporterMetrics{},
+		em:        &exporterMetrics{},
 	}
 	fCsv.Cfg().Fields = []*config.FCTemplate{
 		{

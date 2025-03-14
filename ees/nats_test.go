@@ -43,7 +43,7 @@ func TestNewNatsEE(t *testing.T) {
 	}
 	nodeID := "node_id1"
 	connTimeout := 2 * time.Second
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 
 	exp := new(NatsEE)
 	exp.cfg = cfg
@@ -87,7 +87,7 @@ func TestParseOpt(t *testing.T) {
 	opts := &config.EventExporterOpts{}
 	nodeID := "node_id1"
 	connTimeout := 2 * time.Second
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 	pstr, err := NewNatsEE(cfg, nodeID, connTimeout, em)
 	if err != nil {
 		t.Error(err)
@@ -121,7 +121,7 @@ func TestParseOptJetStream(t *testing.T) {
 	}
 	nodeID := "node_id1"
 	connTimeout := 2 * time.Second
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 	pstr, err := NewNatsEE(cfg, nodeID, connTimeout, em)
 	if err != nil {
 		t.Error(err)
@@ -158,7 +158,7 @@ func TestParseOptSubject(t *testing.T) {
 		}}
 	nodeID := "node_id1"
 	connTimeout := 2 * time.Second
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 	pstr, err := NewNatsEE(cfg, nodeID, connTimeout, em)
 	if err != nil {
 		t.Error(err)
@@ -240,7 +240,7 @@ func TestNatsEECfg(t *testing.T) {
 }
 
 func TestNatsEEGetMetrics(t *testing.T) {
-	expectedMetrics := &utils.ExporterMetrics{}
+	expectedMetrics := &exporterMetrics{}
 	pstr := &NatsEE{
 		em: expectedMetrics,
 	}

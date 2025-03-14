@@ -31,7 +31,7 @@ import (
 
 func TestNewRpcEE(t *testing.T) {
 	eeSCfg := config.NewDefaultCGRConfig().EEsCfg().ExporterCfg(utils.MetaDefault)
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 	connMgr := engine.NewConnManager(config.NewDefaultCGRConfig(), make(map[string]chan birpc.ClientConnector))
 
 	rcv, err := NewRpcEE(eeSCfg, em, connMgr)
@@ -101,7 +101,7 @@ func TestRPCCfg(t *testing.T) {
 
 func TestRPCConnect(t *testing.T) {
 	eeSCfg := config.NewDefaultCGRConfig().EEsCfg().ExporterCfg(utils.MetaDefault)
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 	connMgr := engine.NewConnManager(config.NewDefaultCGRConfig(), make(map[string]chan birpc.ClientConnector))
 	rpcEe, err := NewRpcEE(eeSCfg, em, connMgr)
 	if err != nil {
@@ -114,7 +114,7 @@ func TestRPCConnect(t *testing.T) {
 
 func TestRPCClose(t *testing.T) {
 	eeSCfg := config.NewDefaultCGRConfig().EEsCfg().ExporterCfg(utils.MetaDefault)
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 	connMgr := engine.NewConnManager(config.NewDefaultCGRConfig(), make(map[string]chan birpc.ClientConnector))
 	rpcEe, err := NewRpcEE(eeSCfg, em, connMgr)
 	if err != nil {
@@ -130,8 +130,8 @@ func TestRPCClose(t *testing.T) {
 
 func TestRPCGetMetrics(t *testing.T) {
 	eeSCfg := config.NewDefaultCGRConfig().EEsCfg().ExporterCfg(utils.MetaDefault)
-	em := &utils.ExporterMetrics{
-		MapStorage: utils.MapStorage{
+	em := &exporterMetrics{
+		ms: utils.MapStorage{
 			"time":         "now",
 			"just_a_field": "just_a_value",
 		},
@@ -149,7 +149,7 @@ func TestRPCGetMetrics(t *testing.T) {
 
 func TestRPCPrepareMap(t *testing.T) {
 	eeSCfg := config.NewDefaultCGRConfig().EEsCfg().ExporterCfg(utils.MetaDefault)
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 	connMgr := engine.NewConnManager(config.NewDefaultCGRConfig(), make(map[string]chan birpc.ClientConnector))
 	rpcEe, err := NewRpcEE(eeSCfg, em, connMgr)
 	if err != nil {

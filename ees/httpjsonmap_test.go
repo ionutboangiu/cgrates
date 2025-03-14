@@ -32,7 +32,7 @@ import (
 )
 
 func TestHttpJsonMapGetMetrics(t *testing.T) {
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 	httpEE := &HTTPjsonMapEE{
 		em: em,
 	}

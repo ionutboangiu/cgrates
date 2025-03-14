@@ -15,17 +15,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-package utils
+package ees
 
 import (
 	"reflect"
 	"sort"
 	"testing"
+
+	"github.com/cgrates/cgrates/utils"
 )
 
 func TestExporterMetricsString(t *testing.T) {
-	ms := &ExporterMetrics{
-		MapStorage: MapStorage{
+	ms := &exporterMetrics{
+		ms: utils.MapStorage{
 			"field1": 2,
 		},
 	}
@@ -36,8 +38,8 @@ func TestExporterMetricsString(t *testing.T) {
 }
 
 func TestExporterMetricsFieldAsInterface(t *testing.T) {
-	ms := &ExporterMetrics{
-		MapStorage: MapStorage{
+	ms := &exporterMetrics{
+		ms: utils.MapStorage{
 			"field1": 2,
 		},
 	}
@@ -52,8 +54,8 @@ func TestExporterMetricsFieldAsInterface(t *testing.T) {
 }
 
 func TestExporterMetricsFieldAsString(t *testing.T) {
-	ms := &ExporterMetrics{
-		MapStorage: MapStorage{
+	ms := &exporterMetrics{
+		ms: utils.MapStorage{
 			"field1": 2,
 		},
 	}
@@ -68,14 +70,14 @@ func TestExporterMetricsFieldAsString(t *testing.T) {
 }
 
 func TestExporterMetricsSet(t *testing.T) {
-	ms := &ExporterMetrics{
-		MapStorage: MapStorage{
+	ms := &exporterMetrics{
+		ms: utils.MapStorage{
 			"field1": 2,
 		},
 	}
 
-	expected := &ExporterMetrics{
-		MapStorage: MapStorage{
+	expected := &exporterMetrics{
+		ms: utils.MapStorage{
 			"field1": 2,
 			"field2": 3,
 		},
@@ -89,15 +91,15 @@ func TestExporterMetricsSet(t *testing.T) {
 }
 
 func TestExporterMetricsGetKeys(t *testing.T) {
-	ms := &ExporterMetrics{
-		MapStorage: MapStorage{
+	ms := &exporterMetrics{
+		ms: utils.MapStorage{
 			"field1": 2,
 			"field2": 3,
 		},
 	}
 
 	expected := []string{"*req.field1", "*req.field2"}
-	reply := ms.GetKeys(false, 0, MetaReq)
+	reply := ms.GetKeys(false, 0, utils.MetaReq)
 	sort.Strings(reply)
 	if !reflect.DeepEqual(reply, expected) {
 		t.Errorf("Expected %v \n but received \n %v", expected, reply)
@@ -105,15 +107,15 @@ func TestExporterMetricsGetKeys(t *testing.T) {
 }
 
 func TestExporterMetricsRemove(t *testing.T) {
-	ms := &ExporterMetrics{
-		MapStorage: MapStorage{
+	ms := &exporterMetrics{
+		ms: utils.MapStorage{
 			"field1": 2,
 			"field2": 3,
 		},
 	}
 
-	expected := &ExporterMetrics{
-		MapStorage: MapStorage{
+	expected := &exporterMetrics{
+		ms: utils.MapStorage{
 			"field1": 2,
 		},
 	}
@@ -127,8 +129,8 @@ func TestExporterMetricsRemove(t *testing.T) {
 
 func TestExporterMetricsClonedMapStorage(t *testing.T) {
 
-	ms := &ExporterMetrics{
-		MapStorage: MapStorage{
+	ms := &exporterMetrics{
+		ms: utils.MapStorage{
 			"field1": 2,
 			"field2": 3,
 		},

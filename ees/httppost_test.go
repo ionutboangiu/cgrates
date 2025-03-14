@@ -33,7 +33,7 @@ import (
 )
 
 func TestHttpPostGetMetrics(t *testing.T) {
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 	httpPost := &HTTPPostEE{
 		em: em,
 	}

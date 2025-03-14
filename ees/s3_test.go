@@ -22,11 +22,10 @@ import (
 	"testing"
 
 	"github.com/cgrates/cgrates/config"
-	"github.com/cgrates/cgrates/utils"
 )
 
 func TestS3GetMetrics(t *testing.T) {
-	em := &utils.ExporterMetrics{}
+	em := &exporterMetrics{}
 	pstr := &S3EE{
 		em: em,
 	}

@@ -28,7 +28,7 @@ import (
 )
 
 func TestGetMetrics(t *testing.T) {
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 	ee := &ElasticEE{
 		em: em,
 	}
@@ -59,7 +59,7 @@ func TestInitClient(t *testing.T) {
 
 func TestElasticExportEventErr(t *testing.T) {
 	cgrCfg := config.NewDefaultCGRConfig()
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 	eEe, err := NewElasticEE(cgrCfg.EEsCfg().Exporters[0], em)
 	if err != nil {
 		t.Error(err)

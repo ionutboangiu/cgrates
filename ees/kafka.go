@@ -30,7 +30,7 @@ import (
 )
 
 // NewKafkaEE creates a kafka poster
-func NewKafkaEE(cfg *config.EventExporterCfg, em *utils.ExporterMetrics) (*KafkaEE, error) {
+func NewKafkaEE(cfg *config.EventExporterCfg, em *exporterMetrics) (*KafkaEE, error) {
 	pstr := &KafkaEE{
 		cfg:  cfg,
 		em:   em,
@@ -99,7 +99,7 @@ func NewKafkaEE(cfg *config.EventExporterCfg, em *utils.ExporterMetrics) (*Kafka
 type KafkaEE struct {
 	writer *kafka.Writer
 	cfg    *config.EventExporterCfg
-	em     *utils.ExporterMetrics
+	em     *exporterMetrics
 	reqs   *concReq
 	bytePreparing
 }
@@ -130,4 +130,4 @@ func (k *KafkaEE) Close() error {
 	return k.writer.Close()
 }
 
-func (k *KafkaEE) GetMetrics() *utils.ExporterMetrics { return k.em }
+func (k *KafkaEE) GetMetrics() *exporterMetrics { return k.em }

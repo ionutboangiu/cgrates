@@ -30,7 +30,7 @@ import (
 
 // NewAMQPee creates a new amqp poster
 // "amqp://guest:guest@localhost:5672/?queueID=cgrates_cdrs"
-func NewAMQPee(cfg *config.EventExporterCfg, em *utils.ExporterMetrics) *AMQPee {
+func NewAMQPee(cfg *config.EventExporterCfg, em *exporterMetrics) *AMQPee {
 	amqp := &AMQPee{
 		cfg:  cfg,
 		em:   em,
@@ -50,7 +50,7 @@ type AMQPee struct {
 	postChan     *amqp.Channel
 
 	cfg          *config.EventExporterCfg
-	em           *utils.ExporterMetrics
+	em           *exporterMetrics
 	reqs         *concReq
 	sync.RWMutex // protect connection
 	bytePreparing
@@ -177,4 +177,4 @@ func (pstr *AMQPee) Close() (err error) {
 	return
 }
 
-func (pstr *AMQPee) GetMetrics() *utils.ExporterMetrics { return pstr.em }
+func (pstr *AMQPee) GetMetrics() *exporterMetrics { return pstr.em }

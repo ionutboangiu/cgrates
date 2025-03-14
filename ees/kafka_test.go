@@ -21,7 +21,6 @@ import (
 	"testing"
 
 	"github.com/cgrates/cgrates/config"
-	"github.com/cgrates/cgrates/utils"
 	kafka "github.com/segmentio/kafka-go"
 )
 
@@ -29,7 +28,7 @@ func TestKafkaEEConnect(t *testing.T) {
 	kafkaEE := &KafkaEE{
 		writer: nil,
 		cfg:    &config.EventExporterCfg{},
-		em:     &utils.ExporterMetrics{},
+		em:     &exporterMetrics{},
 		reqs:   &concReq{},
 	}
 	err := kafkaEE.Connect()
@@ -50,7 +49,7 @@ func TestKafkaEE_Cfg(t *testing.T) {
 }
 
 func TestKafkaEEGetMetrics(t *testing.T) {
-	safeMapStorage := &utils.ExporterMetrics{}
+	safeMapStorage := &exporterMetrics{}
 	kafkaEE := &KafkaEE{
 		em: safeMapStorage,
 	}

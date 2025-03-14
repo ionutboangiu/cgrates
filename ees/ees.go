@@ -299,7 +299,7 @@ func (eeS *EventExporterS) V1ProcessEvent(ctx *context.Context, cgrEv *engine.CG
 
 func exportEventWithExporter(exp EventExporter, ev *utils.CGREvent, oneTime bool, cfg *config.CGRConfig, filterS *engine.FilterS) (err error) {
 	defer func() {
-		updateEEMetrics(exp.GetMetrics(), ev.ID, ev.Event, err != nil, utils.FirstNonEmpty(exp.Cfg().Timezone,
+		exp.GetMetrics().updateMetrics(ev.ID, ev.Event, err != nil, utils.FirstNonEmpty(exp.Cfg().Timezone,
 			cfg.GeneralCfg().DefaultTimezone))
 		if oneTime {
 			exp.Close()

@@ -33,7 +33,7 @@ import (
 )
 
 func TestSqlGetMetrics(t *testing.T) {
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 	sqlEe := &SQLEe{
 		em: em,
 	}

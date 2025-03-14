@@ -22,11 +22,10 @@ import (
 	"testing"
 
 	"github.com/cgrates/cgrates/config"
-	"github.com/cgrates/cgrates/utils"
 )
 
 func TestAmqpGetMetrics(t *testing.T) {
-	expectedMetrics := &utils.ExporterMetrics{}
+	expectedMetrics := &exporterMetrics{}
 	pstr := &AMQPee{
 		em: expectedMetrics,
 	}
@@ -48,7 +47,7 @@ func TestCfg(t *testing.T) {
 }
 
 func TestAmqpToGetMetrics(t *testing.T) {
-	expectedMetrics := &utils.ExporterMetrics{}
+	expectedMetrics := &exporterMetrics{}
 	amqp := &AMQPv1EE{
 		em: expectedMetrics,
 	}

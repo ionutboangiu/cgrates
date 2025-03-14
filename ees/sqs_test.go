@@ -22,11 +22,10 @@ import (
 	"testing"
 
 	"github.com/cgrates/cgrates/config"
-	"github.com/cgrates/cgrates/utils"
 )
 
 func TestGetMetricsT(t *testing.T) {
-	em := &utils.ExporterMetrics{}
+	em := &exporterMetrics{}
 	pstr := &SQSee{em: em}
 	result := pstr.GetMetrics()
 	if result != em {

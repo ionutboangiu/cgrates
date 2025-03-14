@@ -29,7 +29,7 @@ import (
 )
 
 func TestVirtualEeGetMetrics(t *testing.T) {
-	em := utils.NewExporterMetrics("", time.Local)
+	em := newExporterMetrics("", time.Local)
 	vEe := &VirtualEE{
 		em: em,
 	}
