@@ -87,11 +87,13 @@ var (
 // NewDataManager returns a new DataManager
 func NewDataManager(dataDB DataDB, cacheCfg *config.CacheCfg, connMgr *ConnManager) *DataManager {
 	ms, _ := NewMarshaler(config.CgrConfig().GeneralCfg().DBDataEncoding)
+	rm := NewReplicationManager(connMgr)
 	return &DataManager{
 		dataDB:   dataDB,
 		cacheCfg: cacheCfg,
 		connMgr:  connMgr,
 		ms:       ms,
+		rm:       rm,
 	}
 }
 
@@ -102,6 +104,12 @@ type DataManager struct {
 	cacheCfg *config.CacheCfg
 	connMgr  *ConnManager
 	ms       Marshaler
+	rm       *ReplicationManager
+}
+
+func (dm *DataManager) Close() {
+	dm.rm.Close()
+	dm.dataDB.Close()
 }
 
 // DataDB exports access to dataDB
@@ -605,45 +613,39 @@ func (dm *DataManager) GetAccount(id string) (acc *Account, err error) {
 	return
 }
 
-func (dm *DataManager) SetAccount(acc *Account) (err error) {
+func (dm *DataManager) SetAccount(acc *Account) error {
 	if dm == nil {
 		return utils.ErrNoDatabaseConn
 	}
-	if err = dm.dataDB.SetAccountDrv(acc); err != nil {
-		return
+	if err := dm.dataDB.SetAccountDrv(acc); err != nil {
+		return err
 	}
-	if itm := config.CgrConfig().DataDbCfg().Items[utils.MetaAccounts]; itm.Replicate {
-		err = replicate(dm.connMgr, config.CgrConfig().DataDbCfg().RplConns,
-			config.CgrConfig().DataDbCfg().RplFiltered,
-			utils.AccountPrefix, acc.ID, // this are used to get the host IDs from cache
-			utils.ReplicatorSv1SetAccount,
-			&AccountWithAPIOpts{
-				Account: acc,
-				APIOpts: utils.GenerateDBItemOpts(itm.APIKey, itm.RouteID,
-					utils.EmptyString, utils.EmptyString)}) // the account doesn't have cache
-	}
-	return
+	itm := config.CgrConfig().DataDbCfg().Items[utils.MetaAccounts]
+	return dm.rm.Replicate(
+		utils.AccountPrefix, acc.ID,
+		utils.ReplicatorSv1SetAccount,
+		&AccountWithAPIOpts{
+			Account: acc,
+			APIOpts: utils.GenerateDBItemOpts(itm.APIKey, itm.RouteID, "", ""),
+		}, itm)
 }
 
-func (dm *DataManager) RemoveAccount(id string) (err error) {
+func (dm *DataManager) RemoveAccount(id string) error {
 	if dm == nil {
 		return utils.ErrNoDatabaseConn
 	}
-	if err = dm.dataDB.RemoveAccountDrv(id); err != nil {
-		return
+	if err := dm.dataDB.RemoveAccountDrv(id); err != nil {
+		return err
 	}
-	if itm := config.CgrConfig().DataDbCfg().Items[utils.MetaAccounts]; itm.Replicate {
-		replicate(dm.connMgr, config.CgrConfig().DataDbCfg().RplConns,
-			config.CgrConfig().DataDbCfg().RplFiltered,
-			utils.AccountPrefix, id, // this are used to get the host IDs from cache
-			utils.ReplicatorSv1RemoveAccount,
-			&utils.StringWithAPIOpts{
-				Arg:    id,
-				Tenant: config.CgrConfig().GeneralCfg().DefaultTenant,
-				APIOpts: utils.GenerateDBItemOpts(itm.APIKey, itm.RouteID,
-					utils.EmptyString, utils.EmptyString)})
-	}
-	return
+	itm := config.CgrConfig().DataDbCfg().Items[utils.MetaAccounts]
+	return dm.rm.Replicate(
+		utils.AccountPrefix, id,
+		utils.ReplicatorSv1RemoveAccount,
+		&utils.StringWithAPIOpts{
+			Arg:     id,
+			Tenant:  config.CgrConfig().GeneralCfg().DefaultTenant,
+			APIOpts: utils.GenerateDBItemOpts(itm.APIKey, itm.RouteID, "", ""),
+		}, itm)
 }
 
 // GetFilter returns a filter based on the given ID

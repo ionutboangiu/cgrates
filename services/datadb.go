@@ -47,6 +47,7 @@ type DataDBService struct {
 	connMgr  *engine.ConnManager
 
 	dm          *engine.DataManager
+	rplBuf      *engine.ReplicationBuffer
 	dbchan      chan *engine.DataManager
 	setVersions bool
 
@@ -117,7 +118,7 @@ func (db *DataDBService) Reload() (err error) {
 func (db *DataDBService) Shutdown() (err error) {
 	db.srvDep[utils.DataDB].Wait()
 	db.Lock()
-	db.dm.DataDB().Close()
+	db.dm.Close()
 	db.dm = nil
 	db.Unlock()
 	return

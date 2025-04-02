@@ -20,6 +20,7 @@ package v1
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/cgrates/birpc/context"
@@ -29,17 +30,36 @@ import (
 
 // NewReplicatorSv1 constructs the ReplicatorSv1 object
 func NewReplicatorSv1(dm *engine.DataManager, v1 *APIerSv1) *ReplicatorSv1 {
-	return &ReplicatorSv1{
+	r := &ReplicatorSv1{
 		dm: dm,
 		v1: v1,
+		// requestCh: make(chan *replicationRequest),
 	}
+	// go r.coordinator()
+	return r
 }
 
 // ReplicatorSv1 exports the DataDB methods to RPC
 type ReplicatorSv1 struct {
+	// mu sync.Mutex
+	// requestCh chan *replicationRequest
 	dm *engine.DataManager
 	v1 *APIerSv1 // needed for CallCache only
 }
+
+// type replicationRequest struct {
+// 	account *engine.Account
+// 	done    chan error
+// }
+
+// func (rplSv1 *ReplicatorSv1) coordinator() {
+// 	for req := range rplSv1.requestCh {
+// 		log.Print(req.account.BalanceMap["*sms"].GetTotalValue())
+// 		err := rplSv1.dm.DataDB().SetAccountDrv(req.account)
+// 		req.done <- err
+// 		close(req.done)
+// 	}
+// }
 
 // GetAccount is the remote method coresponding to the dataDb driver method
 func (rplSv1 *ReplicatorSv1) GetAccount(ctx *context.Context, args *utils.StringWithAPIOpts, reply *engine.Account) error {
@@ -387,6 +407,7 @@ func (rplSv1 *ReplicatorSv1) GetIndexes(ctx *context.Context, args *utils.GetInd
 
 // SetAccount is the replication method coresponding to the dataDb driver method
 func (rplSv1 *ReplicatorSv1) SetAccount(ctx *context.Context, acc *engine.AccountWithAPIOpts, reply *string) (err error) {
+	log.Print(acc.Account.BalanceMap["*sms"].GetTotalValue())
 	if err = rplSv1.dm.DataDB().SetAccountDrv(acc.Account); err != nil {
 		return
 	}
@@ -849,6 +870,10 @@ func (rplSv1 *ReplicatorSv1) RemoveDestination(ctx *context.Context, id *utils.S
 
 // RemoveAccount is the replication method coresponding to the dataDb driver method
 func (rplSv1 *ReplicatorSv1) RemoveAccount(ctx *context.Context, id *utils.StringWithAPIOpts, reply *string) (err error) {
+	// if rplSv1.async {
+	// 	rplSv1.mu.Lock()
+	// 	defer rplSv1.mu.Unlock()
+	// }
 	if err = rplSv1.dm.DataDB().RemoveAccountDrv(id.Arg); err != nil {
 		return
 	}

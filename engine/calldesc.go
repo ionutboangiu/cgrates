@@ -280,7 +280,7 @@ func (cd *CallDescriptor) getRatingPlansForPrefix(key string, recursionDepth int
 	if err = rpf.GetRatingPlansForPrefix(cd); err != nil || !cd.continousRatingInfos() {
 		// try rating profile fallback
 		recursionDepth++
-		for index := 0; index < len(cd.RatingInfos); index++ {
+		for index := range cd.RatingInfos {
 			ri := cd.RatingInfos[index]
 			if len(ri.RateIntervals) > 0 {
 				// go to next rate info
