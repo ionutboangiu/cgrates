@@ -57,8 +57,8 @@ jobs:
         run: |
           ansible-playbook data/ansible/integration_tests/main.yaml -i localhost, -c local -e "ansible_user=$(whoami) cgrates_dir=$GITHUB_WORKSPACE cgrates_clone_repo=false install_go=false"
 
-      # - name: Set up tmate session for debugging
-      #   uses: mxschmitt/action-tmate@v3
+      - name: Set up tmate session for debugging
+        uses: mxschmitt/action-tmate@v3
 
       - name: Run migrator & services tests
         continue-on-error: true
