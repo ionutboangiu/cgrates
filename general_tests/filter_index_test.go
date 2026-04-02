@@ -110,7 +110,7 @@ func TestFilterIndexUpdates(t *testing.T) {
 
 		indexes, err := dm.GetIndexes(context.Background(),
 			utils.CacheAttributeFilterIndexes, "cgrates.org",
-			"", utils.NonTransactional, true, false)
+			utils.NonTransactional, true, false)
 		if err != nil {
 			if len(want) == 0 && err == utils.ErrNotFound {
 				return
