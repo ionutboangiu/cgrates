@@ -19,46 +19,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 package engine
 
 import (
-	"errors"
 	"testing"
 	"time"
 
 	"github.com/cgrates/cgrates/utils"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 )
-
-func TestMongoErrIsNotFound(t *testing.T) {
-
-	t.Run("mongo.CommandError with Code 26", func(t *testing.T) {
-		err := &mongo.CommandError{Code: 26, Message: "some message"}
-		if !isNotFound(err) {
-			t.Errorf("expected true, got false for mongo.CommandError with Code 26")
-		}
-	})
-
-	t.Run("mongo.CommandError with 'ns not found' message", func(t *testing.T) {
-		err := &mongo.CommandError{Code: 100, Message: "ns not found"}
-		if !isNotFound(err) {
-			t.Errorf("expected true, got false for mongo.CommandError with 'ns not found' message")
-		}
-	})
-
-	t.Run("Non-mongo.CommandError but 'ns not found' in message", func(t *testing.T) {
-		err := errors.New("some random error: ns not found")
-		if !isNotFound(err) {
-			t.Errorf("expected true, got false for error with 'ns not found' in message")
-		}
-	})
-
-	t.Run("Unrelated error", func(t *testing.T) {
-		err := errors.New("some other error")
-		if isNotFound(err) {
-			t.Errorf("expected false, got true for unrelated error")
-		}
-	})
-
-}
 
 func TestCleanEmptyFilters(t *testing.T) {
 	ms := &MongoStorage{}

@@ -196,27 +196,7 @@ func NewMongoStorage(scheme, host, port, db, user, pass, mrshlerStr string, stor
 		mongoStorage.db = strings.Split(db, "?")[0]
 	}
 
-	err = mongoStorage.query(func(sctx mongo.SessionContext) error {
-		// Create indexes only if the database is empty or only the version table is present.
-		cols, err := mongoStorage.client.Database(mongoStorage.db).
-			ListCollectionNames(sctx, bson.D{})
-		if err != nil {
-			return err
-		}
-		empty := true
-		for _, col := range cols {
-			if col != ColVer {
-				empty = false
-				break
-			}
-		}
-		if empty {
-			return mongoStorage.EnsureIndexes()
-		}
-		return nil
-	})
-
-	if err != nil {
+	if err = mongoStorage.EnsureIndexes(); err != nil {
 		return nil, err
 	}
 	return mongoStorage, nil
@@ -255,28 +235,15 @@ func (ms *MongoStorage) SetTTL(ttl time.Duration) {
 	ms.ctxTTLMutex.Unlock()
 }
 
-func (ms *MongoStorage) enusureIndex(colName string, uniq bool, keys ...string) error {
-	return ms.query(func(sctx mongo.SessionContext) error {
-		col := ms.getCol(colName)
-		indexOptions := options.Index().SetUnique(uniq)
-		doc := make(bson.D, 0)
-		for _, k := range keys {
-			doc = append(doc, bson.E{Key: k, Value: 1})
-		}
-		_, err := col.Indexes().CreateOne(sctx, mongo.IndexModel{
-			Keys:    doc,
-			Options: indexOptions,
-		})
-		return err
-	})
-}
-
-func (ms *MongoStorage) dropAllIndexesForCol(colName string) error {
-	return ms.query(func(sctx mongo.SessionContext) error {
-		col := ms.getCol(colName)
-		_, err := col.Indexes().DropAll(sctx)
-		return err
-	})
+func indexModel(unique bool, keys ...string) mongo.IndexModel {
+	doc := make(bson.D, len(keys))
+	for i, k := range keys {
+		doc[i] = bson.E{Key: k, Value: 1}
+	}
+	return mongo.IndexModel{
+		Keys:    doc,
+		Options: options.Index().SetUnique(unique),
+	}
 }
 
 func (ms *MongoStorage) getCol(col string) *mongo.Collection {
@@ -288,31 +255,15 @@ func (ms *MongoStorage) GetContext() context.Context {
 	return ms.ctx
 }
 
-func isNotFound(err error) bool {
-	var de *mongo.CommandError
-
-	if errors.As(err, &de) {
-		return de.Code == 26 || de.Message == "ns not found"
-	}
-
-	// If the error cannot be converted to mongo.CommandError
-	// check if the error message contains "ns not found"
-	return strings.Contains(err.Error(), "ns not found")
-}
-
-func (ms *MongoStorage) ensureIndexesForCol(col string) error { // exported for migrator
-	err := ms.dropAllIndexesForCol(col)
-	if err != nil && !isNotFound(err) { // make sure you do not have indexes
-		return err
-	}
+func (ms *MongoStorage) ensureIndexesForCol(col string) error {
+	var models []mongo.IndexModel
 	switch col {
 	case ColAct, ColApl, ColAAp, ColAtr, ColRpl, ColDst, ColRds, ColLht, ColIndx:
-		err = ms.enusureIndex(col, true, "key")
+		models = []mongo.IndexModel{indexModel(true, "key")}
 	case ColRsP, ColRes, ColIPp, ColIPs, ColSqs, ColRgp, ColTrp, ColRnk, ColSqp, ColTps, ColThs, ColTrd, ColRts, ColAttr, ColFlt, ColCpp, ColDpp, ColDph:
-		err = ms.enusureIndex(col, true, "tenant", "id")
+		models = []mongo.IndexModel{indexModel(true, "tenant", "id")}
 	case ColRpf, ColShg, ColAcc:
-		err = ms.enusureIndex(col, true, "id")
-		// StorDB
+		models = []mongo.IndexModel{indexModel(true, "id")}
 	case utils.TBLTPTimings, utils.TBLTPDestinations,
 		utils.TBLTPDestinationRates, utils.TBLTPRatingPlans,
 		utils.TBLTPSharedGroups, utils.TBLTPActions, utils.TBLTPRankings,
@@ -320,31 +271,29 @@ func (ms *MongoStorage) ensureIndexesForCol(col string) error { // exported for 
 		utils.TBLTPStats, utils.TBLTPResources, utils.TBLTPIPs,
 		utils.TBLTPDispatchers, utils.TBLTPDispatcherHosts,
 		utils.TBLTPChargers, utils.TBLTPRoutes, utils.TBLTPThresholds:
-		err = ms.enusureIndex(col, true, "tpid", "id")
+		models = []mongo.IndexModel{indexModel(true, "tpid", "id")}
 	case utils.TBLTPRatingProfiles:
-		err = ms.enusureIndex(col, true, "tpid", "tenant",
-			"category", "subject", "loadid")
+		models = []mongo.IndexModel{indexModel(true, "tpid", "tenant",
+			"category", "subject", "loadid")}
 	case utils.SessionCostsTBL:
-		err = ms.enusureIndex(col, true, CGRIDLow, RunIDLow)
-		if err == nil {
-			err = ms.enusureIndex(col, false, OriginHostLow, OriginIDLow)
-		}
-		if err == nil {
-			err = ms.enusureIndex(col, false, RunIDLow, OriginIDLow)
+		models = []mongo.IndexModel{
+			indexModel(true, CGRIDLow, RunIDLow),
+			indexModel(false, OriginHostLow, OriginIDLow),
+			indexModel(false, RunIDLow, OriginIDLow),
 		}
 	case utils.CDRsTBL:
-		err = ms.enusureIndex(col, true, CGRIDLow, RunIDLow,
-			OriginIDLow)
-		if err == nil {
-			for _, idxKey := range ms.cdrsIndexes {
-				err = ms.enusureIndex(col, false, idxKey)
-				if err != nil {
-					break
-				}
-			}
+		models = make([]mongo.IndexModel, 0, 1+len(ms.cdrsIndexes))
+		models = append(models, indexModel(true, CGRIDLow, RunIDLow, OriginIDLow))
+		for _, idxKey := range ms.cdrsIndexes {
+			models = append(models, indexModel(false, idxKey))
 		}
+	default:
+		return nil
 	}
-	return err
+	return ms.query(func(sctx mongo.SessionContext) error {
+		_, err := ms.getCol(col).Indexes().CreateMany(sctx, models)
+		return err
+	})
 }
 
 // EnsureIndexes creates database indexes for the specified collections.
@@ -380,14 +329,19 @@ func (ms *MongoStorage) Close() {
 	}
 }
 
-// Flush drops the datatable and recreates the indexes.
-func (ms *MongoStorage) Flush(_ string) (err error) {
+// Flush deletes all documents from every collection, preserving indexes.
+func (ms *MongoStorage) Flush(_ string) error {
 	return ms.query(func(sctx mongo.SessionContext) error {
-		err := ms.client.Database(ms.db).Drop(sctx)
+		cols, err := ms.client.Database(ms.db).ListCollectionNames(sctx, bson.D{})
 		if err != nil {
 			return err
 		}
-		return ms.EnsureIndexes()
+		for _, col := range cols {
+			if _, err := ms.client.Database(ms.db).Collection(col).DeleteMany(sctx, bson.D{}); err != nil {
+				return err
+			}
+		}
+		return nil
 	})
 }
 
