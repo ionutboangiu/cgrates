@@ -217,27 +217,7 @@ func NewMongoStorage(scheme, host, port, db, user, pass, mrshlerStr string,
 		mongoStorage.db = strings.Split(db, "?")[0]
 	}
 
-	err = mongoStorage.query(ctx, func(sctx mongo.SessionContext) error {
-		// Create indexes only if the database is empty or only the version table is present.
-		cols, err := mongoStorage.client.Database(mongoStorage.db).
-			ListCollectionNames(sctx, bson.D{})
-		if err != nil {
-			return err
-		}
-		empty := true
-		for _, col := range cols {
-			if col != ColVer {
-				empty = false
-				break
-			}
-		}
-		if empty {
-			return mongoStorage.EnsureIndexes()
-		}
-		return nil
-	})
-
-	if err != nil {
+	if err = mongoStorage.EnsureIndexes(); err != nil {
 		return nil, err
 	}
 	return mongoStorage, nil
@@ -269,28 +249,15 @@ func (ms *MongoStorage) SetTTL(ttl time.Duration) {
 	ms.ctxTTLMutex.Unlock()
 }
 
-func (ms *MongoStorage) ensureIndex(colName string, uniq bool, keys ...string) error {
-	return ms.query(context.TODO(), func(sctx mongo.SessionContext) error {
-		col := ms.getCol(colName)
-		indexOptions := options.Index().SetUnique(uniq)
-		doc := make(bson.D, 0)
-		for _, k := range keys {
-			doc = append(doc, bson.E{Key: k, Value: 1})
-		}
-		_, err := col.Indexes().CreateOne(sctx, mongo.IndexModel{
-			Keys:    doc,
-			Options: indexOptions,
-		})
-		return err
-	})
-}
-
-func (ms *MongoStorage) dropAllIndexesForCol(colName string) error {
-	return ms.query(context.TODO(), func(sctx mongo.SessionContext) error {
-		col := ms.getCol(colName)
-		_, err := col.Indexes().DropAll(sctx)
-		return err
-	})
+func indexModel(unique bool, keys ...string) mongo.IndexModel {
+	doc := make(bson.D, len(keys))
+	for i, k := range keys {
+		doc[i] = bson.E{Key: k, Value: 1}
+	}
+	return mongo.IndexModel{
+		Keys:    doc,
+		Options: options.Index().SetUnique(unique),
+	}
 }
 
 func (ms *MongoStorage) getCol(col string) *mongo.Collection {
@@ -302,42 +269,28 @@ func (ms *MongoStorage) GetContext() *context.Context {
 	return context.TODO()
 }
 
-func isNotFound(err error) bool {
-	var de *mongo.CommandError
-
-	if errors.As(err, &de) {
-		return de.Code == 26 || de.Message == "ns not found"
-	}
-
-	// If the error cannot be converted to mongo.CommandError
-	// check if the error message contains "ns not found"
-	return strings.Contains(err.Error(), "ns not found")
-}
-
-func (ms *MongoStorage) ensureIndexesForCol(col string) error { // exported for migrator
-	err := ms.dropAllIndexesForCol(col)
-	if err != nil && !isNotFound(err) { // make sure you do not have indexes
-		return err
-	}
+func (ms *MongoStorage) ensureIndexesForCol(col string) error {
+	var models []mongo.IndexModel
 	switch col {
 	case ColAct, ColApl, ColAAp, ColAtr, ColRpl, ColDst, ColRds, ColLht, ColIndx:
-		err = ms.ensureIndex(col, true, "key")
+		models = []mongo.IndexModel{indexModel(true, "key")}
 	case ColRsP, ColRes, ColIPp, ColIPs, ColSqs, ColRgp, ColTrs, ColTrd, ColSqp, ColTps, ColThs, ColRts, ColAttr, ColFlt, ColCpp, ColRpp, ColApp, ColAnp:
-		err = ms.ensureIndex(col, true, "tenant", "id")
+		models = []mongo.IndexModel{indexModel(true, "tenant", "id")}
 	case ColRpf, ColShg, ColAcc:
-		err = ms.ensureIndex(col, true, "id")
+		models = []mongo.IndexModel{indexModel(true, "id")}
 	case utils.CDRsTBL:
-		err = ms.ensureIndex(col, true, "opts.*cdrID") // should probably create a constant for the key
-		if err == nil {
-			for _, idxKey := range ms.cdrsIndexes {
-				err = ms.ensureIndex(col, false, idxKey)
-				if err != nil {
-					break
-				}
-			}
+		models = make([]mongo.IndexModel, 0, 1+len(ms.cdrsIndexes))
+		models = append(models, indexModel(true, "opts.*cdrID"))
+		for _, idxKey := range ms.cdrsIndexes {
+			models = append(models, indexModel(false, idxKey))
 		}
+	default:
+		return nil
 	}
-	return err
+	return ms.query(context.TODO(), func(sctx mongo.SessionContext) error {
+		_, err := ms.getCol(col).Indexes().CreateMany(sctx, models)
+		return err
+	})
 }
 
 // EnsureIndexes creates database indexes for the specified collections.
@@ -365,13 +318,19 @@ func (ms *MongoStorage) Close() {
 	}
 }
 
-// Flush drops the datatable and recreates the indexes.
+// Flush deletes all documents from every collection, preserving indexes.
 func (ms *MongoStorage) Flush(_ string) error {
 	return ms.query(context.TODO(), func(sctx mongo.SessionContext) error {
-		if err := ms.client.Database(ms.db).Drop(sctx); err != nil {
+		cols, err := ms.client.Database(ms.db).ListCollectionNames(sctx, bson.D{})
+		if err != nil {
 			return err
 		}
-		return ms.EnsureIndexes()
+		for _, col := range cols {
+			if _, err := ms.client.Database(ms.db).Collection(col).DeleteMany(sctx, bson.D{}); err != nil {
+				return err
+			}
+		}
+		return nil
 	})
 }
 
