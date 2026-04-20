@@ -61,8 +61,7 @@ func (aS *ActionS) ListenAndServe(stopChan, cfgRld chan struct{}) {
 		select {
 		case <-stopChan:
 			return
-		case rld := <-cfgRld: // configuration was reloaded
-			cfgRld <- rld
+		case <-cfgRld: // configuration was reloaded
 		}
 	}
 }
