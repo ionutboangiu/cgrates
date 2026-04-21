@@ -100,7 +100,7 @@ func (sS *SessionS) BiRPCv1AuthorizeEvent(ctx *context.Context,
 		return // Nothing to do
 	}
 	if attrS {
-		rplyAttr, err := attributes.AttributeScProcessEvent(ctx, sS.fltrS,
+		rplyAttr, err := attributes.ProcessEvent(ctx, sS.fltrS,
 			sS.cfg.SessionSCfg().Conns[utils.MetaAttributes], sS.connMgr, utils.MetaSessionS, args)
 		if err == nil {
 			args = rplyAttr.CGREvent
@@ -118,9 +118,9 @@ func (sS *SessionS) BiRPCv1AuthorizeEvent(ctx *context.Context,
 	}
 	if chrgS {
 		var chrgrs []*chargers.ChrgSProcessEventReply
-		if chrgrs, err = chargers.ChargerScProcessEvent(ctx, sS.fltrS,
+		if chrgrs, err = chargers.ProcessEvent(ctx, sS.fltrS,
 			sS.cfg.SessionSCfg().Conns[utils.MetaChargers], sS.connMgr,
-			utils.MetaSessionS, args); err != nil {
+			args); err != nil {
 			return
 		}
 		for _, chrgr := range chrgrs {
@@ -340,7 +340,7 @@ func (sS *SessionS) BiRPCv1InitiateSession(ctx *context.Context,
 		return
 	}
 	if attrS {
-		rplyAttr, err := attributes.AttributeScProcessEvent(ctx, sS.fltrS,
+		rplyAttr, err := attributes.ProcessEvent(ctx, sS.fltrS,
 			sS.cfg.SessionSCfg().Conns[utils.MetaAttributes], sS.connMgr, utils.MetaSessionS, args)
 		if err == nil {
 			args = rplyAttr.CGREvent
@@ -359,9 +359,9 @@ func (sS *SessionS) BiRPCv1InitiateSession(ctx *context.Context,
 	}
 	if chrgS {
 		var chrgrs []*chargers.ChrgSProcessEventReply
-		if chrgrs, err = chargers.ChargerScProcessEvent(ctx, sS.fltrS,
+		if chrgrs, err = chargers.ProcessEvent(ctx, sS.fltrS,
 			sS.cfg.SessionSCfg().Conns[utils.MetaChargers], sS.connMgr,
-			utils.MetaSessionS, args); err != nil {
+			args); err != nil {
 			return
 		}
 		for _, chrgr := range chrgrs {
@@ -551,7 +551,7 @@ func (sS *SessionS) BiRPCv1UpdateSession(ctx *context.Context,
 	}
 
 	if attrS {
-		rplyAttr, err := attributes.AttributeScProcessEvent(ctx, sS.fltrS,
+		rplyAttr, err := attributes.ProcessEvent(ctx, sS.fltrS,
 			sS.cfg.SessionSCfg().Conns[utils.MetaAttributes], sS.connMgr, utils.MetaSessionS, args)
 		if err == nil {
 			args = rplyAttr.CGREvent
@@ -871,7 +871,7 @@ func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 		cch[utils.MetaAttributes] = attrS
 	}
 	if cch[utils.MetaAttributes].(bool) {
-		if rplyAttr, errProc := attributes.AttributeScProcessEvent(ctx, sS.fltrS,
+		if rplyAttr, errProc := attributes.ProcessEvent(ctx, sS.fltrS,
 			sS.cfg.SessionSCfg().Conns[utils.MetaAttributes], sS.connMgr, utils.MetaSessionS, apiArgs); errProc != nil {
 			if errProc.Error() != utils.ErrNotFound.Error() {
 				return utils.NewErrAttributeS(errProc)
@@ -915,9 +915,9 @@ func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 	if cch[utils.MetaChargers].(bool) &&
 		!slices.Contains([]bool{cch[utils.MetaSession].(bool), cch[utils.MetaTerminate].(bool)}, true) {
 		var chrgrs []*chargers.ChrgSProcessEventReply
-		if chrgrs, err = chargers.ChargerScProcessEvent(ctx, sS.fltrS,
+		if chrgrs, err = chargers.ProcessEvent(ctx, sS.fltrS,
 			sS.cfg.SessionSCfg().Conns[utils.MetaChargers], sS.connMgr,
-			utils.MetaSessionS, apiArgs); err != nil {
+			apiArgs); err != nil {
 			return
 		}
 		for _, chrgr := range chrgrs {
@@ -1064,9 +1064,9 @@ func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 					utils.SessionS, errRTs.Error(), cgrEv, utils.RateS))
 		} else if rtS {
 			var rtsCost *utils.RateProfileCost
-			if rtsCost, err = rates.RateScCostForEvent(ctx, sS.fltrS,
+			if rtsCost, err = rates.CostForEvent(ctx, sS.fltrS,
 				sS.cfg.SessionSCfg().Conns[utils.MetaRates], sS.connMgr,
-				utils.MetaSessionS, cgrEv); err != nil {
+				cgrEv); err != nil {
 				if cch[utils.OptsSesBlockerError].(bool) {
 					return
 				}

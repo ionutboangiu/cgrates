@@ -25,16 +25,16 @@ import (
 	"github.com/cgrates/cgrates/utils"
 )
 
-// cfg.SessionSCfg().Conns[utils.MetaAttributes]
-// AttributeCProcessEvent is a wrapper to unify processing from the client side from multiple subsystems
-func AttributeScProcessEvent(ctx *context.Context, fltrS *engine.FilterS,
+// ProcessEvent is a wrapper to unify client-side processing across multiple subsystems.
+func ProcessEvent(ctx *context.Context, fltrS *engine.FilterS,
 	connsCfg []*config.DynamicConns, connMgr *engine.ConnManager, subsys string,
-	cgrEv *utils.CGREvent) (reply *AttrSProcessEventReply, err error) {
-	var conns []string
-	if conns, err = engine.GetConnIDs(ctx, connsCfg,
-		cgrEv.Tenant, cgrEv.AsDataProvider(), fltrS); err != nil {
-		return
-	} else if len(conns) == 0 {
+	cgrEv *utils.CGREvent) (*AttrSProcessEventReply, error) {
+	conns, err := engine.GetConnIDs(ctx, connsCfg,
+		cgrEv.Tenant, cgrEv.AsDataProvider(), fltrS)
+	if err != nil {
+		return nil, err
+	}
+	if len(conns) == 0 {
 		return nil, utils.NewErrNotConnected(utils.AttributeS)
 	}
 	if cgrEv.APIOpts == nil {
@@ -44,8 +44,10 @@ func AttributeScProcessEvent(ctx *context.Context, fltrS *engine.FilterS,
 	cgrEv.APIOpts[utils.OptsContext] = utils.FirstNonEmpty(
 		utils.IfaceAsString(cgrEv.APIOpts[utils.OptsContext]),
 		subsys)
-	reply = &AttrSProcessEventReply{}
-	err = connMgr.Call(ctx, conns, utils.AttributeSv1ProcessEvent,
-		cgrEv, reply)
-	return
+	var reply AttrSProcessEventReply
+	if err := connMgr.Call(ctx, conns, utils.AttributeSv1ProcessEvent,
+		cgrEv, &reply); err != nil {
+		return nil, err
+	}
+	return &reply, nil
 }

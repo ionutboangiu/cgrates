@@ -375,23 +375,22 @@ func refundUnitsOnAccount(acnt *utils.Account, units *utils.Decimal, origBlnc *u
 	}
 }
 
-// AccountScDebitAbstracts is a wrapper to unify processing from the client side from multiple subsystems
-func AccountScDebitAbstracts(ctx *context.Context, fltrS *engine.FilterS,
+// DebitAbstracts is a wrapper to unify client-side processing across multiple subsystems.
+func DebitAbstracts(ctx *context.Context, fltrS *engine.FilterS,
 	connsCfg []*config.DynamicConns, connMgr *engine.ConnManager,
-	cgrEv *utils.CGREvent) (dbt *utils.EventCharges, err error) {
-	var conns []string
-	if conns, err = engine.GetConnIDs(ctx, connsCfg,
-		cgrEv.Tenant, cgrEv.AsDataProvider(), fltrS); err != nil {
-		return
+	cgrEv *utils.CGREvent) (*utils.EventCharges, error) {
+	conns, err := engine.GetConnIDs(ctx, connsCfg,
+		cgrEv.Tenant, cgrEv.AsDataProvider(), fltrS)
+	if err != nil {
+		return nil, err
 	}
 	if len(conns) == 0 {
-		err = utils.NewErrNotConnected(utils.AccountS)
-		return
+		return nil, utils.NewErrNotConnected(utils.AccountS)
 	}
-	dbt = &utils.EventCharges{}
-	if err = connMgr.Call(ctx, conns,
-		utils.AccountSv1DebitAbstracts, cgrEv, dbt); err != nil {
-		return
+	var dbt utils.EventCharges
+	if err := connMgr.Call(ctx, conns,
+		utils.AccountSv1DebitAbstracts, cgrEv, &dbt); err != nil {
+		return nil, err
 	}
-	return
+	return &dbt, nil
 }

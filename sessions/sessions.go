@@ -914,9 +914,9 @@ func (sS *SessionS) newSession(ctx *context.Context, cgrEv *utils.CGREvent,
 	}
 	if chrgS {
 		var chrgrs []*chargers.ChrgSProcessEventReply
-		if chrgrs, err = chargers.ChargerScProcessEvent(ctx, sS.fltrS,
+		if chrgrs, err = chargers.ProcessEvent(ctx, sS.fltrS,
 			sS.cfg.SessionSCfg().Conns[utils.MetaChargers], sS.connMgr,
-			utils.MetaSessionS, cgrEv); err != nil {
+			cgrEv); err != nil {
 			return
 		}
 		s.SRuns = make([]*SRun, len(chrgrs))

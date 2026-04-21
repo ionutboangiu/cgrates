@@ -25,15 +25,14 @@ import (
 	"github.com/cgrates/cgrates/utils"
 )
 
-// cfg.SessionSCfg().Conns[utils.MetaChargers]
-// ChargerScProcessEvent is a wrapper to unify processing from the client side from multiple subsystems
-func ChargerScProcessEvent(ctx *context.Context, fltrS *engine.FilterS,
-	connsCfg []*config.DynamicConns, connMgr *engine.ConnManager, subsys string,
+// ProcessEvent is a wrapper to unify client-side processing across multiple subsystems.
+func ProcessEvent(ctx *context.Context, fltrS *engine.FilterS,
+	connsCfg []*config.DynamicConns, connMgr *engine.ConnManager,
 	cgrEv *utils.CGREvent) (chrgrs []*ChrgSProcessEventReply, err error) {
 	var conns []string
 	if conns, err = engine.GetConnIDs(ctx, connsCfg,
 		cgrEv.Tenant, cgrEv.AsDataProvider(), fltrS); err != nil {
-		return
+		return nil, err
 	}
 	if len(conns) == 0 {
 		return nil, utils.NewErrNotConnected(utils.ChargerS)
@@ -50,5 +49,5 @@ func ChargerScProcessEvent(ctx *context.Context, fltrS *engine.FilterS,
 		true, utils.NonTransactional); errCh != nil {
 		return nil, errCh
 	}
-	return
+	return chrgrs, err
 }
