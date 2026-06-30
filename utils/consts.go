@@ -2963,15 +2963,10 @@ const (
 	DataDBUserCgr   = "dataDBUser"
 	DataDBPasswdCgr = "dataDBPasswd"
 	//Cgr console
-	CgrConsole     = "cgr-console"
-	HomeCgr        = "HOME"
-	HistoryCgr     = "/.cgr_history"
 	RpcEncodingCgr = "rpcEncoding"
 	CertPathCgr    = "crtPath"
 	KeyPathCgr     = "keyPath"
 	CAPathCgr      = "caPath"
-	HelpCgr        = "help"
-	SepCgr         = " "
 	//Cgr engine
 	CgrEngine            = "cgr-engine"
 	PrintCfgCgr          = "printConfig"
