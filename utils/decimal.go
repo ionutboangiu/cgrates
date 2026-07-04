@@ -121,6 +121,10 @@ func MultiplyDecimal(x, y *Decimal) *Decimal {
 	return &Decimal{MultiplyBig(x.Big, y.Big)}
 }
 
+func AbsoluteDecimal(x *Decimal) *Decimal {
+	return &Decimal{decimal.WithContext(DecimalContext).Abs(x.Big)}
+}
+
 // DivideDecimal divides two Decimals and returns the result
 func DivideDecimal(x, y *Decimal) *Decimal {
 	return &Decimal{DivideBig(x.Big, y.Big)}
@@ -138,6 +142,12 @@ func SumDecimal(x, y *Decimal) *Decimal {
 }
 
 func SubstractDecimal(x, y *Decimal) *Decimal {
+	if y == nil {
+		return x
+	}
+	if x == nil {
+		x = NewDecimal(0, 0)
+	}
 	return &Decimal{SubstractBig(x.Big, y.Big)}
 }
 
@@ -178,6 +188,15 @@ func NewDecimal(value int64, scale int) *Decimal {
 	return &Decimal{decimal.WithContext(DecimalContext).SetMantScale(value, scale)}
 }
 
+// NewDecimalFromBig wraps the Big, maintaining also the nil case
+func NewDecimalFromBig(b *decimal.Big) (d *Decimal) {
+	if b != nil {
+		d = &Decimal{b}
+	}
+	return
+}
+
+// Decimal is a wrapper of *decimal.Big with convenience methods on top
 type Decimal struct {
 	*decimal.Big
 }

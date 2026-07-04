@@ -56,6 +56,7 @@ var (
 		testHttpSsProvisionData,
 		testHttpSsAuth,
 		testHttpSsSessionStart,
+		testHttpSsSessionUpdate1,
 		testHttpSsStopEngine,
 		//testHttpSsTerminate,
 	}
@@ -153,6 +154,14 @@ func testHttpSsProvisionData(t *testing.T) {
 		}, &reply); err != nil {
 		t.Fatalf("SetAccount: %v", err)
 	}
+	var acnt utils.Account
+	if err := httpSsRPC.Call(context.Background(), utils.AdminSv1GetAccount,
+		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "2343000000000123"}},
+		&acnt); err != nil {
+		t.Fatalf("GetAccount: %v", err)
+	} else if acnt.Balances["DATA1"].Units.Compare(utils.NewDecimalFromFloat64(1000*1000)) != 0 {
+		t.Error(fmt.Sprintf("Received account: %+v", acnt))
+	}
 }
 
 func testHttpSsAuth(t *testing.T) {
@@ -171,6 +180,14 @@ func testHttpSsAuth(t *testing.T) {
 		t.Errorf("expecting: %q, received: %q", eRply, rply)
 	}
 	rply.Body.Close()
+	var acnt utils.Account
+	if err := httpSsRPC.Call(context.Background(), utils.AdminSv1GetAccount,
+		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "2343000000000123"}},
+		&acnt); err != nil {
+		t.Fatalf("GetAccount: %v", err)
+	} else if acnt.Balances["DATA1"].Units.Compare(utils.NewDecimalFromFloat64(1000*1000)) != 0 {
+		t.Error(fmt.Sprintf("Received account: %+v", acnt))
+	}
 }
 
 func testHttpSsSessionStart(t *testing.T) {
@@ -189,6 +206,40 @@ func testHttpSsSessionStart(t *testing.T) {
 		t.Errorf("expecting: %q, received: %q", eRply, rply)
 	}
 	rply.Body.Close()
+	var acnt utils.Account
+	if err := httpSsRPC.Call(context.Background(), utils.AdminSv1GetAccount,
+		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "2343000000000123"}},
+		&acnt); err != nil {
+		t.Fatalf("GetAccount: %v", err)
+	} else if acnt.Balances["DATA1"].Units.Compare(utils.NewDecimalFromFloat64(950*1000)) != 0 {
+		t.Error(fmt.Sprintf("Received account: %+v", acnt))
+	}
+}
+
+func testHttpSsSessionUpdate1(t *testing.T) {
+	reqUrl := fmt.Sprintf("http://localhost:2080%s?requestType=SessionUpdate&imsi=2343000000000123&sessionID=uuidTestHttpSs&usedUnits=50000",
+		httpSsCfg.HTTPAgentCfg()[0].URL)
+	rply, err := httpSsClnt.Get(reqUrl)
+	if err != nil {
+		t.Fatal(err)
+	}
+	eRply := "MaxUsage=50000"
+	if rply, err := io.ReadAll(rply.Body); err != nil {
+		t.Error(err)
+	} else if strings.HasPrefix(string(rply), "Error") {
+		t.Errorf("error: <%s>", strings.TrimSuffix(string(rply), "\n"))
+	} else if eRply != strings.TrimSuffix(string(rply), "\n") {
+		t.Errorf("expecting: %q, received: %q", eRply, rply)
+	}
+	rply.Body.Close()
+	var acnt utils.Account
+	if err := httpSsRPC.Call(context.Background(), utils.AdminSv1GetAccount,
+		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "2343000000000123"}},
+		&acnt); err != nil {
+		t.Fatalf("GetAccount: %v", err)
+	} else if acnt.Balances["DATA1"].Units.Compare(utils.NewDecimalFromFloat64(900*1000)) != 0 {
+		t.Error(fmt.Sprintf("Received account: %+v", acnt))
+	}
 }
 
 func testHttpSsTerminate(t *testing.T) {

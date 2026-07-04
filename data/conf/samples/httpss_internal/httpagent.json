@@ -67,14 +67,16 @@
 				"id": "SessionUpdate",
 				"filters": ["*string:~*req.requestType:SessionUpdate"],
 				"tenant": "cgrates.org",
-				"flags": ["*event", "*session", "*accounts"],
+				"flags": ["*event"],
 				"requestFields":[
 					{"tag": "OptSession", "path": "*opts.*session", "type": "*constant",
 						"value": "true"},
 					{"tag": "OptAccounts", "path": "*opts.*accounts", "type": "*constant",
 						"value": "true"},
 					{"tag": "OptInterimUsage", "path": "*opts.*interimUsage", "type": "*constant",
-						"value": "1000000"}, // auth 1GB
+						"value": "50000"}, // auth 50MB
+					{"tag": "OptPreviousUsage", "path": "*opts.*interimConsumed", "type": "*variable",
+						"value": "~*req.usedUnits"}, // confirmedConsumed
 					{"tag": "OriginID", "path": "*opts.*originID", "type": "*variable",
 						"value": "~*req.sessionID", "mandatory": true},
 					{"tag": "Account", "path": "*cgreq.IMSI", "type": "*variable",

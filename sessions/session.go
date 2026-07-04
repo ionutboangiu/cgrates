@@ -25,7 +25,6 @@ import (
 
 	"github.com/cgrates/cgrates/engine"
 	"github.com/cgrates/cgrates/utils"
-	"github.com/ericlagergren/decimal"
 )
 
 // SessionID is given by an agent as the answer to GetActiveSessionIDs API
@@ -69,10 +68,14 @@ func NewSession(origCGREv *utils.CGREvent, clientConnID string, runEvents []*uti
 
 // Session is the main structure to describe a call
 type Session struct {
-	ID                 string          // Unique identifier per Session, defaults to APIOpts[*cgrID]
-	OriginCGREvent     *utils.CGREvent // initial CGREvent received
-	ClientConnID       string          // connection ID towards the client so we can recover from passive
-	AutoChargeInterval time.Duration   // Enable auto-charging
+	ID             string          // Unique identifier per Session, defaults to APIOpts[*cgrID]
+	OriginCGREvent *utils.CGREvent // initial CGREvent received
+	ClientConnID   string          // connection ID towards the client so we can recover from passive
+
+	UsageAdjustment    *utils.Decimal // holds the extra usage either negative (ie. correction from consumed) or positive (ie. from roundingIncrements or correction)
+	InterimUsage       *utils.Decimal // last requested Usage
+	TotalUsage         *utils.Decimal // sum of InterimUsage
+	AutoChargeInterval time.Duration  // Enable auto-charging
 	NextAutoCharge     *time.Time
 
 	SRuns []*SRun          // forked based on ChargerS
@@ -130,20 +133,6 @@ func (s *Session) AsExternalSession(sRunIdx int, nodeID string) (aS *ExternalSes
 	return
 }
 
-// totalUsage returns the first session run total usage
-// not thread save
-func (s *Session) totalUsage() (tDur time.Duration) {
-	if len(s.SRuns) == 0 {
-		return
-	}
-	for _, sr := range s.SRuns {
-		tDurInt, _ := sr.TotalUsage.Int64()
-		tDur = time.Duration(tDurInt)
-		break // only first
-	}
-	return
-}
-
 // AsCGREvents is a  method to return the Session as CGREvents
 // AsCGREvents is not thread safe since it is supposed to run by the time Session is closed
 func (s *Session) asCGREvents() (cgrEvs []*utils.CGREvent) {
@@ -195,10 +184,6 @@ type SRun struct {
 	ID       string                // Identifier of the SRun, inherited from CGREvent.APIOpts[*runID]
 	CGREvent *utils.CGREvent       // Event received from ChargerS
 	Charges  []*utils.EventCharges // list of charges this session run has performed
-
-	RoundingUsage *decimal.Big // holds the extra usage debited on top  due to increment rounding
-	InterimUsage  *decimal.Big // last requested Usage
-	TotalUsage    *decimal.Big // sum of InterimUsage
 }
 
 // Clone returns the cloned version of SRun
@@ -226,4 +211,41 @@ func (s *Session) updateSRuns(updEv engine.MapEvent, alterableFields utils.Strin
 			sr.CGREvent.Event[k] = v
 		}
 	}
+}
+
+// updateSRunUsages will consider all the usage opts and update SRun counters acordingly
+func (s *Session) updateSRunUsages(interimConsumed, interimUsage, totalUsage *utils.Decimal) error {
+	// usage out of interimUsage
+	usage := utils.NewDecimal(0, 0)
+	if interimUsage == nil && totalUsage != nil { // totalUsage should give us the interimUsage
+		interimUsage = utils.SubstractDecimal(totalUsage, s.TotalUsage)
+	}
+	if interimUsage != nil {
+		usage = interimUsage
+	}
+	// corect the UsageAdjustment out of consumed
+	if interimConsumed != nil && s.InterimUsage != nil { // correct if InterimUsage was previously recorded
+		s.UsageAdjustment = utils.SumDecimal(s.UsageAdjustment,
+			utils.SubstractDecimal(s.InterimUsage, interimConsumed))
+	}
+	// Appying UsageAdjustment to Usage
+	if s.UsageAdjustment != nil {
+		usage = utils.SubstractDecimal(s.UsageAdjustment, usage)
+	}
+	if usage.Compare(utils.NewDecimal(0, 0)) == -1 { // debit was done out of UsageAdjustment, no need of further debit
+		s.UsageAdjustment = utils.AbsoluteDecimal(usage)
+		usage = utils.NewDecimal(0, 0)
+	}
+	// Save the interim and totalUsage
+	s.InterimUsage = interimUsage
+	if totalUsage != nil {
+		s.TotalUsage = totalUsage
+	} else {
+		s.TotalUsage = utils.SumDecimal(s.TotalUsage, interimUsage)
+	}
+	// Save the usage in SRuns so they can be debitted
+	for _, sRun := range s.sRuns {
+		sRun.CGREvent.APIOpts[utils.MetaUsage] = usage
+	}
+	return nil
 }

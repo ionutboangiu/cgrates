@@ -975,10 +975,21 @@ func (sS *SessionS) setSession(ctx *context.Context, cgrEv *utils.CGREvent,
 	} else {
 		s.updateSRuns(cgrEv.Event, sS.cfg.SessionSCfg().AlterableFields)
 	}
-	if hasInterimUsage { // Fix Usage of all
-		for _, sRun := range s.sRuns {
-			sRun.CGREvent.APIOpts[utils.MetaUsage] = utils.IfaceAsString(cgrEv.APIOpts[utils.MetaInterimUsage])
-		}
+	var interimConsumed *utils.Decimal
+	if iCsmd, has := cch[utils.MetaInterimConsumed]; has {
+		interimBig, _ := utils.IfaceAsBig(iCsmd)
+		interimConsumed = utils.NewDecimalFromBig(interimBig)
+	}
+	var interimUsage *utils.Decimal
+	if hasInterimUsage {
+		interimBig, _ := utils.IfaceAsBig(cch[utils.MetaInterimUsage])
+		interimUsage = utils.NewDecimalFromBig(interimBig)
+	}
+	var totalUsage *utils.Decimal
+	totalBig, _ := utils.IfaceAsBig(cch[utils.MetaTotalUsage])
+	totalUsage = utils.NewDecimalFromBig(totalBig)
+	if err = s.updateSRunUsages(interimConsumed, interimUsage, totalUsage); err != nil {
+		return
 	}
 	// ToDo: Fix here the sTerminator
 	return
@@ -1473,9 +1484,9 @@ func (sS *SessionS) endSession(ctx *context.Context, s *Session, tUsage, lastUsa
 		// }
 		// Set Usage field
 		if sRunIdx == 0 {
-			s.OriginCGREvent.Event[utils.Usage] = sr.TotalUsage
+			s.OriginCGREvent.Event[utils.Usage] = s.TotalUsage
 		}
-		sr.CGREvent.Event[utils.Usage] = sr.TotalUsage
+		sr.CGREvent.Event[utils.Usage] = s.TotalUsage
 		if aTime != nil {
 			sr.CGREvent.Event[utils.AnswerTime] = *aTime
 		}

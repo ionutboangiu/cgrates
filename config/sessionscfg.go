@@ -94,9 +94,10 @@ type SessionsOpts struct {
 	StatsDerivedReply      []*DynamicBoolOpt
 	ThresholdsDerivedReply []*DynamicBoolOpt
 	MaxUsage               []*DynamicBoolOpt
-	PreviousUsage          []*DynamicDecimalOpt
+	InterimConsumed        []*DynamicDecimalOpt
 	InterimUsage           []*DynamicDecimalOpt
 	TotalUsage             []*DynamicDecimalOpt
+	Usage                  []*DynamicDecimalOpt
 	ForceUsage             []*DynamicBoolOpt
 	TTL                    []*DynamicDurationOpt
 	Chargeable             []*DynamicBoolOpt
