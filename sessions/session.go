@@ -44,10 +44,13 @@ type ExternalSession struct {
 	RunID              string
 	CGREvent           *utils.CGREvent
 	NodeID             string
-	TotalUsage         time.Duration // the call duration so far (till TimeEnd)
+	UsageAdjustment    *int64 // holds the extra usage either negative (ie. correction from consumed) or positive (ie. from roundingIncrements or correction)
+	InterimUsage       *int64 // last requested Usage
+	TotalUsage         *int64 // sum of InterimUsage
 	TotalCost          float64
-	AutoChargeInterval time.Duration
-	NextAutoCharge     time.Time
+	AutoChargeInterval time.Duration // Enable auto-charging
+	NextAutoCharge     *time.Time
+	Charges            []*utils.EventCharges
 }
 
 // NewSession is the constructor for one Session
@@ -117,6 +120,30 @@ func (s *Session) AsExternalSessions(tmz, nodeID string) (aSs []*ExternalSession
 			CGREvent: sr.CGREvent,
 			NodeID:   utils.EmptyString,
 		}
+	}
+	for _, sr := range s.sRuns {
+		eS := &ExternalSession{
+			ID:                 s.ID,
+			RunID:              sr.ID,
+			CGREvent:           sr.CGREvent,
+			NodeID:             utils.EmptyString,
+			AutoChargeInterval: s.AutoChargeInterval,
+			NextAutoCharge:     s.NextAutoCharge,
+			Charges:            sr.Charges, // FixMe: maybe clone here
+		}
+		if s.UsageAdjustment != nil {
+			i, _ := s.UsageAdjustment.Big.Int64()
+			eS.UsageAdjustment = utils.Int64Pointer(i)
+		}
+		if s.InterimUsage != nil {
+			i, _ := s.InterimUsage.Big.Int64()
+			eS.InterimUsage = utils.Int64Pointer(i)
+		}
+		if s.TotalUsage != nil {
+			i, _ := s.TotalUsage.Big.Int64()
+			eS.TotalUsage = utils.Int64Pointer(i)
+		}
+		aSs = append(aSs, eS)
 	}
 	s.lk.RUnlock()
 	return
@@ -229,7 +256,7 @@ func (s *Session) updateSRunUsages(interimConsumed, interimUsage, totalUsage *ut
 			utils.SubstractDecimal(s.InterimUsage, interimConsumed))
 	}
 	// Appying UsageAdjustment to Usage
-	if s.UsageAdjustment != nil {
+	if s.UsageAdjustment != nil && s.UsageAdjustment.Compare(utils.NewDecimal(0, 0)) != 0 {
 		usage = utils.SubstractDecimal(s.UsageAdjustment, usage)
 	}
 	if usage.Compare(utils.NewDecimal(0, 0)) == -1 { // debit was done out of UsageAdjustment, no need of further debit

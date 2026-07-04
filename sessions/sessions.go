@@ -972,6 +972,7 @@ func (sS *SessionS) setSession(ctx *context.Context, cgrEv *utils.CGREvent,
 		if s, err = sS.newSessionOutEvent(ctx, cch[utils.MetaCGRid].(string), cgrEv, clientConnID); err != nil {
 			return
 		}
+		sS.registerSession(s, false)
 	} else {
 		s.updateSRuns(cgrEv.Event, sS.cfg.SessionSCfg().AlterableFields)
 	}

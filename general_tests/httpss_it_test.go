@@ -35,6 +35,7 @@ import (
 	"github.com/cgrates/cgrates/config"
 	"github.com/cgrates/cgrates/engine"
 	"github.com/cgrates/cgrates/loaders"
+	"github.com/cgrates/cgrates/sessions"
 	"github.com/cgrates/cgrates/utils"
 )
 
@@ -206,6 +207,14 @@ func testHttpSsSessionStart(t *testing.T) {
 		t.Errorf("expecting: %q, received: %q", eRply, rply)
 	}
 	rply.Body.Close()
+	var aSessions []*sessions.ExternalSession
+	if err := httpSsRPC.Call(context.Background(), utils.SessionSv1GetActiveSessions,
+		utils.SessionFilter{}, &aSessions); err != nil {
+		t.Error(err)
+	} else if len(aSessions) != 1 {
+		t.Errorf("Unexpected number of sessions received: %+v", aSessions)
+	}
+
 	var acnt utils.Account
 	if err := httpSsRPC.Call(context.Background(), utils.AdminSv1GetAccount,
 		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "2343000000000123"}},
@@ -232,6 +241,13 @@ func testHttpSsSessionUpdate1(t *testing.T) {
 		t.Errorf("expecting: %q, received: %q", eRply, rply)
 	}
 	rply.Body.Close()
+	var aSessions []*sessions.ExternalSession
+	if err := httpSsRPC.Call(context.Background(), utils.SessionSv1GetActiveSessions,
+		utils.SessionFilter{}, &aSessions); err != nil {
+		t.Error(err)
+	} else if len(aSessions) != 1 {
+		t.Errorf("Unexpected number of sessions received: %+v", aSessions)
+	}
 	var acnt utils.Account
 	if err := httpSsRPC.Call(context.Background(), utils.AdminSv1GetAccount,
 		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "2343000000000123"}},
