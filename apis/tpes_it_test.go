@@ -1021,7 +1021,7 @@ func testTPeSExportTariffPlanHalfTariffPlan(t *testing.T) {
 			{"cgrates.org", "TEST_ATTRIBUTES_IT_TEST", "", "", "", "", "", "*tenant", "*constant", "cgrates.itsyscom"},
 		},
 		utils.ResourcesCsv: {
-			{"#Tenant", "ID", "FIlterIDs", "Weights", "TTL", "Limit", "AlocationMessage", "Blocker", "Stored", "ThresholdIDs"},
+			{"#Tenant", "ID", "FilterIDs", "Weights", "TTL", "Limit", "AllocationMessage", "Blocker", "Stored", "ThresholdIDs"},
 			{"cgrates.org", "ResGroup1", "*string:~*req.Account:1001", ";20", "", "10", "Approved", "false", "false", "*none"},
 		},
 		utils.FiltersCsv: {
@@ -1071,13 +1071,12 @@ func testTPeSExportTariffPlanHalfTariffPlan(t *testing.T) {
 				utils.ActionType, utils.ActionOpts, utils.ActionWeights, utils.ActionBlockers,
 				utils.ActionDiktatsID, utils.ActionDiktatsFilterIDs, utils.ActionDiktatsOpts,
 				utils.ActionDiktatsWeights, utils.ActionDiktatsBlockers},
-			{"cgrates.org", "Execute_thd", "", ";20", "", "", "*thresholds", "THD_1", "actID", "", "0s", "*resetThreshold", "", "", "", "", "", "", "", ""},
+			{"cgrates.org", "Execute_thd", "", ";20", "", "", "*thresholds", "THD_1", "", "", "", "", "", "", "", "", "", "", "", ""},
+			{"cgrates.org", "Execute_thd", "", "", "", "", "", "", "actID", "", "", "*resetThreshold", "", "", "", "", "", "", "", ""},
 		},
 		utils.ThresholdsCsv: {
 			{"#Tenant", "ID", "FilterIDs", "Weights", "MaxHits", "MinHits", "MinSleep", "Blocker", "AttributeIDs", "ActionProfileIDs", "Async", "EeIDs"},
-			{"cgrates.org", "TH_Stats1", "*string:~*req.Account:1010", ";10", "-1", "0", "1ms", "false", "", "LOG", "true", ""},
-			{"cgrates.org", "TH_Stats1", "*ai:~*req.AnswerTime:2014-07-14T14:35:00Z|2014-07-14T14:36:00Z", "", "0", "0", "", "false", "", "", "false", ""},
-			{"cgrates.org", "TH_Stats1", "*string:~*req.Destination:1011", "", "0", "0", "", "false", "", "", "false", ""},
+			{"cgrates.org", "TH_Stats1", "*string:~*req.Account:1010;*ai:~*req.AnswerTime:2014-07-14T14:35:00Z|2014-07-14T14:36:00Z;*string:~*req.Destination:1011", ";10", "-1", "0", "1ms", "false", "", "LOG", "true", ""},
 		},
 	}
 	// we do this copy of the value one xpected because there are some values in a slice that are hard to concatenate as sorted
@@ -1097,14 +1096,14 @@ func testTPeSExportTariffPlanAllTariffPlan(t *testing.T) {
 		ExportItems: map[string][]string{
 			utils.MetaAttributes: {"TEST_ATTRIBUTES_IT_TEST", "TEST_ATTRIBUTES_IT_TEST_SECOND"},
 			utils.MetaResources:  {"ResGroup1", "ResGroup2"},
-			utils.MetaFilters:    {"fltr_for_prf", "fltr_changed2"},
+			utils.MetaFilters:    {"fltr_changed2", "fltr_for_prf"},
 			utils.MetaRates:      {"MultipleRates", "TEST_RATE_IT_TEST"},
 			utils.MetaChargers:   {"Chargers1", "DifferentCharger"},
 			utils.MetaRoutes:     {"ROUTE_2003", "ROUTE_ACNT_1001"},
 			utils.MetaAccounts:   {"Account_balances", "Account_simple"},
-			utils.MetaStats:      {"SQ_basic", "SQ_2"},
+			utils.MetaStats:      {"SQ_2", "SQ_basic"},
 			utils.MetaActions:    {"Execute_thd", "SET_BAL"},
-			utils.MetaThresholds: {"TH_Stats1", "THD_2"},
+			utils.MetaThresholds: {"THD_2", "TH_Stats1"},
 		},
 	}, &replyBts); err != nil {
 		t.Error(err)
@@ -1138,19 +1137,19 @@ func testTPeSExportTariffPlanAllTariffPlan(t *testing.T) {
 			{"cgrates.org", "TEST_ATTRIBUTES_IT_TEST_SECOND", "*string:~*opts.*context:*sessions;*exists:~*opts.*usage:", "", "", "", "", "*tenant", "*constant", "cgrates.itsyscom"},
 		},
 		utils.ResourcesCsv: {
-			{"#Tenant", "ID", "FIlterIDs", "Weights", "TTL", "Limit", "AlocationMessage", "Blocker", "Stored", "ThresholdIDs"},
+			{"#Tenant", "ID", "FilterIDs", "Weights", "TTL", "Limit", "AllocationMessage", "Blocker", "Stored", "ThresholdIDs"},
 			{"cgrates.org", "ResGroup1", "*string:~*req.Account:1001", ";20", "", "10", "Approved", "false", "false", "*none"},
 			{"cgrates.org", "ResGroup2", "*string:~*req.Account:1002", ";10", "", "5", "Declined", "false", "false", "*none"},
 		},
 		utils.FiltersCsv: {
 			{"#Tenant", "ID", "Type", "Path", "Values"},
+			{"cgrates.org", "fltr_changed2", "*string", "~*opts.*originID", "QWEASDZXC;IOPJKLBNM"},
+			{"cgrates.org", "fltr_changed2", "*string", "~*opts.Subsystems", "*attributes"},
+			{"cgrates.org", "fltr_changed2", "*notexists", "~*opts.*rates", ""},
 			{"cgrates.org", "fltr_for_prf", "*string", "~*req.Subject", "1004;6774;22312"},
 			{"cgrates.org", "fltr_for_prf", "*string", "~*opts.Subsystems", "*attributes"},
 			{"cgrates.org", "fltr_for_prf", "*prefix", "~*req.Destinations", "+0775;+442"},
 			{"cgrates.org", "fltr_for_prf", "*exists", "~*req.NumberOfEvents", ""},
-			{"cgrates.org", "fltr_changed2", "*string", "~*opts.*originID", "QWEASDZXC;IOPJKLBNM"},
-			{"cgrates.org", "fltr_changed2", "*string", "~*opts.Subsystems", "*attributes"},
-			{"cgrates.org", "fltr_changed2", "*notexists", "~*opts.*rates", ""},
 		},
 		utils.RatesCsv: {
 			{"#Tenant", "ID", "FilterIDs", "Weights", "MinCost", "MaxCost", "MaxCostStrategy", "RateID", "RateFilterIDs", "RateActivationStart", "RateWeights", "RateBlocker", "RateIntervalStart", "RateFixedFee", "RateRecurrentFee", "RateUnit", "RateIncrement"},
@@ -1190,12 +1189,12 @@ func testTPeSExportTariffPlanAllTariffPlan(t *testing.T) {
 		},
 		utils.StatsCsv: {
 			{"#Tenant", "ID", "FilterIDs", "Weights", "Blockers", "QueueLength", "TTL", "MinItems", "Stored", "ThresholdIDs", "MetricIDs", "MetricFilterIDs", "MetricBlockers"},
-			{"cgrates.org", "SQ_basic", "", ";10", ";true", "0", "", "3", "true", "*none", "*tcd", "", ""},
 			{"cgrates.org", "SQ_2", "", ";20", ";false", "14", "", "0", "false", "*none", "*asr", "", ""},
-			{"cgrates.org", "SQ_2", "", "", "", "0", "", "0", "false", "", "*tcd", "", ""},
-			{"cgrates.org", "SQ_2", "", "", "", "0", "", "0", "false", "", "*pdd", "", ""},
-			{"cgrates.org", "SQ_2", "", "", "", "0", "", "0", "false", "", "*tcc", "", ""},
-			{"cgrates.org", "SQ_2", "", "", "", "0", "", "0", "false", "", "*tcd", "", ""},
+			{"cgrates.org", "SQ_2", "", "", "", "", "", "", "", "", "*tcd", "", ""},
+			{"cgrates.org", "SQ_2", "", "", "", "", "", "", "", "", "*pdd", "", ""},
+			{"cgrates.org", "SQ_2", "", "", "", "", "", "", "", "", "*tcc", "", ""},
+			{"cgrates.org", "SQ_2", "", "", "", "", "", "", "", "", "*tcd", "", ""},
+			{"cgrates.org", "SQ_basic", "", ";10", ";true", "0", "", "3", "true", "*none", "*tcd", "", ""},
 		},
 		utils.ActionsCsv: {
 			{"#" + utils.Tenant, utils.ID, utils.FilterIDs,
@@ -1204,30 +1203,22 @@ func testTPeSExportTariffPlanAllTariffPlan(t *testing.T) {
 				utils.ActionType, utils.ActionOpts, utils.ActionWeights, utils.ActionBlockers,
 				utils.ActionDiktatsID, utils.ActionDiktatsFilterIDs, utils.ActionDiktatsOpts,
 				utils.ActionDiktatsWeights, utils.ActionDiktatsBlockers},
-			{"cgrates.org", "Execute_thd", "", ";20", "", "", "*thresholds", "THD_1", "actID", "", "0s", "*resetThreshold", "", "", "", "", "", "", "", ""},
-			{"cgrates.org", "SET_BAL", "*string:~*req.Account:1001", ";10", "", "*asap", "*accounts", "1001", "SET_BAL", "", "0s", "*setBalance", "", "", "", "SetBalMonetary10", "", "*balancePath:MONETARY;*balanceValue:10", "", ""},
+			{"cgrates.org", "Execute_thd", "", ";20", "", "", "*thresholds", "THD_1", "", "", "", "", "", "", "", "", "", "", "", ""},
+			{"cgrates.org", "Execute_thd", "", "", "", "", "", "", "actID", "", "", "*resetThreshold", "", "", "", "", "", "", "", ""},
+			{"cgrates.org", "SET_BAL", "*string:~*req.Account:1001", ";10", "", "*asap", "*accounts", "1001", "", "", "", "", "", "", "", "", "", "", "", ""},
+			{"cgrates.org", "SET_BAL", "", "", "", "", "", "", "SET_BAL", "", "", "*setBalance", "", "", "", "SetBalMonetary10", "", "*balancePath:MONETARY;*balanceValue:10", "", ""},
 		},
 		utils.ThresholdsCsv: {
 			{"#Tenant", "ID", "FilterIDs", "Weights", "MaxHits", "MinHits", "MinSleep", "Blocker", "AttributeIDs", "ActionProfileIDs", "Async", "EeIDs"},
-			{"cgrates.org", "TH_Stats1", "*string:~*req.Account:1010", ";10", "-1", "0", "1ms", "false", "", "LOG", "true", ""},
-			{"cgrates.org", "TH_Stats1", "*ai:~*req.AnswerTime:2014-07-14T14:35:00Z|2014-07-14T14:36:00Z", "", "0", "0", "", "false", "", "", "false", ""},
-			{"cgrates.org", "TH_Stats1", "*string:~*req.Destination:1011", "", "0", "0", "", "false", "", "", "false", ""},
 			{"cgrates.org", "THD_2", "*string:~*req.Account:1001", ";20", "7", "0", "", "false", "", "actPrfID", "true", ""},
+			{"cgrates.org", "TH_Stats1", "*string:~*req.Account:1010;*ai:~*req.AnswerTime:2014-07-14T14:35:00Z|2014-07-14T14:36:00Z;*string:~*req.Destination:1011", ";10", "-1", "0", "1ms", "false", "", "LOG", "true", ""},
 		},
 	}
 	expected[utils.RatesCsv] = csvRply[utils.RatesCsv]
 	expected[utils.AccountsCsv] = csvRply[utils.AccountsCsv]
 
 	if !reflect.DeepEqual(expected, csvRply) {
-		if !reflect.DeepEqual(csvRply[utils.ActionsCsv][2], []string{"cgrates.org", "SET_BAL", "*string:~*req.Account:1001", ";10", "", "*asap", "*accounts", "1001", "SET_BAL", "", "0s", "*setBalance", "", "", "", "SetBalMonetary10", "", "*balanceValue:10;*balancePath:MONETARY", "", ""}) {
-			t.Errorf("Expected %+v \n received %+v", utils.ToJSON(expected), utils.ToJSON(csvRply))
-		} else {
-			newCsvReply := csvRply[utils.ActionsCsv][:1]
-			newExpected := expected[utils.ActionsCsv][:1] // make sure the rest of the tariffs are equal
-			if !reflect.DeepEqual(newExpected, newCsvReply) {
-				t.Errorf("Expected %+v \n received %+v", utils.ToJSON(newExpected), utils.ToJSON(newCsvReply))
-			}
-		}
+		t.Errorf("Expected %+v \n received %+v", utils.ToJSON(expected), utils.ToJSON(csvRply))
 	}
 
 	// by giving an empty list of exportItems, this will do the same, it will get all the tariffplan in CSV format
@@ -1239,7 +1230,7 @@ func testTPeSExportTariffPlanAllTariffPlan(t *testing.T) {
 		t.Error(err)
 	}
 
-	rdr, err = zip.NewReader(bytes.NewReader(replyBts), int64(len(replyBts)))
+	rdr, err = zip.NewReader(bytes.NewReader(replyBts2), int64(len(replyBts2)))
 	if err != nil {
 		t.Error(err)
 	}
@@ -1260,15 +1251,7 @@ func testTPeSExportTariffPlanAllTariffPlan(t *testing.T) {
 	}
 	// expected will remain the same
 	if !reflect.DeepEqual(expected, csvRply) {
-		if !reflect.DeepEqual(csvRply[utils.ActionsCsv][2], []string{"cgrates.org", "SET_BAL", "*string:~*req.Account:1001", ";10", "", "*asap", "*accounts", "1001", "SET_BAL", "", "0s", "*setBalance", "", "", "", "SetBalMonetary10", "", "*balanceValue:10;*balancePath:MONETARY", "", ""}) {
-			t.Errorf("Expected %+v \n received %+v", utils.ToJSON(expected), utils.ToJSON(csvRply))
-		} else {
-			csvRply[utils.ActionsCsv][2] = nil
-			expected[utils.ActionsCsv][2] = nil // make sure the rest of the tariffs are equal
-			if !reflect.DeepEqual(expected, csvRply) {
-				t.Errorf("Expected %+v \n received %+v", utils.ToJSON(expected), utils.ToJSON(csvRply))
-			}
-		}
+		t.Errorf("Expected %+v \n received %+v", utils.ToJSON(expected), utils.ToJSON(csvRply))
 	}
 }
 
