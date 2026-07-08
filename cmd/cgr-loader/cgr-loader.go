@@ -23,13 +23,13 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
-	"time"
+	"path"
 
 	"github.com/cgrates/birpc/context"
 
 	"github.com/cgrates/cgrates/config"
 	"github.com/cgrates/cgrates/engine"
+	"github.com/cgrates/cgrates/loaders"
 	"github.com/cgrates/cgrates/utils"
 	"github.com/cgrates/rpcclient"
 )
@@ -288,17 +288,6 @@ func loadConfig() (ldrCfg *config.CGRConfig) {
 	return
 }
 
-func getLoader(cfg *config.CGRConfig) (engine.LoadReader, error) {
-	if gprefix := utils.MetaGoogleAPI + utils.ConcatenatedKeySep; strings.HasPrefix(*dataPath, gprefix) { // Default load from csv files to dataDb
-		return engine.NewGoogleCSVStorage(cfg.LoaderCgrCfg().FieldSeparator, strings.TrimPrefix(*dataPath, gprefix),
-			cfg.LoaderCgrCfg().GapiCredentials, cfg.LoaderCgrCfg().GapiToken)
-	}
-	if !utils.IsURL(*dataPath) {
-		return engine.NewFileCSVStorage(cfg.LoaderCgrCfg().FieldSeparator, *dataPath)
-	}
-	return engine.NewURLCSVStorage(cfg.LoaderCgrCfg().FieldSeparator, *dataPath, cfg.GeneralCfg().ReplyTimeout), nil
-}
-
 func main() {
 	var err error
 	if err = cgrLoaderFlags.Parse(os.Args[1:]); err != nil {
@@ -330,60 +319,64 @@ func main() {
 		log.Fatalf("Coud not open dataDB connection: %s", err.Error())
 	}
 	defer dataDB.Close()
-	var loader engine.LoadReader
-	if loader, err = getLoader(ldrCfg); err != nil {
-		log.Fatal(err)
-	}
+
 	dbcManager := engine.NewDBConnManager(map[string]engine.DataDB{
 		utils.MetaDefault: dataDB}, ldrCfg.DbCfg())
-	cacheS := engine.NewCacheS(ldrCfg, nil, cM, nil)
+	dm := engine.NewDataManager(dbcManager, ldrCfg, cM)
+	cacheS := engine.NewCacheS(ldrCfg, dm, cM, nil)
+	dm.SetCache(cacheS)
 	cM.SetCache(cacheS)
-	var tpReader *engine.TpReader
-	if tpReader, err = engine.NewTpReader(dbcManager, ldrCfg, loader,
-		ldrCfg.LoaderCgrCfg().TpID, ldrCfg.GeneralCfg().DefaultTimezone,
-		ldrCfg.LoaderCgrCfg().CachesConns,
-		ldrCfg.LoaderCgrCfg().ActionSConns, cacheS, cM); err != nil {
-		log.Fatal(err)
-	}
-	if err = tpReader.LoadAll(); err != nil {
-		log.Fatal(err)
-	}
+	fS := engine.NewFilterS(ldrCfg, cM, dm)
 
-	if *dryRun { // We were just asked to parse the data, not saving it
-		return
-	}
 	if *printConfig {
-		cfgJSON := utils.ToIJSON(ldrCfg.AsMapInterface())
-		log.Printf("Configuration loaded from %q:\n%s", *cfgPath, cfgJSON)
+		log.Printf("Configuration loaded from %q:\n%s", *cfgPath, utils.ToIJSON(ldrCfg.AsMapInterface()))
 	}
-	if *remove {
-		if err = tpReader.RemoveFromDatabase(*verbose, *disableReverse); err != nil {
-			log.Fatal("Could not delete from database: ", err)
-		}
+
+	// load the tariff plan through the loaders service
+	ldrSCfg := ldrCfg.LoaderCfg()[0]
+	ldrSCfg.Enabled = true
+	ldrSCfg.RunDelay = 0
+	ldrSCfg.LockFilePath = utils.MetaMemory
+	ldrSCfg.TpInDir = *dataPath
+	ldrSCfg.TpOutDir = ""
+	ldrSCfg.FieldSeparator = string(ldrCfg.LoaderCgrCfg().FieldSeparator)
+	ldrSCfg.Tenant = *tenant
+	ldrSCfg.Opts.WithIndex = true
+	ldrSCfg.Conns = map[string][]*config.DynamicConns{
+		utils.MetaCaches: {{ConnIDs: ldrCfg.LoaderCgrCfg().CachesConns}},
+	}
+	ldrSCfg.Action = utils.MetaStore
+	if *dryRun {
+		ldrSCfg.Action = utils.MetaParse
+	} else if *remove {
+		ldrSCfg.Action = utils.MetaRemove
+	}
+
+	stopOnError := true
+	if utils.IsURL(*dataPath) {
+		stopOnError = false
 	} else {
-		// write maps to database
-		if err = tpReader.WriteToDatabase(*verbose, *disableReverse); err != nil {
-			log.Fatal("Could not write to database: ", err)
+		// drop absent files so a partial tariff plan doesn't abort
+		present := make([]*config.LoaderDataType, 0, len(ldrSCfg.Data))
+		for _, d := range ldrSCfg.Data {
+			if _, err = os.Stat(path.Join(*dataPath, d.Filename)); err == nil {
+				present = append(present, d)
+			}
 		}
+		ldrSCfg.Data = present
 	}
 
-	// delay if needed before cache reload
-	if *verbose && ldrCfg.GeneralCfg().CachingDelay != 0 {
-		log.Printf("Delaying cache reload for %v", ldrCfg.GeneralCfg().CachingDelay)
-		time.Sleep(ldrCfg.GeneralCfg().CachingDelay)
-	}
-
-	// reload cache
-	if err = tpReader.ReloadCache(context.Background(), ldrCfg.GeneralCfg().DefaultCaching, *verbose, map[string]any{
-		utils.OptsAPIKey:  *apiKey,
-		utils.OptsRouteID: *routeID,
-	}, *tenant); err != nil {
-		log.Fatal("Could not reload cache: ", err)
-	}
-
-	if len(ldrCfg.LoaderCgrCfg().ActionSConns) != 0 {
-		if err = tpReader.ReloadScheduler(*verbose); err != nil {
-			log.Fatal("Could not reload scheduler: ", err)
-		}
+	ldrS := loaders.NewLoaderS(ldrCfg, dm, fS, cM)
+	var rply string
+	if err = ldrS.V1Run(context.Background(), &loaders.ArgsProcessFolder{
+		Path: *dataPath,
+		APIOpts: map[string]any{
+			utils.MetaForceLock:   true,
+			utils.MetaStopOnError: stopOnError,
+			utils.OptsAPIKey:      *apiKey,
+			utils.OptsRouteID:     *routeID,
+		},
+	}, &rply); err != nil {
+		log.Fatal("Could not load tariff plan: ", err)
 	}
 }
