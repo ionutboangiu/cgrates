@@ -1069,48 +1069,6 @@ func (tpr *TpReader) ReloadCache(ctx *context.Context, caching string, verbose b
 	return
 }
 
-// CallCache call the cache reload after data load
-func CallCache(connMgr *ConnManager, ctx *context.Context, cacheConns []string, caching string, args map[string][]string, cacheIDs []string, opts map[string]any, verbose bool, tenant string) (err error) {
-	var method, reply string
-	var cacheArgs any = utils.NewAttrReloadCacheWithOptsFromMap(args, tenant, opts)
-	switch caching {
-	case utils.MetaNone:
-		return
-	case utils.MetaReload:
-		method = utils.CacheSv1ReloadCache
-	case utils.MetaLoad:
-		method = utils.CacheSv1LoadCache
-	case utils.MetaRemove:
-		method = utils.CacheSv1RemoveItems
-	case utils.MetaClear:
-		method = utils.CacheSv1Clear
-		cacheArgs = &utils.AttrCacheIDsWithAPIOpts{APIOpts: opts, Tenant: tenant}
-	}
-	if verbose {
-		log.Print("Reloading cache")
-	}
-
-	if err = connMgr.Call(ctx, cacheConns, method, cacheArgs, &reply); err != nil {
-		return
-	}
-
-	if len(cacheIDs) != 0 {
-		if verbose {
-			log.Print("Clearing indexes")
-		}
-		if err = connMgr.Call(ctx, cacheConns, utils.CacheSv1Clear, &utils.AttrCacheIDsWithAPIOpts{
-			APIOpts:  opts,
-			CacheIDs: cacheIDs,
-			Tenant:   tenant,
-		}, &reply); err != nil {
-			if verbose {
-				log.Printf("WARNING: Got error on cache clear: %s\n", err.Error())
-			}
-		}
-	}
-	return
-}
-
 func (tpr *TpReader) ReloadScheduler(verbose bool) (err error) { // ToDoNext: add reload to new actions
 	// var reply string
 	// aps, _ := tpr.GetLoadedIds(utils.ActionPlanPrefix)

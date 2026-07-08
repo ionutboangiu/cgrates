@@ -21,6 +21,9 @@ package engine
 import (
 	"bytes"
 	"errors"
+	"fmt"
+	"log"
+	"os"
 	"reflect"
 	"regexp"
 	"strings"
@@ -1276,4 +1279,340 @@ func TestCacheSCommitTransaction(t *testing.T) {
 	// executes the actions in a transaction buffer
 	cacheS.CommitTransaction(tranId)
 
+}
+
+func TestCallCacheNoCaching(t *testing.T) {
+	defaultCfg := config.NewDefaultCGRConfig()
+	cacheS := NewCacheS(defaultCfg, nil, nil, nil)
+	cM := NewConnManager(defaultCfg)
+	cM.SetCache(cacheS)
+	args := map[string][]string{
+		utils.CacheFilters:   {"cgrates.org:FLTR_ID1", "cgrates.org:FLTR_ID2"},
+		utils.CacheResources: {},
+	}
+	opts := map[string]any{
+		utils.MetaSubsys: utils.MetaChargers,
+	}
+	ctx := context.Background()
+
+	err := CallCache(cM, ctx, []string{}, utils.MetaNone, args, []string{}, opts, true, "cgrates.org")
+
+	if err != nil {
+		t.Error(err)
+	}
+
+}
+
+func TestCallCacheReloadCacheFirstCallErr(t *testing.T) {
+	defaultCfg := config.NewDefaultCGRConfig()
+	cacheS := NewCacheS(defaultCfg, nil, nil, nil)
+	cacheConns := []string{"cacheConn1"}
+	client := make(chan birpc.ClientConnector, 1)
+	mCC := &ccMock{
+		calls: map[string]func(_ *context.Context, args any, reply any) error{
+			utils.CacheSv1ReloadCache: func(_ *context.Context, args, reply any) error {
+				expArgs := &utils.AttrReloadCacheWithAPIOpts{
+					APIOpts: map[string]any{
+						utils.MetaSubsys: utils.MetaChargers,
+					},
+					FilterIDs: []string{"cgrates.org:FLTR_ID1", "cgrates.org:FLTR_ID2"},
+					Tenant:    "cgrates.org",
+				}
+
+				if !reflect.DeepEqual(args, expArgs) {
+					return fmt.Errorf(
+						"\nWrong value of args: \nexpected: <%+v>, \nreceived: <%+v>",
+						utils.ToJSON(expArgs), utils.ToJSON(args),
+					)
+				}
+				return utils.ErrUnsupporteServiceMethod
+			},
+		},
+	}
+	client <- mCC
+
+	cM := NewConnManager(defaultCfg)
+	cM.SetCache(cacheS)
+	cM.AddInternalConn("cacheConn1", "", client)
+	caching := utils.MetaReload
+	args := map[string][]string{
+		utils.CacheFilters: {"cgrates.org:FLTR_ID1", "cgrates.org:FLTR_ID2"},
+	}
+	cacheIDs := []string{}
+	opts := map[string]any{
+		utils.MetaSubsys: utils.MetaChargers,
+	}
+	ctx := context.Background()
+
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	defer func() {
+		log.SetOutput(os.Stderr)
+	}()
+
+	explog := "Reloading cache\n"
+	experr := utils.ErrUnsupporteServiceMethod
+	err := CallCache(cM, ctx, cacheConns, caching, args, cacheIDs, opts, true, "cgrates.org")
+
+	if err == nil || err != experr {
+		t.Errorf("\nexpected: <%+v>, \nreceived: <%+v>", experr, err)
+	}
+
+	rcvlog := buf.String()[20:]
+	if rcvlog != explog {
+		t.Errorf("\nexpected: <%+v>, \nreceived: <%+v>", explog, rcvlog)
+	}
+}
+
+func TestCallCacheReloadCacheSecondCallErr(t *testing.T) {
+	defaultCfg := config.NewDefaultCGRConfig()
+	cacheS := NewCacheS(defaultCfg, nil, nil, nil)
+	cacheConns := []string{"cacheConn1"}
+	client := make(chan birpc.ClientConnector, 1)
+	mCC := &ccMock{
+		calls: map[string]func(_ *context.Context, args any, reply any) error{
+			utils.CacheSv1ReloadCache: func(_ *context.Context, args, reply any) error {
+				return nil
+			},
+			utils.CacheSv1Clear: func(_ *context.Context, args, reply any) error {
+				expArgs := &utils.AttrCacheIDsWithAPIOpts{
+					APIOpts: map[string]any{
+						utils.MetaSubsys: utils.MetaChargers,
+					},
+					CacheIDs: []string{"cacheID"},
+					Tenant:   "cgrates.org",
+				}
+
+				if !reflect.DeepEqual(args, expArgs) {
+					return fmt.Errorf(
+						"\nWrong value of args: \nexpected: <%+v>, \nreceived: <%+v>",
+						expArgs, args,
+					)
+				}
+				return utils.ErrUnsupporteServiceMethod
+			},
+		},
+	}
+	client <- mCC
+
+	cM := NewConnManager(defaultCfg)
+	cM.SetCache(cacheS)
+	cM.AddInternalConn("cacheConn1", "", client)
+	caching := utils.MetaReload
+	args := map[string][]string{
+		utils.CacheFilters: {"cgrates.org:FLTR_ID1", "cgrates.org:FLTR_ID2"},
+	}
+	cacheIDs := []string{"cacheID"}
+	opts := map[string]any{
+		utils.MetaSubsys: utils.MetaChargers,
+	}
+	ctx := context.Background()
+
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	defer func() {
+		log.SetOutput(os.Stderr)
+	}()
+
+	explog1 := "Reloading cache"
+	explog2 := "Clearing indexes"
+	experr := utils.ErrUnsupporteServiceMethod
+	explog3 := fmt.Sprintf("WARNING: Got error on cache clear: %s\n", experr)
+	err := CallCache(cM, ctx, cacheConns, caching, args, cacheIDs, opts, true, "cgrates.org")
+
+	if err == nil || err != experr {
+		t.Errorf("\nexpected: <%+v>, \nreceived: <%+v>", experr, err)
+	}
+
+	rcvlog1 := buf.String()[20 : 20+len(explog1)]
+	if rcvlog1 != explog1 {
+		t.Errorf("\nexpected: <%+v>, \nreceived: <%+v>", explog1, rcvlog1)
+	}
+
+	rcvlog2 := buf.String()[41+len(rcvlog1) : 41+len(rcvlog1)+len(explog2)]
+	if rcvlog2 != explog2 {
+		t.Errorf("\nexpected: <%+v>, \nreceived: <%+v>", explog2, rcvlog2)
+	}
+
+	rcvlog3 := buf.String()[62+len(rcvlog1)+len(explog2):]
+	if rcvlog3 != explog3 {
+		t.Errorf("\nexpected: <%+v>, \nreceived: <%+v>", explog3, rcvlog3)
+	}
+}
+
+func TestCallCacheLoadCache(t *testing.T) {
+	defaultCfg := config.NewDefaultCGRConfig()
+	cacheS := NewCacheS(defaultCfg, nil, nil, nil)
+	cacheConns := []string{"cacheConn1"}
+	client := make(chan birpc.ClientConnector, 1)
+	mCC := &ccMock{
+		calls: map[string]func(_ *context.Context, args any, reply any) error{
+			utils.CacheSv1LoadCache: func(_ *context.Context, args, reply any) error {
+				expArgs := &utils.AttrReloadCacheWithAPIOpts{
+					APIOpts: map[string]any{
+						utils.MetaSubsys: utils.MetaChargers,
+					},
+					FilterIDs: []string{"cgrates.org:FLTR_ID1", "cgrates.org:FLTR_ID2"},
+					Tenant:    "cgrates.org",
+				}
+
+				if !reflect.DeepEqual(args, expArgs) {
+					return fmt.Errorf(
+						"\nWrong value of args: \nexpected: <%+v>, \nreceived: <%+v>",
+						expArgs, args,
+					)
+				}
+				return nil
+			},
+			utils.CacheSv1Clear: func(_ *context.Context, args, reply any) error {
+				expArgs := &utils.AttrCacheIDsWithAPIOpts{
+					APIOpts: map[string]any{
+						utils.MetaSubsys: utils.MetaChargers,
+					},
+					CacheIDs: []string{"cacheID"},
+					Tenant:   "cgrates.org",
+				}
+
+				if !reflect.DeepEqual(args, expArgs) {
+					return fmt.Errorf(
+						"\nWrong value of args: \nexpected: <%+v>, \nreceived: <%+v>",
+						expArgs, args,
+					)
+				}
+				return nil
+			},
+		},
+	}
+	client <- mCC
+
+	cM := NewConnManager(defaultCfg)
+	cM.SetCache(cacheS)
+	cM.AddInternalConn("cacheConn1", "", client)
+	caching := utils.MetaLoad
+	args := map[string][]string{
+		utils.CacheFilters: {"cgrates.org:FLTR_ID1", "cgrates.org:FLTR_ID2"},
+	}
+	cacheIDs := []string{"cacheID"}
+	opts := map[string]any{
+		utils.MetaSubsys: utils.MetaChargers,
+	}
+	ctx := context.Background()
+
+	err := CallCache(cM, ctx, cacheConns, caching, args, cacheIDs, opts, false, "cgrates.org")
+
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestCallCacheRemoveItems(t *testing.T) {
+	defaultCfg := config.NewDefaultCGRConfig()
+	cacheS := NewCacheS(defaultCfg, nil, nil, nil)
+	cacheConns := []string{"cacheConn1"}
+	client := make(chan birpc.ClientConnector, 1)
+	mCC := &ccMock{
+		calls: map[string]func(_ *context.Context, args any, reply any) error{
+			utils.CacheSv1RemoveItems: func(_ *context.Context, args, reply any) error {
+				expArgs := &utils.AttrReloadCacheWithAPIOpts{
+					APIOpts: map[string]any{
+						utils.MetaSubsys: utils.MetaChargers,
+					},
+					FilterIDs: []string{"cgrates.org:FLTR_ID1", "cgrates.org:FLTR_ID2"},
+					Tenant:    "cgrates.org",
+				}
+
+				if !reflect.DeepEqual(args, expArgs) {
+					return fmt.Errorf(
+						"\nWrong value of args: \nexpected: <%+v>, \nreceived: <%+v>",
+						expArgs, args,
+					)
+				}
+				return nil
+			},
+			utils.CacheSv1Clear: func(_ *context.Context, args, reply any) error {
+				expArgs := &utils.AttrCacheIDsWithAPIOpts{
+					APIOpts: map[string]any{
+						utils.MetaSubsys: utils.MetaChargers,
+					},
+					CacheIDs: []string{"cacheID"},
+					Tenant:   "cgrates.org",
+				}
+
+				if !reflect.DeepEqual(args, expArgs) {
+					return fmt.Errorf(
+						"\nWrong value of args: \nexpected: <%+v>, \nreceived: <%+v>",
+						expArgs, args,
+					)
+				}
+				return nil
+			},
+		},
+	}
+	client <- mCC
+
+	cM := NewConnManager(defaultCfg)
+	cM.SetCache(cacheS)
+	cM.AddInternalConn("cacheConn1", "", client)
+	caching := utils.MetaRemove
+	args := map[string][]string{
+		utils.CacheFilters: {"cgrates.org:FLTR_ID1", "cgrates.org:FLTR_ID2"},
+	}
+	cacheIDs := []string{"cacheID"}
+	opts := map[string]any{
+		utils.MetaSubsys: utils.MetaChargers,
+	}
+	ctx := context.Background()
+
+	err := CallCache(cM, ctx, cacheConns, caching, args, cacheIDs, opts, false, "cgrates.org")
+
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestCallCacheClear(t *testing.T) {
+	defaultCfg := config.NewDefaultCGRConfig()
+	cacheS := NewCacheS(defaultCfg, nil, nil, nil)
+	cacheConns := []string{"cacheConn1"}
+	client := make(chan birpc.ClientConnector, 1)
+	mCC := &ccMock{
+		calls: map[string]func(_ *context.Context, args any, reply any) error{
+			utils.CacheSv1Clear: func(_ *context.Context, args, reply any) error {
+				expArgs := &utils.AttrCacheIDsWithAPIOpts{
+					APIOpts: map[string]any{
+						utils.MetaSubsys: utils.MetaChargers,
+					},
+					Tenant: "cgrates.org",
+				}
+
+				if !reflect.DeepEqual(args, expArgs) {
+					return fmt.Errorf(
+						"\nWrong value of args: \nexpected: <%+v>, \nreceived: <%+v>",
+						expArgs, args,
+					)
+				}
+				return nil
+			},
+		},
+	}
+	client <- mCC
+
+	cM := NewConnManager(defaultCfg)
+	cM.SetCache(cacheS)
+	cM.AddInternalConn("cacheConn1", "", client)
+	caching := utils.MetaClear
+	args := map[string][]string{
+		utils.CacheFilters: {"cgrates.org:FLTR_ID1", "cgrates.org:FLTR_ID2"},
+	}
+	cacheIDs := []string{}
+	opts := map[string]any{
+		utils.MetaSubsys: utils.MetaChargers,
+	}
+	ctx := context.Background()
+
+	err := CallCache(cM, ctx, cacheConns, caching, args, cacheIDs, opts, false, "cgrates.org")
+
+	if err != nil {
+		t.Error(err)
+	}
 }
