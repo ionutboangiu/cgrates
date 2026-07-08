@@ -22,6 +22,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"io"
+	"slices"
 	"time"
 
 	"github.com/cgrates/birpc/context"
@@ -71,6 +72,7 @@ func getTariffPlansKeys(ctx *context.Context, dm *engine.DataManager, tenant, ex
 	for _, key := range dbKeys {
 		profileIDs = append(profileIDs, key[len(prefix):])
 	}
+	slices.Sort(profileIDs)
 	return
 }
 
