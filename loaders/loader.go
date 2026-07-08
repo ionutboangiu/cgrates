@@ -332,6 +332,15 @@ func (l *loader) getCfg(fileName string) (cfg *config.LoaderDataType) {
 	return nil
 }
 
+// orderedData moves the leading filters to the end on remove so referencing profiles go first.
+func (l *loader) orderedData() []*config.LoaderDataType {
+	data := l.ldrCfg.Data
+	if l.ldrCfg.Action != utils.MetaRemove || len(data) == 0 || data[0].Type != utils.MetaFilters {
+		return data
+	}
+	return append(slices.Clone(data[1:]), data[0])
+}
+
 func (l *loader) processIFile(fileName string) (err error) {
 	cfg := l.getCfg(fileName)
 	if cfg == nil {
@@ -364,7 +373,7 @@ func (l *loader) processFolder(ctx *context.Context, inPath string, opts map[str
 	case utils.IsURL(inPath):
 		csvType = urlProvider{cfg: l.cfg}
 	}
-	for _, cfg := range l.ldrCfg.Data {
+	for _, cfg := range l.orderedData() {
 		if err = l.processFile(ctx, cfg, inPath, l.ldrCfg.TpOutDir, l.ldrCfg.Action, opts, withIndex, csvType); err != nil {
 			if !stopOnError {
 				utils.Logger.Warning(fmt.Sprintf("<%s-%s> loaderType: <%s> cannot open files, err: %s",
@@ -431,7 +440,7 @@ func (l *loader) processZip(ctx *context.Context, opts map[string]any, withIndex
 	}
 	defer l.Unlock()
 	ziP := zipProvider{zipR}
-	for _, cfg := range l.ldrCfg.Data {
+	for _, cfg := range l.orderedData() {
 		if err = l.processFile(ctx, cfg, l.ldrCfg.TpInDir, l.ldrCfg.TpOutDir, l.ldrCfg.Action, opts, withIndex, ziP); err != nil {
 			if !stopOnError {
 				utils.Logger.Warning(fmt.Sprintf("<%s-%s> loaderType: <%s> cannot open files, err: %s",
