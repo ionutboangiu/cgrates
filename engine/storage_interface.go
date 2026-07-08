@@ -126,46 +126,6 @@ type DBDriver interface {
 	config.ConfigDB
 }
 
-type LoadStorage interface {
-	Storage
-	LoadReader
-	LoadWriter
-}
-
-// LoadReader reads from .csv or TP tables and provides the data ready for the tp_db or data_db.
-type LoadReader interface {
-	GetTpIds(string) ([]string, error)
-	GetTpTableIds(string, string, []string,
-		map[string]string, *utils.PaginatorWithSearch) ([]string, error)
-	GetTPResources(string, string, string) ([]*utils.TPResourceProfile, error)
-	GetTPIPs(string, string, string) ([]*utils.TPIPProfile, error)
-	GetTPStats(string, string, string) ([]*utils.TPStatProfile, error)
-	GetTPRankings(tpid, tenant, id string) ([]*utils.TPRankingProfile, error)
-	GetTPTrends(tpid, tenant, id string) ([]*utils.TPTrendsProfile, error)
-	GetTPThresholds(string, string, string) ([]*utils.TPThresholdProfile, error)
-	GetTPFilters(string, string, string) ([]*utils.TPFilterProfile, error)
-	GetTPRoutes(string, string, string) ([]*utils.TPRouteProfile, error)
-	GetTPAttributes(string, string, string) ([]*utils.TPAttributeProfile, error)
-	GetTPChargers(string, string, string) ([]*utils.TPChargerProfile, error)
-	GetTPRateProfiles(string, string, string) ([]*utils.TPRateProfile, error)
-	GetTPActionProfiles(string, string, string) ([]*utils.TPActionProfile, error)
-	GetTPAccounts(string, string, string) ([]*utils.TPAccount, error)
-}
-
-type LoadWriter interface {
-	RemTpData(string, string, map[string]string) error
-	SetTPResources([]*utils.TPResourceProfile) error
-	SetTPStats([]*utils.TPStatProfile) error
-	SetTPThresholds([]*utils.TPThresholdProfile) error
-	SetTPFilters([]*utils.TPFilterProfile) error
-	SetTPRoutes([]*utils.TPRouteProfile) error
-	SetTPAttributes([]*utils.TPAttributeProfile) error
-	SetTPChargers([]*utils.TPChargerProfile) error
-	SetTPRateProfiles([]*utils.TPRateProfile) error
-	SetTPActionProfiles([]*utils.TPActionProfile) error
-	SetTPAccounts([]*utils.TPAccount) error
-}
-
 // Decide the value of cacheCommit parameter based on transactionID
 func cacheCommit(transactionID string) bool {
 	return transactionID == utils.NonTransactional

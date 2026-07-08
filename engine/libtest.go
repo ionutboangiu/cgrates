@@ -165,31 +165,6 @@ func StopStartEngine(cfgPath string, waitEngine int) (*exec.Cmd, error) {
 	return StartEngine(cfgPath, waitEngine)
 }
 
-func LoadTariffPlanFromFolder(tpPath, timezone string, dm *DataManager, disableReverse bool,
-	cacheConns, schedConns []string) error {
-	csvStorage, err := NewFileCSVStorage(utils.CSVSep, tpPath)
-	if err != nil {
-		return utils.NewErrServerError(err)
-	}
-	dataDBs := make(map[string]DataDB, len(dm.DB()))
-	for connID, dataDB := range dm.DB() {
-		dataDBs[connID] = dataDB
-	}
-	dbcManager := NewDBConnManager(dataDBs, dm.cfg.DbCfg())
-	loader, err := NewTpReader(dbcManager, dm.cfg, csvStorage, "",
-		timezone, cacheConns, schedConns, dm.cache, nil)
-	if err != nil {
-		return utils.NewErrServerError(err)
-	}
-	if err := loader.LoadAll(); err != nil {
-		return utils.NewErrServerError(err)
-	}
-	if err := loader.WriteToDatabase(false, disableReverse); err != nil {
-		return utils.NewErrServerError(err)
-	}
-	return nil
-}
-
 type PjsuaAccount struct {
 	ID, Username, Password, Realm, Registrar string
 }
