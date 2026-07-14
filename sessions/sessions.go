@@ -978,17 +978,14 @@ func (sS *SessionS) setSession(ctx *context.Context, cgrEv *utils.CGREvent,
 	}
 	var interimConsumed *utils.Decimal
 	if iCsmd, has := cch[utils.MetaInterimConsumed]; has {
-		interimBig, _ := utils.IfaceAsBig(iCsmd)
-		interimConsumed = utils.NewDecimalFromBig(interimBig)
+		interimConsumed, _ = utils.IfaceAsDecimal(iCsmd)
 	}
 	var interimUsage *utils.Decimal
 	if hasInterimUsage {
-		interimBig, _ := utils.IfaceAsBig(cch[utils.MetaInterimUsage])
-		interimUsage = utils.NewDecimalFromBig(interimBig)
+		interimUsage, _ = utils.IfaceAsDecimal(cch[utils.MetaInterimUsage])
 	}
 	var totalUsage *utils.Decimal
-	totalBig, _ := utils.IfaceAsBig(cch[utils.MetaTotalUsage])
-	totalUsage = utils.NewDecimalFromBig(totalBig)
+	totalUsage, _ = utils.IfaceAsDecimal(cch[utils.MetaTotalUsage])
 	if err = s.updateSRunUsages(interimConsumed, interimUsage, totalUsage); err != nil {
 		return
 	}

@@ -226,7 +226,7 @@ func testHttpSsSessionStart(t *testing.T) {
 }
 
 func testHttpSsSessionUpdate1(t *testing.T) {
-	reqUrl := fmt.Sprintf("http://localhost:2080%s?requestType=SessionUpdate&imsi=2343000000000123&sessionID=uuidTestHttpSs&usedUnits=50000",
+	reqUrl := fmt.Sprintf("http://localhost:2080%s?requestType=SessionUpdate&imsi=2343000000000123&sessionID=uuidTestHttpSs&usedUnits=40000",
 		httpSsCfg.HTTPAgentCfg()[0].URL)
 	rply, err := httpSsClnt.Get(reqUrl)
 	if err != nil {
@@ -253,7 +253,7 @@ func testHttpSsSessionUpdate1(t *testing.T) {
 		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "2343000000000123"}},
 		&acnt); err != nil {
 		t.Fatalf("GetAccount: %v", err)
-	} else if acnt.Balances["DATA1"].Units.Compare(utils.NewDecimalFromFloat64(900*1000)) != 0 {
+	} else if acnt.Balances["DATA1"].Units.Compare(utils.NewDecimalFromFloat64(910*1000)) != 0 {
 		t.Error(fmt.Sprintf("Received account: %+v", acnt))
 	}
 }

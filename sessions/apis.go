@@ -1309,11 +1309,16 @@ func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 				s.sRuns[runID].Charges = append(s.sRuns[runID].Charges, acntCost)
 				s.lk.Unlock()
 			}
-			maxDur, _ := acntCost.Abstracts.Duration()
+			acntDbt := acntCost.Abstracts
+			if s != nil && s.LocalDebit != nil {
+				acntDbt = utils.SumDecimal(acntDbt, s.LocalDebit)
+			}
+			maxDur, _ := acntDbt.Duration()
 			if apiRply.AccountSUsage == nil {
 				apiRply.AccountSUsage = make(map[string]time.Duration)
 			}
 			apiRply.AccountSUsage[runID] = maxDur
+
 		}
 		// UsageRecords generation
 		if ees, errEEs := engine.GetBoolOpts(ctx, apiArgs.Tenant, apiArgs.AsDataProvider(), cchEv,
