@@ -77,7 +77,6 @@ type Session struct {
 	ClientConnID   string          // connection ID towards the client so we can recover from passive
 
 	InterimUsage       *utils.Decimal // last requested Usage
-	LocalDebit         *utils.Decimal // last adjustment done, treated as local debit
 	UsageAdjustment    *utils.Decimal // holds the extra usage either negative (ie. correction from consumed) or positive (ie. from roundingIncrements or correction)
 	TotalUsage         *utils.Decimal // sum of InterimUsage
 	AutoChargeInterval time.Duration  // Enable auto-charging
@@ -88,7 +87,8 @@ type Session struct {
 
 	lk          sync.RWMutex
 	debitStop   chan struct{}
-	sTerminator *sTerminator // automatic timeout for the session
+	sTerminator *sTerminator   // automatic timeout for the session
+	localDebit  *utils.Decimal // last positive adjustment done, treated as local debit
 }
 
 // Clone is a thread safe method to clone the sessions information
@@ -252,29 +252,29 @@ func (s *Session) updateSRunUsages(interimConsumed, interimUsage, totalUsage *ut
 	if interimUsage != nil {
 		usage = interimUsage
 	}
+
 	// corect the UsageAdjustment out of consumed
 	if interimConsumed != nil && s.InterimUsage != nil { // correct if InterimUsage was previously recorded
 		diffUsage := utils.SubstractDecimal(s.InterimUsage, interimConsumed)
-		utils.Logger.Info(fmt.Sprintf("### calculating diffUsage: %s out of interimConsumed: %s and s.InterimUsage: %s\n", diffUsage, interimConsumed, s.InterimUsage))
-		if diffCmp := diffUsage.Compare(utils.NewDecimal(0, 0)); diffCmp != 0 {
-			if diffCmp == 1 { // InterimUsage higher than interimConsumed, local debit
-				s.LocalDebit = diffUsage
-			}
+		if diffUsage.Compare(utils.NewDecimal(0, 0)) != 0 {
 			s.UsageAdjustment = utils.SumDecimal(s.UsageAdjustment, diffUsage)
 			s.TotalUsage = utils.SumDecimal(utils.SubstractDecimal(s.TotalUsage, s.InterimUsage), interimConsumed)
 			s.InterimUsage = interimConsumed // no real effect, just for correctness
 		}
 	}
+
 	// Appying UsageAdjustment to Usage
 	if s.UsageAdjustment != nil && s.UsageAdjustment.Compare(utils.NewDecimal(0, 0)) != 0 {
 		usage = utils.SubstractDecimal(usage, s.UsageAdjustment)
+		s.localDebit = s.UsageAdjustment
+		s.UsageAdjustment = utils.NewDecimal(0, 0) // have consumed all out of UsageAdjustment
 		utils.Logger.Info(fmt.Sprintf("### Calculating usage, got UsageAdjustment: %s, usage: %s\n", s.UsageAdjustment, usage))
 	}
 	if usage.Compare(utils.NewDecimal(0, 0)) == -1 { // debit was done out of UsageAdjustment, no need of further debit
-		s.UsageAdjustment = utils.AbsoluteDecimal(usage)
+		s.UsageAdjustment = utils.AbsoluteDecimal(usage) // put back the extra units for next debit
 		utils.Logger.Info(fmt.Sprintf("### Usage smaller than 0, UsageAdjustment: %s, usage: %s, compare: %+v\n", s.UsageAdjustment, usage, usage.Compare(utils.NewDecimal(0, 0))))
 		usage = utils.NewDecimal(0, 0)
-		s.LocalDebit = nil
+		s.localDebit = utils.SubstractDecimal(s.localDebit, s.UsageAdjustment) // correct the localDebit
 	}
 	// Save the interim and totalUsage
 	s.InterimUsage = interimUsage

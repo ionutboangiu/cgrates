@@ -247,6 +247,12 @@ func testHttpSsSessionUpdate1(t *testing.T) {
 		t.Error(err)
 	} else if len(aSessions) != 1 {
 		t.Errorf("Unexpected number of sessions received: %+v", aSessions)
+	} else if *aSessions[0].InterimUsage != 50000 {
+		t.Errorf("Unexpected InterimUsage in session: %+v", aSessions[0])
+	} else if *aSessions[0].UsageAdjustment != 0 {
+		t.Errorf("Unexpected UsageAdjustment in session: %+v", aSessions[0])
+	} else if *aSessions[0].TotalUsage != 90000 {
+		t.Errorf("Unexpected TotalUsage in session: %+v", aSessions[0])
 	}
 	var acnt utils.Account
 	if err := httpSsRPC.Call(context.Background(), utils.AdminSv1GetAccount,
