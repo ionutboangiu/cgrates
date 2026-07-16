@@ -337,6 +337,7 @@ type V1ProcessEventReply struct {
 	StatQueueIDs       map[string][]string                      `json:",omitempty"`
 	STIRIdentity       map[string]string                        `json:",omitempty"`
 	EventExporters     map[string][]string                      `json:",omitempty"`
+	UsageRecords       map[string]*utils.CGREvent               `json:",omitempty"`
 }
 
 // AsNavigableMap is part of engine.NavigableMapper interface

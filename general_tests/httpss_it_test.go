@@ -59,8 +59,8 @@ var (
 		testHttpSsSessionStart,
 		testHttpSsSessionUpdate1,
 		testHttpSsSessionUpdate2,
+		testHttpSsTerminate,
 		testHttpSsStopEngine,
-		//testHttpSsTerminate,
 	}
 )
 
@@ -311,7 +311,7 @@ func testHttpSsTerminate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	eRply := "MaxDuration=60"
+	eRply := "MaxUsage=50000"
 	if rply, err := io.ReadAll(rply.Body); err != nil {
 		t.Error(err)
 	} else if strings.HasPrefix(string(rply), "Error") {
@@ -320,7 +320,13 @@ func testHttpSsTerminate(t *testing.T) {
 		t.Errorf("expecting: %q, received: %q", eRply, rply)
 	}
 	rply.Body.Close()
-	// 	time.Sleep(time.Millisecond)
+	var aSessions []*sessions.ExternalSession
+	if err := httpSsRPC.Call(context.Background(), utils.SessionSv1GetActiveSessions,
+		utils.SessionFilter{}, &aSessions); err == nil || err.Error() != utils.NotFoundCaps {
+		t.Error(err)
+	} else if len(aSessions) != 0 {
+		t.Errorf("Unexpected number of sessions received: %+v", aSessions)
+	}
 }
 
 func testHttpSsStopEngine(t *testing.T) {

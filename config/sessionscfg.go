@@ -118,6 +118,7 @@ type SessionsOpts struct {
 	AutoChargeInterval     []*DynamicDurationOpt
 	EEs                    []*DynamicBoolOpt
 	EEsIDs                 []*DynamicStringOpt
+	UR                     []*DynamicBoolOpt // UsageRecord generation
 }
 
 // SessionSCfg is the config section for SessionS

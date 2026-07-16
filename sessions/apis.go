@@ -938,15 +938,6 @@ func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 		cgrEvs = s.asCGREventsMap() // inherit session events to process
 	}
 
-	// extracting *terminate informs if the event should be attached to a session so we do not fork later
-	if terminateBool, errBool := engine.GetBoolOpts(ctx, apiArgs.Tenant, apiArgs.AsDataProvider(), cch,
-		sS.fltrS, sS.cfg.SessionSCfg().Opts.Terminate,
-		utils.MetaTerminate); errBool != nil {
-		return errBool
-	} else {
-		cch[utils.MetaTerminate] = terminateBool
-	}
-
 	// ChargerS will multiply/alter the event before any auth/accounting/cdr taking place
 	if chrgS, errChrg := engine.GetBoolOpts(ctx, apiArgs.Tenant, apiArgs.AsDataProvider(), cch,
 		sS.fltrS, sS.cfg.SessionSCfg().Opts.Chargers,
@@ -1320,7 +1311,44 @@ func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 			apiRply.AccountSUsage[runID] = maxDur
 
 		}
+
+	}
+	// extracting *terminate informs if the event should be attached to a session so we do not fork later
+	if terminateBool, errBool := engine.GetBoolOpts(ctx, apiArgs.Tenant, apiArgs.AsDataProvider(), cch,
+		sS.fltrS, sS.cfg.SessionSCfg().Opts.Terminate,
+		utils.MetaTerminate); errBool != nil {
+		return errBool
+	} else {
+		cch[utils.MetaTerminate] = terminateBool
+	}
+	if utils.OptAsBool(cch, utils.MetaTerminate) && s != nil {
+		if errTerminate := sS.terminateSessionNew(ctx, s); errTerminate != nil {
+			return errTerminate
+		}
+	}
+
+	for runID, cgrEv := range cgrEvs { // need to run here in the eventuality of terminate being called
+		cchEv := make(map[string]any)
+
 		// UsageRecords generation
+		if ur, errUR := engine.GetBoolOpts(ctx, apiArgs.Tenant, apiArgs.AsDataProvider(), cchEv,
+			sS.fltrS, sS.cfg.SessionSCfg().Opts.UR,
+			utils.MetaUR); errUR != nil {
+			if utils.OptAsBool(cch, utils.OptsSesBlockerError) {
+				return errUR
+			}
+			withErrors = true
+			utils.Logger.Warning(
+				fmt.Sprintf("<%s> error: %s processing event: %+v flag for %s",
+					utils.SessionS, errUR.Error(), cgrEv, utils.MetaUR))
+		} else if ur {
+			if apiRply.UsageRecords == nil {
+				apiRply.UsageRecords = make(map[string]*utils.CGREvent)
+			}
+			apiRply.UsageRecords[runID] = cgrEv
+		}
+
+		// Event Exports
 		if ees, errEEs := engine.GetBoolOpts(ctx, apiArgs.Tenant, apiArgs.AsDataProvider(), cchEv,
 			sS.fltrS, sS.cfg.SessionSCfg().Opts.EEs,
 			utils.MetaEEs); errEEs != nil {
@@ -1347,12 +1375,7 @@ func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 			}
 			apiRply.EventExporters[runID] = eesIDs
 		}
-	}
 
-	if utils.OptAsBool(cch, utils.MetaTerminate) && s != nil {
-		if errTerminate := sS.terminateSessionNew(ctx, s); errTerminate != nil {
-			return errTerminate
-		}
 	}
 
 	if withErrors {

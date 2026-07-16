@@ -997,6 +997,19 @@ func (sS *SessionS) setSession(ctx *context.Context, cgrEv *utils.CGREvent,
 
 // terminateSessionNew is the new way to terminate a session
 func (sS *SessionS) terminateSessionNew(ctx *context.Context, s *Session) (err error) {
+	s.lk.Lock()
+	defer s.lk.Unlock()
+	s.stopSTerminator()
+	for _, sRun := range s.sRuns {
+		for i, eC := range sRun.Charges {
+			if i == 0 {
+				sRun.CGREvent.APIOpts[utils.MetaAccountsCost] = eC
+			} else {
+				sRun.CGREvent.APIOpts[utils.MetaAccountsCost].(*utils.EventCharges).Merge(eC)
+			}
+		}
+	}
+	sS.unregisterSession(s.ID, false)
 	return
 }
 

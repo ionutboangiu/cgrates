@@ -397,6 +397,7 @@ const (
 	MetaGuardian             = "*guardians"
 	MetaEEs                  = "*ees"
 	MetaEEsIDs               = "*eesIDs"
+	MetaUR                   = "*ur"
 	MetaEFs                  = "*efs"
 	MetaERs                  = "*ers"
 	MetaRates                = "*rates"
