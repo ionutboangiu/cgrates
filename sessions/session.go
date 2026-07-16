@@ -19,7 +19,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 package sessions
 
 import (
-	"fmt"
 	"runtime"
 	"sync"
 	"time"
@@ -76,10 +75,7 @@ type Session struct {
 	OriginCGREvent *utils.CGREvent // initial CGREvent received
 	ClientConnID   string          // connection ID towards the client so we can recover from passive
 
-	InterimUsage       *utils.Decimal // last requested Usage
-	UsageAdjustment    *utils.Decimal // holds the extra usage either negative (ie. correction from consumed) or positive (ie. from roundingIncrements or correction)
-	TotalUsage         *utils.Decimal // sum of InterimUsage
-	AutoChargeInterval time.Duration  // Enable auto-charging
+	AutoChargeInterval time.Duration // Enable auto-charging
 	NextAutoCharge     *time.Time
 
 	SRuns []*SRun          // forked based on ChargerS
@@ -87,8 +83,8 @@ type Session struct {
 
 	lk          sync.RWMutex
 	debitStop   chan struct{}
-	sTerminator *sTerminator   // automatic timeout for the session
-	localDebit  *utils.Decimal // last positive adjustment done, treated as local debit
+	sTerminator *sTerminator // automatic timeout for the session
+
 }
 
 // Clone is a thread safe method to clone the sessions information
@@ -133,16 +129,16 @@ func (s *Session) AsExternalSessions(tmz, nodeID string) (aSs []*ExternalSession
 			NextAutoCharge:     s.NextAutoCharge,
 			Charges:            sr.Charges, // FixMe: maybe clone here
 		}
-		if s.UsageAdjustment != nil {
-			i, _ := s.UsageAdjustment.Big.Int64()
+		if sr.UsageAdjustment != nil {
+			i, _ := sr.UsageAdjustment.Big.Int64()
 			eS.UsageAdjustment = utils.Int64Pointer(i)
 		}
-		if s.InterimUsage != nil {
-			i, _ := s.InterimUsage.Big.Int64()
+		if sr.InterimUsage != nil {
+			i, _ := sr.InterimUsage.Big.Int64()
 			eS.InterimUsage = utils.Int64Pointer(i)
 		}
-		if s.TotalUsage != nil {
-			i, _ := s.TotalUsage.Big.Int64()
+		if sr.TotalUsage != nil {
+			i, _ := sr.TotalUsage.Big.Int64()
 			eS.TotalUsage = utils.Int64Pointer(i)
 		}
 		aSs = append(aSs, eS)
@@ -210,9 +206,14 @@ func NewSRun(cgrEv *utils.CGREvent) *SRun {
 
 // SRun is one billing run for the Session
 type SRun struct {
-	ID       string                // Identifier of the SRun, inherited from CGREvent.APIOpts[*runID]
-	CGREvent *utils.CGREvent       // Event received from ChargerS
-	Charges  []*utils.EventCharges // list of charges this session run has performed
+	ID              string                // Identifier of the SRun, inherited from CGREvent.APIOpts[*runID]
+	CGREvent        *utils.CGREvent       // Event received from ChargerS
+	InterimUsage    *utils.Decimal        // last requested Usage
+	UsageAdjustment *utils.Decimal        // holds the extra usage either negative (ie. correction from consumed) or positive (ie. from roundingIncrements or correction)
+	TotalUsage      *utils.Decimal        // sum of InterimUsage
+	Charges         []*utils.EventCharges // list of charges this session run has performed
+
+	lclDebit *utils.Decimal // last positive adjustment done, treated as local debit
 }
 
 // Clone returns the cloned version of SRun
@@ -222,6 +223,50 @@ func (sr *SRun) Clone() (clsr *SRun) {
 		CGREvent: sr.CGREvent.Clone(),
 	}
 	return
+}
+
+// updateUsages will consider all the usage opts and update SRun counters acordingly
+func (sr *SRun) updateUsages(interimConsumed, interimUsage, totalUsage *utils.Decimal) error {
+	// usage out of interimUsage
+	if interimUsage == nil && totalUsage != nil { // totalUsage should give us the interimUsage
+		interimUsage = utils.SubstractDecimal(totalUsage, sr.TotalUsage)
+	}
+	usage := utils.NewDecimal(0, 0)
+	if interimUsage != nil {
+		usage = interimUsage
+	}
+
+	// corect the UsageAdjustment out of consumed
+	if interimConsumed != nil && sr.InterimUsage != nil { // correct if InterimUsage was previously recorded
+		diffUsage := utils.SubstractDecimal(sr.InterimUsage, interimConsumed)
+		if diffUsage.Compare(utils.NewDecimal(0, 0)) != 0 {
+			sr.UsageAdjustment = utils.SumDecimal(sr.UsageAdjustment, diffUsage)
+			sr.TotalUsage = utils.SumDecimal(utils.SubstractDecimal(sr.TotalUsage, sr.InterimUsage), interimConsumed)
+			sr.InterimUsage = interimConsumed // no real effect, just for correctness
+		}
+	}
+
+	// Appying UsageAdjustment to Usage
+	if sr.UsageAdjustment != nil && sr.UsageAdjustment.Compare(utils.NewDecimal(0, 0)) != 0 {
+		usage = utils.SubstractDecimal(usage, sr.UsageAdjustment)
+		sr.lclDebit = sr.UsageAdjustment
+		sr.UsageAdjustment = utils.NewDecimal(0, 0) // have consumed all out of UsageAdjustment
+	}
+	if usage.Compare(utils.NewDecimal(0, 0)) == -1 { // debit was done out of UsageAdjustment, no need of further debit
+		sr.UsageAdjustment = utils.AbsoluteDecimal(usage) // put back the extra units for next debit
+		usage = utils.NewDecimal(0, 0)
+		sr.lclDebit = utils.SubstractDecimal(sr.lclDebit, sr.UsageAdjustment) // correct the localDebit
+	}
+	// Save the interim and totalUsage
+	sr.InterimUsage = interimUsage
+	if totalUsage != nil {
+		sr.TotalUsage = totalUsage
+	} else {
+		sr.TotalUsage = utils.SumDecimal(sr.TotalUsage, interimUsage)
+	}
+	// Save the usage in SRuns so they can be debitted
+	sr.CGREvent.APIOpts[utils.MetaUsage] = usage
+	return nil
 }
 
 // updateSRuns updates the SRuns event with the alterable fields (is not thread safe)
@@ -240,53 +285,4 @@ func (s *Session) updateSRuns(updEv engine.MapEvent, alterableFields utils.Strin
 			sr.CGREvent.Event[k] = v
 		}
 	}
-}
-
-// updateSRunUsages will consider all the usage opts and update SRun counters acordingly
-func (s *Session) updateSRunUsages(interimConsumed, interimUsage, totalUsage *utils.Decimal) error {
-	// usage out of interimUsage
-	if interimUsage == nil && totalUsage != nil { // totalUsage should give us the interimUsage
-		interimUsage = utils.SubstractDecimal(totalUsage, s.TotalUsage)
-	}
-	usage := utils.NewDecimal(0, 0)
-	if interimUsage != nil {
-		usage = interimUsage
-	}
-
-	// corect the UsageAdjustment out of consumed
-	if interimConsumed != nil && s.InterimUsage != nil { // correct if InterimUsage was previously recorded
-		diffUsage := utils.SubstractDecimal(s.InterimUsage, interimConsumed)
-		if diffUsage.Compare(utils.NewDecimal(0, 0)) != 0 {
-			s.UsageAdjustment = utils.SumDecimal(s.UsageAdjustment, diffUsage)
-			s.TotalUsage = utils.SumDecimal(utils.SubstractDecimal(s.TotalUsage, s.InterimUsage), interimConsumed)
-			s.InterimUsage = interimConsumed // no real effect, just for correctness
-		}
-	}
-
-	// Appying UsageAdjustment to Usage
-	if s.UsageAdjustment != nil && s.UsageAdjustment.Compare(utils.NewDecimal(0, 0)) != 0 {
-		usage = utils.SubstractDecimal(usage, s.UsageAdjustment)
-		s.localDebit = s.UsageAdjustment
-		s.UsageAdjustment = utils.NewDecimal(0, 0) // have consumed all out of UsageAdjustment
-		utils.Logger.Info(fmt.Sprintf("### Calculating usage, got UsageAdjustment: %s, usage: %s\n", s.UsageAdjustment, usage))
-	}
-	if usage.Compare(utils.NewDecimal(0, 0)) == -1 { // debit was done out of UsageAdjustment, no need of further debit
-		s.UsageAdjustment = utils.AbsoluteDecimal(usage) // put back the extra units for next debit
-		utils.Logger.Info(fmt.Sprintf("### Usage smaller than 0, UsageAdjustment: %s, usage: %s, compare: %+v\n", s.UsageAdjustment, usage, usage.Compare(utils.NewDecimal(0, 0))))
-		usage = utils.NewDecimal(0, 0)
-		s.localDebit = utils.SubstractDecimal(s.localDebit, s.UsageAdjustment) // correct the localDebit
-	}
-	// Save the interim and totalUsage
-	s.InterimUsage = interimUsage
-	if totalUsage != nil {
-		s.TotalUsage = totalUsage
-	} else {
-		s.TotalUsage = utils.SumDecimal(s.TotalUsage, interimUsage)
-	}
-	// Save the usage in SRuns so they can be debitted
-	for _, sRun := range s.sRuns {
-		sRun.CGREvent.APIOpts[utils.MetaUsage] = usage
-		utils.Logger.Info(fmt.Sprintf("### set usage within APIOPts to : %s\n", sRun.CGREvent.APIOpts))
-	}
-	return nil
 }

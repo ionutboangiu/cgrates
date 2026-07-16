@@ -1310,8 +1310,8 @@ func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 				s.lk.Unlock()
 			}
 			acntDbt := acntCost.Abstracts
-			if s != nil && s.localDebit != nil {
-				acntDbt = utils.SumDecimal(acntDbt, s.localDebit)
+			if s != nil && s.sRuns[runID] != nil && s.sRuns[runID].lclDebit != nil {
+				acntDbt = utils.SumDecimal(acntDbt, s.sRuns[runID].lclDebit)
 			}
 			maxDur, _ := acntDbt.Duration()
 			if apiRply.AccountSUsage == nil {

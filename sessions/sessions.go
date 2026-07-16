@@ -986,8 +986,10 @@ func (sS *SessionS) setSession(ctx *context.Context, cgrEv *utils.CGREvent,
 	}
 	var totalUsage *utils.Decimal
 	totalUsage, _ = utils.IfaceAsDecimal(cch[utils.MetaTotalUsage])
-	if err = s.updateSRunUsages(interimConsumed, interimUsage, totalUsage); err != nil {
-		return
+	for _, sr := range s.sRuns { // FixMe: pass this from outside, so we can select individual debits per SRun
+		if err = sr.updateUsages(interimConsumed, interimUsage, totalUsage); err != nil {
+			return
+		}
 	}
 	// ToDo: Fix here the sTerminator
 	return
@@ -1482,9 +1484,9 @@ func (sS *SessionS) endSession(ctx *context.Context, s *Session, tUsage, lastUsa
 		// }
 		// Set Usage field
 		if sRunIdx == 0 {
-			s.OriginCGREvent.Event[utils.Usage] = s.TotalUsage
+			s.OriginCGREvent.Event[utils.Usage] = sr.TotalUsage
 		}
-		sr.CGREvent.Event[utils.Usage] = s.TotalUsage
+		sr.CGREvent.Event[utils.Usage] = sr.TotalUsage
 		if aTime != nil {
 			sr.CGREvent.Event[utils.AnswerTime] = *aTime
 		}
