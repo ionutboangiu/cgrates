@@ -1007,6 +1007,7 @@ func (sS *SessionS) terminateSessionNew(ctx *context.Context, s *Session) (err e
 			} else {
 				sRun.CGREvent.APIOpts[utils.MetaAccountsCost].(*utils.EventCharges).Merge(eC)
 			}
+			sRun.UsageAdjustment = nil
 		}
 	}
 	sS.unregisterSession(s.ID, false)

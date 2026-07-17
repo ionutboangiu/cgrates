@@ -227,9 +227,11 @@ func (sr *SRun) Clone() (clsr *SRun) {
 
 // updateUsages will consider all the usage opts and update SRun counters acordingly
 func (sr *SRun) updateUsages(interimConsumed, interimUsage, totalUsage *utils.Decimal) error {
+	sr.lclDebit = nil // this is always valid for one run only
 	// usage out of interimUsage
-	if interimUsage == nil && totalUsage != nil { // totalUsage should give us the interimUsage
-		interimUsage = utils.SubstractDecimal(totalUsage, sr.TotalUsage)
+	if totalUsage != nil { // totalUsage should give us the interimUsage
+		interimUsage = utils.SumDecimal(interimUsage, utils.SubstractDecimal(totalUsage, sr.TotalUsage))
+		interimConsumed = nil // totalUsage has priority over interimConsumed
 	}
 	usage := utils.NewDecimal(0, 0)
 	if interimUsage != nil {

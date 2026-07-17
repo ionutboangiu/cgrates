@@ -59,6 +59,7 @@ var (
 		testHttpSsSessionStart,
 		testHttpSsSessionUpdate1,
 		testHttpSsSessionUpdate2,
+		testHttpSsSessionUpdate3,
 		testHttpSsTerminate,
 		testHttpSsStopEngine,
 	}
@@ -304,14 +305,53 @@ func testHttpSsSessionUpdate2(t *testing.T) {
 	}
 }
 
-func testHttpSsTerminate(t *testing.T) {
-	reqUrl := fmt.Sprintf("http://localhost:2080%s?requestType=Terminate&imsi=2343000000000123&destination=491239440004&sessionID=uuidTestHttpSs",
+func testHttpSsSessionUpdate3(t *testing.T) {
+	reqUrl := fmt.Sprintf("http://localhost:2080%s?requestType=SessionUpdate&imsi=2343000000000123&sessionID=uuidTestHttpSs&usedUnits=30000&totalUnits=250000",
 		httpSsCfg.HTTPAgentCfg()[0].URL)
 	rply, err := httpSsClnt.Get(reqUrl)
 	if err != nil {
 		t.Fatal(err)
 	}
-	eRply := "MaxUsage=50000"
+	eRply := "MaxUsage=150000" // difference between active 150000 and totalUnits of 250000 plus the interimUsage of 50000
+	if rply, err := io.ReadAll(rply.Body); err != nil {
+		t.Error(err)
+	} else if strings.HasPrefix(string(rply), "Error") {
+		t.Errorf("error: <%s>", strings.TrimSuffix(string(rply), "\n"))
+	} else if eRply != strings.TrimSuffix(string(rply), "\n") {
+		t.Errorf("expecting: %q, received: %q", eRply, rply)
+	}
+	rply.Body.Close()
+	var aSessions []*sessions.ExternalSession
+	if err := httpSsRPC.Call(context.Background(), utils.SessionSv1GetActiveSessions,
+		utils.SessionFilter{}, &aSessions); err != nil {
+		t.Error(err)
+	} else if len(aSessions) != 1 {
+		t.Errorf("Unexpected number of sessions received: %+v", aSessions)
+	} else if *aSessions[0].InterimUsage != 150000 {
+		t.Errorf("Unexpected InterimUsage in session: %+v", aSessions[0])
+	} else if *aSessions[0].UsageAdjustment != 0 {
+		t.Errorf("Unexpected UsageAdjustment in session: %+v", aSessions[0])
+	} else if *aSessions[0].TotalUsage != 250000 {
+		t.Errorf("Unexpected TotalUsage in session: %+v", aSessions[0])
+	}
+	var acnt utils.Account
+	if err := httpSsRPC.Call(context.Background(), utils.AdminSv1GetAccount,
+		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "2343000000000123"}},
+		&acnt); err != nil {
+		t.Fatalf("GetAccount: %v", err)
+	} else if acnt.Balances["DATA1"].Units.Compare(utils.NewDecimalFromFloat64(700*1000)) != 0 {
+		t.Error(fmt.Sprintf("Received account: %+v", acnt))
+	}
+}
+
+func testHttpSsTerminate(t *testing.T) {
+	reqUrl := fmt.Sprintf("http://localhost:2080%s?requestType=Terminate&imsi=2343000000000123&destination=491239440004&sessionID=uuidTestHttpSs&usedUnits=30000&totalUnits=250000",
+		httpSsCfg.HTTPAgentCfg()[0].URL)
+	rply, err := httpSsClnt.Get(reqUrl)
+	if err != nil {
+		t.Fatal(err)
+	}
+	eRply := "MaxUsage=250000"
 	if rply, err := io.ReadAll(rply.Body); err != nil {
 		t.Error(err)
 	} else if strings.HasPrefix(string(rply), "Error") {
@@ -326,6 +366,14 @@ func testHttpSsTerminate(t *testing.T) {
 		t.Error(err)
 	} else if len(aSessions) != 0 {
 		t.Errorf("Unexpected number of sessions received: %+v", aSessions)
+	}
+	var acnt utils.Account
+	if err := httpSsRPC.Call(context.Background(), utils.AdminSv1GetAccount,
+		&utils.TenantIDWithAPIOpts{TenantID: &utils.TenantID{Tenant: "cgrates.org", ID: "2343000000000123"}},
+		&acnt); err != nil {
+		t.Fatalf("GetAccount: %v", err)
+	} else if acnt.Balances["DATA1"].Units.Compare(utils.NewDecimalFromFloat64(700*1000)) != 0 {
+		t.Error(fmt.Sprintf("Received account: %+v", acnt))
 	}
 }
 

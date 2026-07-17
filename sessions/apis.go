@@ -1330,6 +1330,12 @@ func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 	for runID, cgrEv := range cgrEvs { // need to run here in the eventuality of terminate being called
 		cchEv := make(map[string]any)
 
+		if utils.OptAsBool(cch, utils.MetaTerminate) && s != nil { // terminate corrections
+			if _, has := apiRply.AccountSUsage[runID]; has { // correct usage to reflect total usage instead of interm one
+				totalUsage, _ := s.sRuns[runID].TotalUsage.Duration()
+				apiRply.AccountSUsage[runID] = totalUsage
+			}
+		}
 		// UsageRecords generation
 		if ur, errUR := engine.GetBoolOpts(ctx, apiArgs.Tenant, apiArgs.AsDataProvider(), cchEv,
 			sS.fltrS, sS.cfg.SessionSCfg().Opts.UR,
