@@ -937,6 +937,14 @@ func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 		}
 		cgrEvs = s.asCGREventsMap() // inherit session events to process
 	}
+	// extracting *terminate
+	if terminateBool, errBool := engine.GetBoolOpts(ctx, apiArgs.Tenant, apiArgs.AsDataProvider(), cch,
+		sS.fltrS, sS.cfg.SessionSCfg().Opts.Terminate,
+		utils.MetaTerminate); errBool != nil {
+		return errBool
+	} else {
+		cch[utils.MetaTerminate] = terminateBool
+	}
 
 	// ChargerS will multiply/alter the event before any auth/accounting/cdr taking place
 	if chrgS, errChrg := engine.GetBoolOpts(ctx, apiArgs.Tenant, apiArgs.AsDataProvider(), cch,
@@ -1123,6 +1131,9 @@ func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 				}
 				costFlt, _ := rtsCost.Cost.Float64()
 				apiRply.RateSCost[runID] = costFlt
+				if s == nil || utils.OptAsBool(cch, utils.MetaTerminate) {
+					cgrEv.APIOpts[utils.MetaRateSCost] = rtsCost
+				}
 			}
 		}
 
@@ -1266,6 +1277,9 @@ func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 					apiRply.AccountSUsage = make(map[string]time.Duration)
 				}
 				apiRply.AccountSUsage[runID] = maxDur
+				if s == nil { // add it for export or ur, only for non session since sessions are written in terminate method
+					cgrEv.APIOpts[utils.MetaAccountsCost] = acntCost
+				}
 			}
 
 		}
@@ -1309,18 +1323,14 @@ func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 				apiRply.AccountSUsage = make(map[string]time.Duration)
 			}
 			apiRply.AccountSUsage[runID] = maxDur
+			if s == nil { // add it for export or ur, only for non session since sessions are written in terminate method
+				cgrEv.APIOpts[utils.MetaAccountsCost] = acntCost
+			}
 
 		}
 
 	}
-	// extracting *terminate informs if the event should be attached to a session so we do not fork later
-	if terminateBool, errBool := engine.GetBoolOpts(ctx, apiArgs.Tenant, apiArgs.AsDataProvider(), cch,
-		sS.fltrS, sS.cfg.SessionSCfg().Opts.Terminate,
-		utils.MetaTerminate); errBool != nil {
-		return errBool
-	} else {
-		cch[utils.MetaTerminate] = terminateBool
-	}
+
 	if utils.OptAsBool(cch, utils.MetaTerminate) && s != nil {
 		if errTerminate := sS.terminateSessionNew(ctx, s); errTerminate != nil {
 			return errTerminate
