@@ -152,6 +152,7 @@ func TestRegistrarcregisterRPCHostsErr(t *testing.T) {
 
 func TestRegisterRPCHosts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfg.RegistrarCCfg().RPC.RegistrarSConns = []string{"errCon1"}
 	cfg.RegistrarCCfg().RPC.Hosts = map[string][]*config.RemoteHost{
 		"testHostKey": {},
@@ -167,7 +168,7 @@ func TestRegisterRPCHosts(t *testing.T) {
 			},
 		},
 	}
-	cache := engine.NewCacheS(cfg, nil, nil, nil)
+	cache := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	regist := &RegistrarCService{
 		cfg:     cfg,
 		connMgr: engine.NewConnManager(cfg),

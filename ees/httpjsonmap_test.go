@@ -49,9 +49,10 @@ func TestHttpJsonMapGetMetrics(t *testing.T) {
 
 func TestHttpJsonMapExportEvent1(t *testing.T) {
 	cgrCfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cgrCfg)
 	cgrCfg.EEsCfg().Exporters[0].Type = utils.MetaSQSjsonMap
 
-	httpEE, err := NewHTTPjsonMapEE(cgrCfg.EEsCfg().Exporters[0], cgrCfg, engine.NewCacheS(cgrCfg, nil, nil, nil), nil, nil)
+	httpEE, err := NewHTTPjsonMapEE(cgrCfg.EEsCfg().Exporters[0], cgrCfg, engine.NewCacheS(cgrCfg, nil, nil, nil, locker), nil, nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -63,6 +64,7 @@ func TestHttpJsonMapExportEvent1(t *testing.T) {
 
 func TestHttpJsonMapExportEvent2(t *testing.T) {
 	cgrCfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cgrCfg)
 	cgrCfg.EEsCfg().Exporters[0].Type = utils.MetaSQSjsonMap
 
 	bodyExpect := map[string]any{
@@ -81,7 +83,7 @@ func TestHttpJsonMapExportEvent2(t *testing.T) {
 	}))
 	defer srv.Close()
 	cgrCfg.EEsCfg().Exporters[0].ExportPath = srv.URL + "/"
-	httpEE, err := NewHTTPjsonMapEE(cgrCfg.EEsCfg().Exporters[0], cgrCfg, engine.NewCacheS(cgrCfg, nil, nil, nil), nil, nil)
+	httpEE, err := NewHTTPjsonMapEE(cgrCfg.EEsCfg().Exporters[0], cgrCfg, engine.NewCacheS(cgrCfg, nil, nil, nil, locker), nil, nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -94,6 +96,7 @@ func TestHttpJsonMapExportEvent2(t *testing.T) {
 func TestHttpJsonMapSync(t *testing.T) {
 	//Create new exporter
 	cgrCfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cgrCfg)
 	cgrCfg.EEsCfg().Exporters[0].Type = utils.MetaHTTPjsonMap
 
 	var wg1 sync.WaitGroup
@@ -115,7 +118,7 @@ func TestHttpJsonMapSync(t *testing.T) {
 
 	cgrCfg.EEsCfg().Exporters[0].ExportPath = ts.URL
 
-	exp, err := NewHTTPjsonMapEE(cgrCfg.EEsCfg().Exporters[0], cgrCfg, engine.NewCacheS(cgrCfg, nil, nil, nil), nil, nil)
+	exp, err := NewHTTPjsonMapEE(cgrCfg.EEsCfg().Exporters[0], cgrCfg, engine.NewCacheS(cgrCfg, nil, nil, nil, locker), nil, nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -135,6 +138,7 @@ func TestHttpJsonMapSync(t *testing.T) {
 func TestHttpJsonMapSyncLimit(t *testing.T) {
 	//Create new exporter
 	cgrCfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cgrCfg)
 	cgrCfg.EEsCfg().Exporters[0].Type = utils.MetaHTTPjsonMap
 	cgrCfg.EEsCfg().Exporters[0].ConcurrentRequests = 1
 
@@ -156,7 +160,7 @@ func TestHttpJsonMapSyncLimit(t *testing.T) {
 
 	cgrCfg.EEsCfg().Exporters[0].ExportPath = ts.URL
 
-	exp, err := NewHTTPjsonMapEE(cgrCfg.EEsCfg().Exporters[0], cgrCfg, engine.NewCacheS(cgrCfg, nil, nil, nil), nil, nil)
+	exp, err := NewHTTPjsonMapEE(cgrCfg.EEsCfg().Exporters[0], cgrCfg, engine.NewCacheS(cgrCfg, nil, nil, nil, locker), nil, nil)
 	if err != nil {
 		t.Error(err)
 	}

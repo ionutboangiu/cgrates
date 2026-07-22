@@ -182,6 +182,7 @@ func TestAnalyzersListenAndServe(t *testing.T) {
 
 func TestAnalyzersV1Search(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfg.AnalyzerSCfg().DBPath = "/tmp/analyzers"
 	cfg.AnalyzerSCfg().TTL = 30 * time.Minute
 	if err := os.RemoveAll(cfg.AnalyzerSCfg().DBPath); err != nil {
@@ -195,8 +196,8 @@ func TestAnalyzersV1Search(t *testing.T) {
 		t.Error(err)
 	}
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: idb}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
-	dm.SetCache(engine.NewCacheS(cfg, dm, nil, nil))
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
+	dm.SetCache(engine.NewCacheS(cfg, dm, nil, nil, locker))
 	anz, err := NewAnalyzerS(cfg)
 
 	if err != nil {

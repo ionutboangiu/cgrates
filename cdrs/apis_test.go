@@ -32,14 +32,15 @@ import (
 
 func TestCDRsV1ProcessEventMock(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	connMng := engine.NewConnManager(cfg)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
 	fltrs := engine.NewFilterS(cfg, nil, dm)
-	cacheS := engine.NewCacheS(cfg, dm, nil, nil)
+	cacheS := engine.NewCacheS(cfg, dm, nil, nil, locker)
 	dm.SetCache(cacheS)
 	connMng.SetCache(cacheS)
 	newCDRSrv := NewCDRServer(cfg, dm, cacheS, fltrs, connMng)
@@ -102,14 +103,15 @@ func TestCDRsV1ProcessEventMock(t *testing.T) {
 
 func TestCDRsV1ProcessEventMockErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	connMng := engine.NewConnManager(cfg)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
 	fltrs := engine.NewFilterS(cfg, nil, dm)
-	cacheS := engine.NewCacheS(cfg, dm, nil, nil)
+	cacheS := engine.NewCacheS(cfg, dm, nil, nil, locker)
 	dm.SetCache(cacheS)
 	connMng.SetCache(cacheS)
 	newCDRSrv := NewCDRServer(cfg, dm, cacheS, fltrs, connMng)
@@ -175,14 +177,15 @@ func TestCDRsV1ProcessEventMockErr(t *testing.T) {
 
 func TestCDRsV1ProcessEventMockCache(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	connMng := engine.NewConnManager(cfg)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
 	fltrs := engine.NewFilterS(cfg, nil, dm)
-	cacheS := engine.NewCacheS(cfg, dm, nil, nil)
+	cacheS := engine.NewCacheS(cfg, dm, nil, nil, locker)
 	dm.SetCache(cacheS)
 	connMng.SetCache(cacheS)
 	newCDRSrv := NewCDRServer(cfg, dm, cacheS, fltrs, connMng)
@@ -251,6 +254,7 @@ func TestCDRsV1ProcessEventMockCache(t *testing.T) {
 
 func TestCDRsV1ProcessEventWithGetMockCache(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{
 		{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal,
 			utils.MetaEEs)}},
@@ -259,9 +263,9 @@ func TestCDRsV1ProcessEventWithGetMockCache(t *testing.T) {
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	connMng := engine.NewConnManager(cfg)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
 	fltrs := engine.NewFilterS(cfg, nil, dm)
-	cacheS := engine.NewCacheS(cfg, dm, nil, nil)
+	cacheS := engine.NewCacheS(cfg, dm, nil, nil, locker)
 	dm.SetCache(cacheS)
 	connMng.SetCache(cacheS)
 	newCDRSrv := NewCDRServer(cfg, dm, cacheS, fltrs, connMng)
@@ -329,14 +333,15 @@ func TestCDRsV1ProcessEventWithGetMockCache(t *testing.T) {
 
 func TestCDRsV1ProcessEventWithGetMockCacheErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	connMng := engine.NewConnManager(cfg)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
 	fltrs := engine.NewFilterS(cfg, nil, dm)
-	cacheS := engine.NewCacheS(cfg, dm, nil, nil)
+	cacheS := engine.NewCacheS(cfg, dm, nil, nil, locker)
 	dm.SetCache(cacheS)
 	connMng.SetCache(cacheS)
 	newCDRSrv := NewCDRServer(cfg, dm, cacheS, fltrs, connMng)
@@ -387,13 +392,14 @@ func TestCDRsV1ProcessEventWithGetMockCacheErr(t *testing.T) {
 
 func TestCDRsV1ProcessEventCacheGet(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfg.CacheCfg().Partitions[utils.CacheRPCResponses].Limit = 1
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
 	fltrs := engine.NewFilterS(cfg, nil, dm)
-	cacheS := engine.NewCacheS(cfg, dm, nil, nil)
+	cacheS := engine.NewCacheS(cfg, dm, nil, nil, locker)
 	dm.SetCache(cacheS)
 	newCDRSrv := NewCDRServer(cfg, dm, cacheS, fltrs, nil)
 	cgrEv := &utils.CGREvent{
@@ -427,13 +433,14 @@ func TestCDRsV1ProcessEventCacheGet(t *testing.T) {
 
 func TestCDRsV1ProcessEventWithGetCacheGet(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfg.CacheCfg().Partitions[utils.CacheRPCResponses].Limit = 1
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
 	fltrs := engine.NewFilterS(cfg, nil, dm)
-	cacheS := engine.NewCacheS(cfg, dm, nil, nil)
+	cacheS := engine.NewCacheS(cfg, dm, nil, nil, locker)
 	dm.SetCache(cacheS)
 	newCDRSrv := NewCDRServer(cfg, dm, cacheS, fltrs, nil)
 	cgrEv := &utils.CGREvent{
@@ -470,13 +477,14 @@ func TestCDRsV1ProcessEventWithGetCacheGet(t *testing.T) {
 func TestCDRsV1ProcessEventWithGetMockCacheErrResp(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfg.CacheCfg().Partitions[utils.CacheRPCResponses].Limit = 1
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
 	fltrs := engine.NewFilterS(cfg, nil, dm)
-	cacheS := engine.NewCacheS(cfg, dm, nil, nil)
+	cacheS := engine.NewCacheS(cfg, dm, nil, nil, locker)
 	dm.SetCache(cacheS)
 	newCDRSrv := NewCDRServer(cfg, dm, cacheS, fltrs, nil)
 
@@ -519,14 +527,15 @@ func TestCDRsV1ProcessEventWithGetMockCacheErrResp(t *testing.T) {
 
 func TestCDRsV1ProcessStoredEvents(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	connMng := engine.NewConnManager(cfg)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
 	fltrs := engine.NewFilterS(cfg, nil, dm)
-	cacheS := engine.NewCacheS(cfg, dm, nil, nil)
+	cacheS := engine.NewCacheS(cfg, dm, nil, nil, locker)
 	dm.SetCache(cacheS)
 	connMng.SetCache(cacheS)
 	newCDRSrv := NewCDRServer(cfg, dm, cacheS, fltrs, connMng)
@@ -583,14 +592,15 @@ func TestCDRsV1ProcessStoredEvents(t *testing.T) {
 
 func TestCDRsV1ProcessStoredEventsWithEmptyArgs(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	connMng := engine.NewConnManager(cfg)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
 	fltrs := engine.NewFilterS(cfg, nil, dm)
-	cacheS := engine.NewCacheS(cfg, dm, nil, nil)
+	cacheS := engine.NewCacheS(cfg, dm, nil, nil, locker)
 	dm.SetCache(cacheS)
 	connMng.SetCache(cacheS)
 	newCDRSrv := NewCDRServer(cfg, dm, cacheS, fltrs, connMng)

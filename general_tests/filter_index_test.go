@@ -115,6 +115,7 @@ func TestFilterIndexUpdates(t *testing.T) {
 }`
 	}
 	cfg, err := config.NewCGRConfigFromJSONStringWithDefaults(cfgJSON)
+	locker := engine.NewGuardianLocker(cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -136,8 +137,8 @@ func TestFilterIndexUpdates(t *testing.T) {
 		t.Fatal(err)
 	}
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: dbConn}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
-	cacheS := engine.NewCacheS(cfg, nil, nil, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
+	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dm.SetCache(cacheS)
 
 	checkIndexes := func(want map[string]utils.StringSet) {
@@ -462,6 +463,7 @@ func benchmarkFilterUpdate(b *testing.B, profileCount, initialValueCount int, fi
 }`
 	}
 	cfg, err := config.NewCGRConfigFromJSONStringWithDefaults(cfgJSON)
+	locker := engine.NewGuardianLocker(cfg)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -483,8 +485,8 @@ func benchmarkFilterUpdate(b *testing.B, profileCount, initialValueCount int, fi
 		b.Fatal(err)
 	}
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: dbConn}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
-	cacheS := engine.NewCacheS(cfg, nil, nil, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
+	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dm.SetCache(cacheS)
 
 	initialValues := generateValues(0, initialValueCount)

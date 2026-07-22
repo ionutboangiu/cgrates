@@ -223,8 +223,9 @@ case utils.MetaMySQL:
 */
 func TestFileJSONServeErrTimeDuration0(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfgIdx := 0
-	rdr, err := NewJSONFileER(cfg, cfgIdx, nil, nil, nil, engine.NewCacheS(cfg, nil, nil, nil), nil, nil)
+	rdr, err := NewJSONFileER(cfg, cfgIdx, nil, nil, nil, engine.NewCacheS(cfg, nil, nil, nil, locker), nil, nil)
 	if err != nil {
 		t.Errorf("\nExpected <%+v>, \nReceived <%+v>", nil, err)
 	}
@@ -237,9 +238,10 @@ func TestFileJSONServeErrTimeDuration0(t *testing.T) {
 
 func TestFileJSONServeErrTimeDurationNeg1(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfgIdx := 0
 	rdrErr := make(chan error, 1)
-	rdr, err := NewJSONFileER(cfg, cfgIdx, nil, nil, rdrErr, engine.NewCacheS(cfg, nil, nil, nil), nil, nil)
+	rdr, err := NewJSONFileER(cfg, cfgIdx, nil, nil, rdrErr, engine.NewCacheS(cfg, nil, nil, nil, locker), nil, nil)
 	if err != nil {
 		t.Errorf("\nExpected <%+v>, \nReceived <%+v>", nil, err)
 	}
@@ -259,8 +261,9 @@ func TestFileJSONServeErrTimeDurationNeg1(t *testing.T) {
 
 func TestFileJSONServeTimeDefault(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfgIdx := 0
-	rdr, err := NewJSONFileER(cfg, cfgIdx, nil, nil, nil, engine.NewCacheS(cfg, nil, nil, nil), nil, nil)
+	rdr, err := NewJSONFileER(cfg, cfgIdx, nil, nil, nil, engine.NewCacheS(cfg, nil, nil, nil, locker), nil, nil)
 	if err != nil {
 		t.Errorf("\nExpected <%+v>, \nReceived <%+v>", nil, err)
 	}
@@ -273,9 +276,10 @@ func TestFileJSONServeTimeDefault(t *testing.T) {
 
 func TestFileJSONServeTimeDefaultChanExit(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfgIdx := 0
 	rdrExit := make(chan struct{}, 1)
-	rdr, err := NewJSONFileER(cfg, cfgIdx, nil, nil, nil, engine.NewCacheS(cfg, nil, nil, nil), nil, rdrExit)
+	rdr, err := NewJSONFileER(cfg, cfgIdx, nil, nil, nil, engine.NewCacheS(cfg, nil, nil, nil, locker), nil, rdrExit)
 	if err != nil {
 		t.Errorf("\nExpected <%+v>, \nReceived <%+v>", nil, err)
 	}
@@ -289,8 +293,9 @@ func TestFileJSONServeTimeDefaultChanExit(t *testing.T) {
 
 func TestFileJSONProcessFile(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfgIdx := 0
-	rdr, err := NewJSONFileER(cfg, cfgIdx, nil, nil, nil, engine.NewCacheS(cfg, nil, nil, nil), nil, nil)
+	rdr, err := NewJSONFileER(cfg, cfgIdx, nil, nil, nil, engine.NewCacheS(cfg, nil, nil, nil, locker), nil, nil)
 	if err != nil {
 		t.Errorf("\nExpected <%+v>, \nReceived <%+v>", nil, err)
 	}
@@ -303,8 +308,9 @@ func TestFileJSONProcessFile(t *testing.T) {
 
 func TestFileJSONProcessEvent(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfgIdx := 0
-	rdr, err := NewJSONFileER(cfg, cfgIdx, nil, nil, nil, engine.NewCacheS(cfg, nil, nil, nil), nil, nil)
+	rdr, err := NewJSONFileER(cfg, cfgIdx, nil, nil, nil, engine.NewCacheS(cfg, nil, nil, nil, locker), nil, nil)
 	if err != nil {
 		t.Errorf("\nExpected <%+v>, \nReceived <%+v>", nil, err)
 	}

@@ -30,11 +30,14 @@ import (
 
 func TestUpdateReplicationFilters(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := NewGuardianLocker(cfg)
 	cfg.CacheCfg().Partitions[utils.CacheReplicationHosts] = &config.CacheParamCfg{
 		Limit: 1,
 	}
-	cacheS := NewCacheS(cfg, nil, nil, nil)
-	dm := &DataManager{}
+	cacheS := NewCacheS(cfg, nil, nil, nil, locker)
+	data, _ := NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
+	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: data}, cfg.DbCfg())
+	dm := NewDataManager(dbCM, cfg, nil, locker)
 	dm.SetCache(cacheS)
 
 	args := &utils.ArgsGetGroupWithAPIOpts{
@@ -63,10 +66,11 @@ func TestUpdateReplicationFilters(t *testing.T) {
 
 func TestReplicateNnReplicatorSv1(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := NewGuardianLocker(cfg)
 	cfg.CacheCfg().Partitions[utils.CacheReplicationHosts] = &config.CacheParamCfg{
 		Limit: 1,
 	}
-	cacheS := NewCacheS(cfg, nil, nil, nil)
+	cacheS := NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := NewConnManager(cfg)
 	connMgr.SetCache(cacheS)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10))
@@ -84,10 +88,11 @@ func TestReplicateNnReplicatorSv1(t *testing.T) {
 
 func TestReplicateMultipleIDs(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := NewGuardianLocker(cfg)
 	cfg.CacheCfg().Partitions[utils.CacheReplicationHosts] = &config.CacheParamCfg{
 		Limit: 1,
 	}
-	cacheS := NewCacheS(cfg, nil, nil, nil)
+	cacheS := NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := NewConnManager(cfg)
 	connMgr.SetCache(cacheS)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10))

@@ -29,6 +29,7 @@ import (
 	"github.com/cgrates/birpc/context"
 	"github.com/cgrates/cgrates/config"
 	"github.com/cgrates/cgrates/utils"
+	"github.com/cgrates/guardian"
 	"github.com/cgrates/ltcache"
 )
 
@@ -143,8 +144,9 @@ func init() {
 	gob.Register(new(utils.Decimal))
 }
 
-// NewCacheS initializes the Cache service and executes the precaching
-func NewCacheS(cfg *config.CGRConfig, dm *DataManager, connMgr *ConnManager, cpS *CapsStats) (c *CacheS) {
+// NewCacheS initializes the Cache service.
+func NewCacheS(cfg *config.CGRConfig, dm *DataManager, connMgr *ConnManager, cpS *CapsStats,
+	locker *guardian.GuardianLocker) (c *CacheS) {
 	tCache := cfg.CacheCfg().AsTransCacheConfig()
 	if len(cfg.CacheCfg().ReplicationConns) != 0 {
 		var reply string
@@ -173,6 +175,7 @@ func NewCacheS(cfg *config.CGRConfig, dm *DataManager, connMgr *ConnManager, cpS
 	c = &CacheS{
 		cfg:     cfg,
 		dm:      dm,
+		locker:  locker,
 		connMgr: connMgr,
 		pcItems: make(map[string]chan struct{}),
 		tCache:  ltcache.NewTransCache(tCache),
@@ -187,6 +190,7 @@ func NewCacheS(cfg *config.CGRConfig, dm *DataManager, connMgr *ConnManager, cpS
 type CacheS struct {
 	cfg     *config.CGRConfig
 	dm      *DataManager
+	locker  *guardian.GuardianLocker
 	connMgr *ConnManager
 	pcItems map[string]chan struct{} // signal precaching
 	tCache  *ltcache.TransCache

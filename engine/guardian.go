@@ -16,35 +16,18 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-package apis
+package engine
 
 import (
-	"reflect"
-	"testing"
-
 	"github.com/cgrates/cgrates/config"
-	"github.com/cgrates/cgrates/engine"
-	"github.com/cgrates/cgrates/loaders"
 	"github.com/cgrates/cgrates/utils"
+	"github.com/cgrates/guardian"
 )
 
-func TestLoadersNewLoaderSv1(t *testing.T) {
-	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
-	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
-	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
-	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
-	dm.SetCache(cacheS)
-	fltrs := engine.NewFilterS(cfg, nil, dm)
-	ldrS := loaders.NewLoaderS(cfg, dm, fltrs, nil)
-
-	exp := &LoaderSv1{
-		ldrS: ldrS,
+// NewGuardianLocker returns a Guardian locker configured for cfg.
+func NewGuardianLocker(cfg *config.CGRConfig) *guardian.GuardianLocker {
+	if cfg.LoggerCfg().Level < 0 {
+		return guardian.New()
 	}
-	rcv := NewLoaderSv1(ldrS)
-
-	if !reflect.DeepEqual(rcv, exp) {
-		t.Errorf("expected: <%+v>, \nreceived: <%+v>", exp, rcv)
-	}
+	return guardian.New(guardian.WithLogger(utils.Logger))
 }

@@ -36,13 +36,14 @@ func TestRatesCostForEventRateIDxSelects(t *testing.T) {
 }
 `
 	cfg, err := config.NewCGRConfigFromJSONStringWithDefaults(jsonCfg)
+	locker := engine.NewGuardianLocker(cfg)
 	if err != nil {
 		t.Error(err)
 	}
 	db, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: db}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
-	dm.SetCache(engine.NewCacheS(cfg, nil, nil, nil))
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
+	dm.SetCache(engine.NewCacheS(cfg, nil, nil, nil, locker))
 	fltrs := engine.NewFilterS(cfg, nil, dm)
 	rts := NewRateS(cfg, fltrs, dm)
 
@@ -150,13 +151,14 @@ func TestRatesCostForEventRateIDxSelects(t *testing.T) {
 
 func TestRatesCostForEvent(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
-	cacheS := engine.NewCacheS(cfg, nil, nil, nil)
+	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
 	connMgr.SetCache(cacheS)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, connMgr)
+	dm := engine.NewDataManager(dbCM, cfg, connMgr, locker)
 	dm.SetCache(cacheS)
 	rateS := NewRateS(cfg, nil, dm)
 
@@ -190,6 +192,7 @@ func TestV1RateProfilesForEvent(t *testing.T) {
         `
 
 	cfg, err := config.NewCGRConfigFromJSONStringWithDefaults(jsonCfg)
+	locker := engine.NewGuardianLocker(cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -199,8 +202,8 @@ func TestV1RateProfilesForEvent(t *testing.T) {
 		t.Error(err)
 	}
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: db}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
-	dm.SetCache(engine.NewCacheS(cfg, nil, nil, nil))
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
+	dm.SetCache(engine.NewCacheS(cfg, nil, nil, nil, locker))
 	fltrs := engine.NewFilterS(cfg, nil, dm)
 	rS := NewRateS(cfg, fltrs, dm)
 
@@ -259,6 +262,7 @@ func TestV1RateProfileRatesForEvent(t *testing.T) {
     }`
 
 	cfg, err := config.NewCGRConfigFromJSONStringWithDefaults(jsonCfg)
+	locker := engine.NewGuardianLocker(cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -268,8 +272,8 @@ func TestV1RateProfileRatesForEvent(t *testing.T) {
 		t.Error(err)
 	}
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: db}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
-	dm.SetCache(engine.NewCacheS(cfg, nil, nil, nil))
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
+	dm.SetCache(engine.NewCacheS(cfg, nil, nil, nil, locker))
 	fltrs := engine.NewFilterS(cfg, nil, dm)
 	rS := NewRateS(cfg, fltrs, dm)
 

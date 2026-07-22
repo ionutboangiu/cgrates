@@ -154,9 +154,10 @@ func TestStoreMatchedIPAllocations(t *testing.T) {
 
 	t.Run("StoreInterval is negative, with DataManager no DB", func(t *testing.T) {
 		cfg := config.NewDefaultCGRConfig()
+		locker := engine.NewGuardianLocker(cfg)
 		cfg.IPsCfg().StoreInterval = -1
-		cacheS := engine.NewCacheS(cfg, nil, nil, nil)
-		dm := engine.NewDataManager(engine.NewDBConnManager(map[string]engine.DataDB{}, &config.DbCfg{}), cfg, nil)
+		cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
+		dm := engine.NewDataManager(engine.NewDBConnManager(map[string]engine.DataDB{}, &config.DbCfg{}), cfg, nil, locker)
 		dm.SetCache(cacheS)
 
 		s := &IPs{
@@ -183,6 +184,7 @@ func TestStoreMatchedIPAllocations(t *testing.T) {
 
 	t.Run("StoreInterval is negative, with working DataManager", func(t *testing.T) {
 		cfg := config.NewDefaultCGRConfig()
+		locker := engine.NewGuardianLocker(cfg)
 		cfg.IPsCfg().StoreInterval = -1
 
 		db, err := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -190,8 +192,8 @@ func TestStoreMatchedIPAllocations(t *testing.T) {
 			t.Fatal(err)
 		}
 		dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: db}, cfg.DbCfg())
-		dm := engine.NewDataManager(dbCM, cfg, nil)
-		cacheS := engine.NewCacheS(cfg, nil, nil, nil)
+		dm := engine.NewDataManager(dbCM, cfg, nil, locker)
+		cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 		dm.SetCache(cacheS)
 
 		s := &IPs{
@@ -238,10 +240,11 @@ func TestStoreMatchedIPAllocations(t *testing.T) {
 
 func TestNewIPService(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
-	cacheS := engine.NewCacheS(cfg, nil, nil, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
+	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dm.SetCache(cacheS)
 	filters := engine.NewFilterS(cfg, nil, dm)
 	connMgr := engine.NewConnManager(cfg)
@@ -277,13 +280,14 @@ func TestNewIPService(t *testing.T) {
 
 func TestFilterAndSortPools(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	db, err := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	if err != nil {
 		t.Fatal(err)
 	}
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: db}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
-	cacheS := engine.NewCacheS(cfg, nil, nil, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
+	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dm.SetCache(cacheS)
 	filters := engine.NewFilterS(cfg, nil, dm)
 	ctx := context.Background()
@@ -610,10 +614,11 @@ func TestIPsStartLoop(t *testing.T) {
 
 func TestStoreIPAllocationsList(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
-	cacheS := engine.NewCacheS(cfg, nil, nil, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
+	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dm.SetCache(cacheS)
 	s := NewIPService(cfg, dm, cacheS, nil, nil)
 
@@ -892,10 +897,11 @@ func TestMatchedIPAllocsAllocateIPOnPoolNoTTL(t *testing.T) {
 
 func TestIPsV1ReleaseIPNotFound(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := engine.NewGuardianLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
-	dm := engine.NewDataManager(dbCM, cfg, nil)
-	cacheS := engine.NewCacheS(cfg, dm, nil, nil)
+	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
+	cacheS := engine.NewCacheS(cfg, dm, nil, nil, locker)
 	dm.SetCache(cacheS)
 	filters := engine.NewFilterS(cfg, nil, dm)
 	s := NewIPService(cfg, dm, cacheS, filters, nil)

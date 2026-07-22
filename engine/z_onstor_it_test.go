@@ -69,6 +69,7 @@ var (
 
 func TestOnStorIT(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
+	locker := NewGuardianLocker(cfg)
 	switch *utils.DBType {
 	case utils.MetaInternal:
 		idb, err := NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -76,8 +77,8 @@ func TestOnStorIT(t *testing.T) {
 			t.Fatal(err)
 		}
 		dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: idb}, cfg.DbCfg())
-		onStor = NewDataManager(dbCM, cfg, nil)
-		onStorCache = NewCacheS(cfg, nil, nil, nil)
+		onStor = NewDataManager(dbCM, cfg, nil, locker)
+		onStorCache = NewCacheS(cfg, nil, nil, nil, locker)
 		onStor.SetCache(onStorCache)
 	case utils.MetaRedis:
 		cfg := config.NewDefaultCGRConfig()
@@ -91,8 +92,8 @@ func TestOnStorIT(t *testing.T) {
 		}
 		onStorCfg = cfg.DbCfg().DBConns[utils.MetaDefault].Name
 		dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: rdsITdb}, cfg.DbCfg())
-		onStor = NewDataManager(dbCM, cfg, nil)
-		onStorCache = NewCacheS(cfg, nil, nil, nil)
+		onStor = NewDataManager(dbCM, cfg, nil, locker)
+		onStorCache = NewCacheS(cfg, nil, nil, nil, locker)
 		onStor.SetCache(onStorCache)
 	case utils.MetaMySQL:
 		t.SkipNow()

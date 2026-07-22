@@ -83,8 +83,9 @@ var (
 	}
 )
 
-// NewDataManager returns a new DataManager
-func NewDataManager(dbConns *DBConnManager, cfg *config.CGRConfig, connMgr *ConnManager) *DataManager {
+// NewDataManager returns a new DataManager.
+func NewDataManager(dbConns *DBConnManager, cfg *config.CGRConfig, connMgr *ConnManager,
+	locker *guardian.GuardianLocker) *DataManager {
 	ms, _ := utils.NewMarshaler(cfg.GeneralCfg().DBDataEncoding)
 	dbConns.dbCfg = cfg.DbCfg()
 	dbConns.replicators = make(map[string]*replicator)
@@ -94,6 +95,7 @@ func NewDataManager(dbConns *DBConnManager, cfg *config.CGRConfig, connMgr *Conn
 	return &DataManager{
 		dbConns: dbConns,
 		cfg:     cfg,
+		locker:  locker,
 		connMgr: connMgr,
 		ms:      ms,
 	}
@@ -162,6 +164,7 @@ type DataManager struct {
 	dbConns *DBConnManager
 	cfg     *config.CGRConfig
 	cache   *CacheS
+	locker  *guardian.GuardianLocker
 	connMgr *ConnManager
 	ms      utils.Marshaler
 }

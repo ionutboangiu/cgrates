@@ -51,6 +51,7 @@ func TestNatsEEJetStream(t *testing.T) {
 
 	testCreateDirectory(t)
 	cgrCfg, err := config.NewCGRConfigFromPath(context.Background(), path.Join(*utils.DataDir, "conf", "samples", "ees"))
+	locker := engine.NewGuardianLocker(cgrCfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +61,7 @@ func TestNatsEEJetStream(t *testing.T) {
 			break
 		}
 	}
-	cacheS := engine.NewCacheS(cgrCfg, nil, nil, nil)
+	cacheS := engine.NewCacheS(cgrCfg, nil, nil, nil, locker)
 	evExp, err := NewEventExporter(cfg, cgrCfg, cacheS, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -146,6 +147,7 @@ func TestNatsEE(t *testing.T) {
 	defer natsServer.Shutdown()
 
 	cgrCfg, err := config.NewCGRConfigFromPath(context.Background(), path.Join(*utils.DataDir, "conf", "samples", "ees"))
+	locker := engine.NewGuardianLocker(cgrCfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -155,7 +157,7 @@ func TestNatsEE(t *testing.T) {
 			break
 		}
 	}
-	cacheS := engine.NewCacheS(cgrCfg, nil, nil, nil)
+	cacheS := engine.NewCacheS(cgrCfg, nil, nil, nil, locker)
 	evExp, err := NewEventExporter(cfg, cgrCfg, cacheS, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
