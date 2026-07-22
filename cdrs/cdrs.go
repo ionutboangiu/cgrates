@@ -29,7 +29,6 @@ import (
 	"github.com/cgrates/cgrates/config"
 	"github.com/cgrates/cgrates/engine"
 	"github.com/cgrates/cgrates/utils"
-	"github.com/cgrates/guardian"
 )
 
 func newMapEventFromReqForm(r *http.Request) (mp engine.MapEvent, err error) {
@@ -51,7 +50,6 @@ func NewCDRServer(cfg *config.CGRConfig, dm *engine.DataManager, cache *engine.C
 		cfg:     cfg,
 		dm:      dm,
 		cache:   cache,
-		guard:   guardian.Guardian,
 		fltrS:   filterS,
 		connMgr: connMgr,
 	}
@@ -62,7 +60,6 @@ type CDRServer struct {
 	cfg     *config.CGRConfig
 	dm      *engine.DataManager
 	cache   *engine.CacheS
-	guard   *guardian.GuardianLocker
 	fltrS   *engine.FilterS
 	connMgr *engine.ConnManager
 }
