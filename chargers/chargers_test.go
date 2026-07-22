@@ -74,7 +74,7 @@ func TestChargerSetChargerProfiles(t *testing.T) {
 		},
 	}
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dmCharger = engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -155,7 +155,7 @@ func TestChargerSetChargerProfiles(t *testing.T) {
 
 func TestChargerMatchingChargerProfilesForEvent(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	var chargerSrv *ChargerS
 	var dmCharger *engine.DataManager
 	cPPs := []*utils.ChargerProfile{
@@ -329,7 +329,7 @@ func TestChargerMatchingChargerProfilesForEvent(t *testing.T) {
 
 func TestChargerProcessEvent(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	var chargerSrv *ChargerS
 	var dmCharger *engine.DataManager
 	cPPs := []*utils.ChargerProfile{
@@ -523,7 +523,7 @@ func TestChargerProcessEvent(t *testing.T) {
 
 func TestChargersmatchingChargerProfilesForEventChargerProfileNotFound(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ChargerSCfg().StringIndexedFields = &[]string{
 		"string",
 	}
@@ -571,7 +571,7 @@ func TestChargersmatchingChargerProfilesForEventChargerProfileNotFound(t *testin
 
 func TestChargersmatchingChargerProfilesForEventDoesNotPass(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ChargerSCfg().StringIndexedFields = &[]string{
 		"string",
 	}
@@ -619,7 +619,7 @@ func TestChargersmatchingChargerProfilesForEventDoesNotPass(t *testing.T) {
 
 func TestChargersmatchingChargerProfilesForEventErrGetChPrf(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ChargerSCfg().StringIndexedFields = &[]string{
 		"string",
 	}
@@ -709,7 +709,7 @@ func TestChargersV1ProcessEventMissingArgs(t *testing.T) {
 
 func TestChargersmatchingChargerProfilesForEventCacheReadErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -760,7 +760,7 @@ func TestChargersmatchingChargerProfilesForEventCacheReadErr(t *testing.T) {
 
 func TestChargersmatchingChargerProfilesForEventWeightFromDynamicsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -809,7 +809,7 @@ func TestChargersmatchingChargerProfilesForEventWeightFromDynamicsErr(t *testing
 
 func TestChargersmatchingChargerProfilesForEventBlockerFromDynamicsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -863,7 +863,7 @@ func TestChargersmatchingChargerProfilesForEventBlockerFromDynamicsErr(t *testin
 
 func TestChargersmatchingChargerProfilesForEventBlockerTrue(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -934,7 +934,7 @@ func TestChargersmatchingChargerProfilesForEventBlockerTrue(t *testing.T) {
 
 func TestChargersmatchingChargerProfilesForEventErrPass(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ChargerSCfg().IndexedSelects = false
 
 	dbm := &engine.DataDBMock{
@@ -1003,7 +1003,7 @@ func (ccM *ccMock) Call(ctx *context.Context, serviceMethod string, args any, re
 
 func TestChargersprocessEventCallNilErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ChargerSCfg().IndexedSelects = false
 	cfg.ChargerSCfg().Conns[utils.MetaAttributes] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAttributes)}}}
 
@@ -1102,7 +1102,7 @@ func TestChargersprocessEventCallNilErr(t *testing.T) {
 
 func TestChargersprocessEventCallErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ChargerSCfg().IndexedSelects = false
 	cfg.ChargerSCfg().Conns[utils.MetaAttributes] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAttributes)}}}
 
@@ -1191,7 +1191,7 @@ func TestChargersprocessEventCallErr(t *testing.T) {
 
 func TestChargersV1ProcessEventErrNotFound(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	cfg.ChargerSCfg().IndexedSelects = false
 	cfg.ChargerSCfg().Conns[utils.MetaAttributes] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAttributes)}}}
@@ -1263,7 +1263,7 @@ func TestChargersV1ProcessEventErrNotFound(t *testing.T) {
 
 func TestChargersV1ProcessEventErrOther(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	cfg.ChargerSCfg().IndexedSelects = false
 	cfg.ChargerSCfg().Conns[utils.MetaAttributes] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAttributes)}}}
@@ -1342,7 +1342,7 @@ func TestChargersV1ProcessEventErrOther(t *testing.T) {
 
 func TestChargersV1ProcessEvent(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	cfg.ChargerSCfg().IndexedSelects = false
 	cfg.ChargerSCfg().Conns[utils.MetaAttributes] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAttributes)}}}
@@ -1455,7 +1455,7 @@ func TestChargersV1ProcessEvent(t *testing.T) {
 
 func TestChargersV1GetChargersForEventNilErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	cfg.ChargerSCfg().IndexedSelects = false
 	cfg.ChargerSCfg().Conns[utils.MetaAttributes] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAttributes)}}}
@@ -1514,7 +1514,7 @@ func TestChargersV1GetChargersForEventNilErr(t *testing.T) {
 
 func TestChargersV1GetChargersForEventErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ChargerSCfg().IndexedSelects = false
 
 	dbm := &engine.DataDBMock{

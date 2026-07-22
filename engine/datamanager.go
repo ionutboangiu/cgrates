@@ -85,7 +85,7 @@ var (
 
 // NewDataManager returns a new DataManager.
 func NewDataManager(dbConns *DBConnManager, cfg *config.CGRConfig, connMgr *ConnManager,
-	locker *guardian.GuardianLocker) *DataManager {
+	locker *guardian.Locker) *DataManager {
 	ms, _ := utils.NewMarshaler(cfg.GeneralCfg().DBDataEncoding)
 	dbConns.dbCfg = cfg.DbCfg()
 	dbConns.replicators = make(map[string]*replicator)
@@ -107,16 +107,13 @@ func (dm *DataManager) SetCache(cache *CacheS) {
 
 // Lock locks keys until the returned function is called or the timeout expires.
 func (dm *DataManager) Lock(keys ...string) func() {
-	refID := dm.locker.GuardIDs("", dm.cfg.GeneralCfg().LockingTimeout, keys...)
-	return func() {
-		dm.locker.UnguardIDs(refID)
-	}
+	return dm.locker.Lock(keys...)
 }
 
 // Guard runs handler with keys locked until it returns or the context is done.
 func (dm *DataManager) Guard(ctx *context.Context,
 	handler func(*context.Context) error, keys ...string) error {
-	return dm.locker.Guard(ctx, handler, dm.cfg.GeneralCfg().LockingTimeout, keys...)
+	return dm.locker.Guard(ctx, handler, keys...)
 }
 
 // DBConnManager is the storage manager for all CGRateS DBs
@@ -178,7 +175,7 @@ type DataManager struct {
 	dbConns *DBConnManager
 	cfg     *config.CGRConfig
 	cache   *CacheS
-	locker  *guardian.GuardianLocker
+	locker  *guardian.Locker
 	connMgr *ConnManager
 	ms      utils.Marshaler
 }

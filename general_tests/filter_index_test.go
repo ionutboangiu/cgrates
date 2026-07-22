@@ -115,7 +115,7 @@ func TestFilterIndexUpdates(t *testing.T) {
 }`
 	}
 	cfg, err := config.NewCGRConfigFromJSONStringWithDefaults(cfgJSON)
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -463,7 +463,7 @@ func benchmarkFilterUpdate(b *testing.B, profileCount, initialValueCount int, fi
 }`
 	}
 	cfg, err := config.NewCGRConfigFromJSONStringWithDefaults(cfgJSON)
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	if err != nil {
 		b.Fatal(err)
 	}

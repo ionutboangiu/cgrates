@@ -36,7 +36,7 @@ func NewGuardianService(cfg *config.CGRConfig) *GuardianService {
 // GuardianService implements Service interface.
 type GuardianService struct {
 	cfg    *config.CGRConfig
-	locker *guardian.GuardianLocker
+	locker *guardian.Locker
 }
 
 // Start handles the service start.
@@ -50,9 +50,7 @@ func (s *GuardianService) Start(shutdown *utils.SyncedChan, registry *servmanage
 		return err
 	}
 
-	s.locker = engine.NewGuardianLocker(s.cfg)
-	guardian.Guardian = s.locker
-
+	s.locker = engine.NewLocker(s.cfg)
 	return nil
 }
 
@@ -77,6 +75,6 @@ func (s *GuardianService) ShouldRun() bool {
 }
 
 // Locker returns the process Guardian locker.
-func (s *GuardianService) Locker() *guardian.GuardianLocker {
+func (s *GuardianService) Locker() *guardian.Locker {
 	return s.locker
 }

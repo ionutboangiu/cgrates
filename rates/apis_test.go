@@ -36,7 +36,7 @@ func TestRatesCostForEventRateIDxSelects(t *testing.T) {
 }
 `
 	cfg, err := config.NewCGRConfigFromJSONStringWithDefaults(jsonCfg)
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	if err != nil {
 		t.Error(err)
 	}
@@ -151,7 +151,7 @@ func TestRatesCostForEventRateIDxSelects(t *testing.T) {
 
 func TestRatesCostForEvent(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -192,7 +192,7 @@ func TestV1RateProfilesForEvent(t *testing.T) {
         `
 
 	cfg, err := config.NewCGRConfigFromJSONStringWithDefaults(jsonCfg)
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -262,7 +262,7 @@ func TestV1RateProfileRatesForEvent(t *testing.T) {
     }`
 
 	cfg, err := config.NewCGRConfigFromJSONStringWithDefaults(jsonCfg)
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	if err != nil {
 		t.Fatal(err)
 	}

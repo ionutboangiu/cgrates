@@ -30,7 +30,7 @@ import (
 
 func TestAccountsRefundCharges(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	connMgr := engine.NewConnManager(cfg)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -59,7 +59,7 @@ func TestAccountsRefundCharges(t *testing.T) {
 
 func TestAccountsActionRemoveBalance(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -108,7 +108,7 @@ func TestAccountsActionRemoveBalance(t *testing.T) {
 
 func TestAccountsDebitConcretes(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
@@ -197,7 +197,7 @@ func TestAccountsDebitConcretes(t *testing.T) {
 
 func TestAccountsMaxConcretes(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
@@ -446,7 +446,7 @@ func TestAccountsMaxConcretes(t *testing.T) {
 
 func TestAccountsActionSetBalance(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cfg.AccountSCfg().Conns[utils.MetaRates] = []*config.DynamicConns{{ConnIDs: []string{"*internal"}}}
 	connMgr := engine.NewConnManager(cfg)
@@ -573,7 +573,7 @@ func TestAccountsActionSetBalance(t *testing.T) {
 
 func TestAccountsDebitAbstracts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cfg.AccountSCfg().Conns[utils.MetaRates] = []*config.DynamicConns{{ConnIDs: []string{"*internal"}}}
 	connMgr := engine.NewConnManager(cfg)
@@ -702,7 +702,7 @@ func TestAccountsDebitAbstracts(t *testing.T) {
 
 func TestAccountsMaxAbstracts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cfg.AccountSCfg().Conns[utils.MetaRates] = []*config.DynamicConns{{ConnIDs: []string{"*internal"}}}
 	connMgr := engine.NewConnManager(cfg)
@@ -834,7 +834,7 @@ func TestAccountsMaxAbstracts(t *testing.T) {
 
 func TestAccountsAccountsForEvent(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	connMgr := engine.NewConnManager(cfg)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -923,7 +923,7 @@ func TestAccountsAccountsForEvent(t *testing.T) {
 
 func TestV1GetAccount(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -969,7 +969,7 @@ func TestV1GetAccount(t *testing.T) {
 
 func TestV1RefundCharges(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	connMgr := engine.NewConnManager(cfg)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)

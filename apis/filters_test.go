@@ -33,7 +33,7 @@ import (
 
 func TestFiltersSetGetGetCountFilters(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -203,7 +203,7 @@ func TestFiltersSetGetGetCountFilters(t *testing.T) {
 
 func TestFiltersSetFiltersMissingField(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -231,7 +231,7 @@ func TestFiltersSetFiltersMissingField(t *testing.T) {
 
 func TestFiltersSetFiltersTenantEmpty(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -281,7 +281,7 @@ func TestFiltersSetFiltersTenantEmpty(t *testing.T) {
 
 func TestFiltersSetFiltersGetFilterError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -321,7 +321,7 @@ func TestFiltersSetFiltersGetFilterError(t *testing.T) {
 
 func TestFiltersSetFiltersError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -384,7 +384,7 @@ func TestFiltersSetFiltersError(t *testing.T) {
 
 func TestFiltersSetFiltersSetFilterError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -432,7 +432,7 @@ func TestFiltersSetFiltersSetFilterError(t *testing.T) {
 
 func TestFiltersSetFiltersComposeCacheArgsForFilterError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -499,7 +499,7 @@ func TestFiltersSetFiltersComposeCacheArgsForFilterError(t *testing.T) {
 
 func TestFiltersSetFiltersSetLoadIDsError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -567,7 +567,7 @@ func TestFiltersSetFiltersSetLoadIDsError(t *testing.T) {
 }
 func TestFiltersSetFiltersCacheForFilterError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = "123"
 	delete(cfg.AdminSCfg().Conns, utils.MetaCaches)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
@@ -637,7 +637,7 @@ func TestFiltersSetFiltersCacheForFilterError(t *testing.T) {
 
 func TestFiltersGetFilterNoTenant(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -687,7 +687,7 @@ func TestFiltersGetFilterNoTenant(t *testing.T) {
 
 func TestFiltersGetFilterMissingField(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -733,7 +733,7 @@ func TestFiltersGetFilterMissingField(t *testing.T) {
 
 func TestFiltersGetFilterGetFilterError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -763,7 +763,7 @@ func TestFiltersGetFilterGetFilterError(t *testing.T) {
 
 func TestFiltersGetFiltersCountError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -789,7 +789,7 @@ func TestFiltersGetFiltersCountError(t *testing.T) {
 
 func TestFiltersRemoveFilterMissingStructFieldError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -814,7 +814,7 @@ func TestFiltersRemoveFilterMissingStructFieldError(t *testing.T) {
 
 func TestFiltersRemoveFilterRemoveFilterError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -857,7 +857,7 @@ func (mCC *mockClientConn) Call(ctx *context.Context, serviceMethod string, args
 
 func TestFiltersSetFilterReloadCache(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cfg.AdminSCfg().Conns[utils.MetaCaches] = []*config.DynamicConns{
 		{
@@ -1036,7 +1036,7 @@ func TestFiltersSetFilterReloadCache(t *testing.T) {
 
 func TestFiltersSetFilterClearCache(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cfg.AdminSCfg().Conns[utils.MetaCaches] = []*config.DynamicConns{
 		{
@@ -1214,7 +1214,7 @@ func TestFiltersSetFilterClearCache(t *testing.T) {
 }
 func TestFiltersRemoveFilterSetLoadIDsError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cfg.CacheCfg().ReplicationConns = []string{"rep"}
 	cfg.CacheCfg().Partitions[utils.CacheReverseFilterIndexes].Replicate = false
@@ -1257,7 +1257,7 @@ func TestFiltersRemoveFilterSetLoadIDsError(t *testing.T) {
 
 func TestFiltersRemoveFilterCallCacheForFilterError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = "123"
 	delete(cfg.AdminSCfg().Conns, utils.MetaCaches)
 	cfg.CacheCfg().ReplicationConns = []string{"rep"}
@@ -1304,7 +1304,7 @@ func TestFiltersRemoveFilterCallCacheForFilterError(t *testing.T) {
 
 func TestFiltersGetFilterIDs(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -1375,7 +1375,7 @@ func TestFiltersValidateFilterRuleErr(t *testing.T) {
 
 func TestFiltersFiltersMatchTrue(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -1410,7 +1410,7 @@ func TestFiltersFiltersMatchTrue(t *testing.T) {
 
 func TestFiltersFiltersMatchFalse(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -1444,7 +1444,7 @@ func TestFiltersFiltersMatchFalse(t *testing.T) {
 
 func TestFiltersFiltersMatchErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -1479,7 +1479,7 @@ func TestFiltersFiltersMatchErr(t *testing.T) {
 
 func TestFiltersGetFiltersOK(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -1602,7 +1602,7 @@ func TestFiltersGetFiltersOK(t *testing.T) {
 
 func TestFiltersGetFiltersGetIDsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -1653,7 +1653,7 @@ func TestFiltersGetFiltersGetIDsErr(t *testing.T) {
 
 func TestFiltersGetFiltersGetProfileErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -1691,7 +1691,7 @@ func TestFiltersGetFiltersGetProfileErr(t *testing.T) {
 
 func TestFiltersGetFilterIDsGetOptsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -1739,7 +1739,7 @@ func TestFiltersGetFilterIDsGetOptsErr(t *testing.T) {
 
 func TestFiltersGetFilterIDsPaginateErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -1789,7 +1789,7 @@ func TestFiltersGetFilterIDsPaginateErr(t *testing.T) {
 
 func TestFiltersSetFilterNoRulesErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -1815,7 +1815,7 @@ func TestFiltersSetFilterNoRulesErr(t *testing.T) {
 
 func TestFiltersSetFilterInvalidRulesErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)

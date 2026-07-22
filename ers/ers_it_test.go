@@ -45,7 +45,7 @@ import (
 
 func TestERsNewERService(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	fltrS := &engine.FilterS{}
 	expected := &ERService{cfg: cfg,
 		fltrS:     fltrS,
@@ -66,7 +66,7 @@ func TestERsNewERService(t *testing.T) {
 
 func TestERsAddReader(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	fltrS := &engine.FilterS{}
 	erS := NewERService(nil, cfg, engine.NewCacheS(cfg, nil, nil, nil, locker), fltrS, nil)
 	reader := cfg.ERsCfg().Readers[0]
@@ -88,7 +88,7 @@ func TestERsAddReader(t *testing.T) {
 
 func TestERsListenAndServeErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{},
 	}
@@ -103,7 +103,7 @@ func TestERsListenAndServeErr(t *testing.T) {
 }
 func TestERsProcessEventErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{},
 	}
@@ -119,7 +119,7 @@ func TestERsProcessEventErr(t *testing.T) {
 
 func TestERsCloseAllRdrs(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{},
 	}
@@ -130,7 +130,7 @@ func TestERsCloseAllRdrs(t *testing.T) {
 }
 func TestERsListenAndServeRdrErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			Type: utils.MetaNone,
@@ -151,7 +151,7 @@ func TestERsListenAndServeRdrErr(t *testing.T) {
 
 func TestERsListenAndServeStopchan(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			Type: utils.MetaNone,
@@ -171,7 +171,7 @@ func TestERsListenAndServeStopchan(t *testing.T) {
 
 func TestERsListenAndServeRdrEvents(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			Type: utils.MetaNone,
@@ -199,7 +199,7 @@ func TestERsListenAndServeRdrEvents(t *testing.T) {
 
 func TestERsListenAndServeCfgRldChan(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			Type: utils.MetaNone,
@@ -223,7 +223,7 @@ func TestERsListenAndServeCfgRldChan(t *testing.T) {
 
 func TestERsListenAndServeCfgRldChan2(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -258,7 +258,7 @@ func TestERsListenAndServeCfgRldChan2(t *testing.T) {
 
 func TestERsListenAndServeCfgRldChan3(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -292,7 +292,7 @@ func TestERsListenAndServeCfgRldChan3(t *testing.T) {
 
 func TestERsListenAndServeCfgRldChan4(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -328,7 +328,7 @@ func TestERsListenAndServeCfgRldChan4(t *testing.T) {
 
 func TestERsListenAndServeCfgRldChan5(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -363,7 +363,7 @@ func TestERsListenAndServeCfgRldChan5(t *testing.T) {
 
 func TestERsListenAndServeCfgRldChan6(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -404,7 +404,7 @@ func TestERsListenAndServeCfgRldChan6(t *testing.T) {
 
 func TestERsProcessEvent(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -428,7 +428,7 @@ func TestERsProcessEvent(t *testing.T) {
 }
 func TestERsProcessEvent2(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -452,7 +452,7 @@ func TestERsProcessEvent2(t *testing.T) {
 }
 func TestERsProcessEvent3(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -480,7 +480,7 @@ func TestERsProcessEvent3(t *testing.T) {
 
 func TestERsProcessEvent4(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -508,7 +508,7 @@ func TestERsProcessEvent4(t *testing.T) {
 
 func TestERsProcessEvent5(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -536,7 +536,7 @@ func TestERsProcessEvent5(t *testing.T) {
 
 func TestERsProcessEvent6(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -563,7 +563,7 @@ func TestERsProcessEvent6(t *testing.T) {
 }
 func TestERsProcessEvent7(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -590,7 +590,7 @@ func TestERsProcessEvent7(t *testing.T) {
 }
 func TestERsProcessEvent8(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -618,7 +618,7 @@ func TestERsProcessEvent8(t *testing.T) {
 
 func TestERsProcessEvent9(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -646,7 +646,7 @@ func TestERsProcessEvent9(t *testing.T) {
 
 func TestERsProcessEvent10(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -690,7 +690,7 @@ func (sT *testMockClients) Call(ctx *context.Context, method string, arg any, rp
 
 func TestERsProcessEvent11(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.ERsCfg().Readers = []*config.EventReaderCfg{
 		{
 			ID:   "test",
@@ -760,7 +760,7 @@ func TestErsOnEvictedMetaDumpToFileOK(t *testing.T) {
 		},
 	}
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -817,7 +817,7 @@ func TestErsOnEvictedMetaDumpToFileCSVWriteErr(t *testing.T) {
 		},
 	}
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -874,7 +874,7 @@ func TestErsOnEvictedMetaDumpToFileCreateErr(t *testing.T) {
 		},
 	}
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -970,7 +970,7 @@ func TestErsOnEvictedNoCacheDumpFields(t *testing.T) {
 	}
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -1056,7 +1056,7 @@ func TestERsOnEvictedDumpToJSON(t *testing.T) {
 	}
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -1148,7 +1148,7 @@ func TestErsOnEvictedDumpToJSONNoPath(t *testing.T) {
 	}
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -1232,7 +1232,7 @@ func TestErsOnEvictedDumpToJSONMergeError(t *testing.T) {
 	}
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -1316,7 +1316,7 @@ func TestERsOnEvictedDumpToJSONWithCacheDumpFieldsErrPrefix(t *testing.T) {
 	value.rdrCfg.CacheDumpFields[0].ComputePath()
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -1397,7 +1397,7 @@ func TestERsOnEvictedDumpToJSONWithCacheDumpFields(t *testing.T) {
 	value.rdrCfg.CacheDumpFields[0].ComputePath()
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -1487,7 +1487,7 @@ func TestErsOnEvictedDumpToJSONInvalidPath(t *testing.T) {
 	}
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -1561,7 +1561,7 @@ func TestErsOnEvictedDumpToJSONEncodeErr(t *testing.T) {
 	}
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)

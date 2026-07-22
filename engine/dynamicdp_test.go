@@ -444,7 +444,7 @@ func TestDynamicDPfieldAsInterfaceNotFound(t *testing.T) {
 
 func TestDynamicDPfieldAsInterfaceErrMetaStats(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	cacheS := NewCacheS(cfg, nil, nil, nil, locker)
 	cfg.FilterSCfg().Conns[utils.MetaResources] = []*config.DynamicConns{
 		{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaResources)}},
@@ -479,7 +479,7 @@ func TestDynamicDPfieldAsInterfaceErrMetaStats(t *testing.T) {
 
 func TestDynamicDPfieldAsInterfaceErrMetaAccounts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	cacheS := NewCacheS(cfg, nil, nil, nil, locker)
 	cfg.FilterSCfg().Conns[utils.MetaAccounts] = []*config.DynamicConns{
 		{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAccounts)}},
@@ -550,7 +550,7 @@ func TestDynamicDPfieldAsInterfaceErrMetaAccounts(t *testing.T) {
 
 func TestDynamicDPfieldAsInterfaceMetaResources(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	cacheS := NewCacheS(cfg, nil, nil, nil, locker)
 	cfg.FilterSCfg().Conns[utils.MetaResources] = []*config.DynamicConns{
 		{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaResources)}},
@@ -621,7 +621,7 @@ func TestDynamicDPfieldAsInterfaceMetaResources(t *testing.T) {
 
 func TestDynamicDPfieldAsInterfaceMetaStats(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	cacheS := NewCacheS(cfg, nil, nil, nil, locker)
 	cfg.FilterSCfg().Conns[utils.MetaStats] = []*config.DynamicConns{
 		{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaStats)}},
@@ -721,7 +721,7 @@ func TestDPFilterSConns(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		locker := NewGuardianLocker(cfg)
+		locker := NewLocker(cfg)
 		dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 		dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 		dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -756,7 +756,7 @@ func TestDPFilterSConns(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		locker := NewGuardianLocker(cfg)
+		locker := NewLocker(cfg)
 		dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 		dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 		dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -790,7 +790,7 @@ func TestDPFilterSConns(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		locker := NewGuardianLocker(cfg)
+		locker := NewLocker(cfg)
 		dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 		dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 		dm := NewDataManager(dbCM, cfg, nil, locker)

@@ -35,7 +35,7 @@ import (
 
 func TestStatsSetGetRemStatQueueProfile(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -113,7 +113,7 @@ func TestStatsSetGetRemStatQueueProfile(t *testing.T) {
 
 func TestStatsGetStatQueueProfileCheckErrors(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -150,7 +150,7 @@ func TestStatsGetStatQueueProfileCheckErrors(t *testing.T) {
 
 func TestStatsSetStatQueueProfileCheckErrors(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -231,7 +231,7 @@ func TestStatsSetStatQueueProfileCheckErrors(t *testing.T) {
 
 func TestStatsRemoveStatQueueProfileCheckErrors(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -353,7 +353,7 @@ func TestStatsRemoveStatQueueProfileCheckErrors(t *testing.T) {
 
 func TestStatsGetStatQueueProfileIDsErrMock(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -395,7 +395,7 @@ func TestStatsGetStatQueueProfileIDsErrMock(t *testing.T) {
 
 func TestStatsGetStatQueueProfileIDsErrKeys(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -425,7 +425,7 @@ func TestStatsGetStatQueueProfileIDsErrKeys(t *testing.T) {
 
 func TestStatQueuesGetStatQueueProfileIDsGetOptsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -473,7 +473,7 @@ func TestStatQueuesGetStatQueueProfileIDsGetOptsErr(t *testing.T) {
 
 func TestStatQueuesGetStatQueueProfileIDsPaginateErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -523,7 +523,7 @@ func TestStatQueuesGetStatQueueProfileIDsPaginateErr(t *testing.T) {
 
 func TestStatsGetStatQueueProfilesCountErrMock(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -561,7 +561,7 @@ func TestStatsGetStatQueueProfilesCountErrMock(t *testing.T) {
 
 func TestStatsGetStatQueueProfilesCountErrKeys(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -589,7 +589,7 @@ func TestStatsGetStatQueueProfilesCountErrKeys(t *testing.T) {
 
 func TestStatsNewStatsv1(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
@@ -609,7 +609,7 @@ func TestStatsNewStatsv1(t *testing.T) {
 
 func TestStatsAPIs(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	// cfg.FilterSCfg().AccountSConns = []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAdminS)}
@@ -886,7 +886,7 @@ func TestStatsAPIs(t *testing.T) {
 
 func TestStatQueuesGetStatQueueProfilesOK(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -1044,7 +1044,7 @@ func TestStatQueuesGetStatQueueProfilesOK(t *testing.T) {
 
 func TestStatQueuesGetStatQueueProfilesGetIDsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -1102,7 +1102,7 @@ func TestStatQueuesGetStatQueueProfilesGetIDsErr(t *testing.T) {
 
 func TestStatQueuesGetStatQueueProfilesGetProfileErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{

@@ -33,7 +33,7 @@ import (
 
 func TestLibFiltersGetFloat64OptsReturnConfigOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -66,7 +66,7 @@ func TestLibFiltersGetFloat64OptsReturnConfigOpt(t *testing.T) {
 
 func TestLibFiltersGetFloat64OptsFilterCheckErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -96,7 +96,7 @@ func TestLibFiltersGetFloat64OptsFilterCheckErr(t *testing.T) {
 
 func TestLibFiltersGetFloat64OptsReturnDefaultOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -126,7 +126,7 @@ func TestLibFiltersGetFloat64OptsReturnDefaultOpt(t *testing.T) {
 
 func TestLibFiltersGetFloat64OptsReturnOptFromAPIOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -159,7 +159,7 @@ func TestLibFiltersGetFloat64OptsReturnOptFromAPIOpts(t *testing.T) {
 
 func TestLibFiltersGetStringOptsReturnConfigOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -193,7 +193,7 @@ func TestLibFiltersGetStringOptsReturnConfigOpt(t *testing.T) {
 
 func TestLibFiltersGetStringOptsFilterCheckErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -222,7 +222,7 @@ func TestLibFiltersGetStringOptsFilterCheckErr(t *testing.T) {
 
 func TestLibFiltersGetStringOptsReturnDefaultOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -251,7 +251,7 @@ func TestLibFiltersGetStringOptsReturnDefaultOpt(t *testing.T) {
 
 func TestLibFiltersGetStringOptsReturnOptFromAPIOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -284,7 +284,7 @@ func TestLibFiltersGetStringOptsReturnOptFromAPIOpts(t *testing.T) {
 
 func TestLibFiltersGetDurationOptsReturnConfigOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -317,7 +317,7 @@ func TestLibFiltersGetDurationOptsReturnConfigOpt(t *testing.T) {
 
 func TestLibFiltersGetDurationOptsFilterCheckErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -346,7 +346,7 @@ func TestLibFiltersGetDurationOptsFilterCheckErr(t *testing.T) {
 
 func TestLibFiltersGetDurationOptsReturnDefaultOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -376,7 +376,7 @@ func TestLibFiltersGetDurationOptsReturnDefaultOpt(t *testing.T) {
 
 func TestLibFiltersGetDurationPointerOptsReturnOptFromAPIOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -408,7 +408,7 @@ func TestLibFiltersGetDurationPointerOptsReturnOptFromAPIOpts(t *testing.T) {
 }
 func TestLibFiltersGetDurationPointerOptsReturnConfigOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -441,7 +441,7 @@ func TestLibFiltersGetDurationPointerOptsReturnConfigOpt(t *testing.T) {
 
 func TestLibFiltersGetDurationPointerOptsFilterCheckErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -470,7 +470,7 @@ func TestLibFiltersGetDurationPointerOptsFilterCheckErr(t *testing.T) {
 
 func TestLibFiltersGetDurationPointerOptsReturnDefaultOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -500,7 +500,7 @@ func TestLibFiltersGetDurationPointerOptsReturnDefaultOpt(t *testing.T) {
 
 func TestLibFiltersGetDurationOptsReturnOptFromAPIOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -533,7 +533,7 @@ func TestLibFiltersGetDurationOptsReturnOptFromAPIOpts(t *testing.T) {
 
 func TestLibFiltersGetIntOptsReturnConfigOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -566,7 +566,7 @@ func TestLibFiltersGetIntOptsReturnConfigOpt(t *testing.T) {
 
 func TestLibFiltersGetIntOptsFilterCheckErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -595,7 +595,7 @@ func TestLibFiltersGetIntOptsFilterCheckErr(t *testing.T) {
 
 func TestLibFiltersGetIntOptsReturnDefaultOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -625,7 +625,7 @@ func TestLibFiltersGetIntOptsReturnDefaultOpt(t *testing.T) {
 
 func TestLibFiltersGetIntOptsReturnOptFromAPIOptsOK(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -658,7 +658,7 @@ func TestLibFiltersGetIntOptsReturnOptFromAPIOptsOK(t *testing.T) {
 
 func TestLibFiltersGetIntOptsReturnOptFromAPIOptsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -689,7 +689,7 @@ func TestLibFiltersGetIntOptsReturnOptFromAPIOptsErr(t *testing.T) {
 
 func TestLibFiltersGetTimeOptsReturnConfigOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -722,7 +722,7 @@ func TestLibFiltersGetTimeOptsReturnConfigOpt(t *testing.T) {
 
 func TestLibFiltersGetTimeOptsFilterCheckErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -751,7 +751,7 @@ func TestLibFiltersGetTimeOptsFilterCheckErr(t *testing.T) {
 
 func TestLibFiltersGetTimeOptsReturnDefaultOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -785,7 +785,7 @@ func TestLibFiltersGetTimeOptsReturnDefaultOpt(t *testing.T) {
 
 func TestLibFiltersGetTimeOptsReturnOptFromAPIOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -824,7 +824,7 @@ func dateEqual(date1, date2 time.Time) bool {
 
 func TestLibFiltersGetBoolOptsReturnConfigOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -857,7 +857,7 @@ func TestLibFiltersGetBoolOptsReturnConfigOpt(t *testing.T) {
 
 func TestLibFiltersGetBoolOptsFilterCheckErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -886,7 +886,7 @@ func TestLibFiltersGetBoolOptsFilterCheckErr(t *testing.T) {
 
 func TestLibFiltersGetBoolOptsReturnDefaultOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -915,7 +915,7 @@ func TestLibFiltersGetBoolOptsReturnDefaultOpt(t *testing.T) {
 
 func TestLibFiltersGetBoolOptsReturnOptFromAPIOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -948,7 +948,7 @@ func TestLibFiltersGetBoolOptsReturnOptFromAPIOpts(t *testing.T) {
 
 func TestLibFiltersGetInterfaceOptsReturnConfigOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -993,7 +993,7 @@ func TestLibFiltersGetInterfaceOptsReturnConfigOpt(t *testing.T) {
 
 func TestLibFiltersGetInterfaceOptsFilterCheckErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -1026,7 +1026,7 @@ func TestLibFiltersGetInterfaceOptsFilterCheckErr(t *testing.T) {
 
 func TestLibFiltersGetInterfaceOptsReturnDefaultOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -1062,7 +1062,7 @@ func TestLibFiltersGetInterfaceOptsReturnDefaultOpt(t *testing.T) {
 
 func TestLibFiltersGetInterfaceOptsReturnOptFromAPIOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -1099,7 +1099,7 @@ func TestLibFiltersGetInterfaceOptsReturnOptFromAPIOpts(t *testing.T) {
 
 func TestLibFiltersGetStringSliceOptsReturnConfigOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -1144,7 +1144,7 @@ func TestLibFiltersGetStringSliceOptsReturnConfigOpt(t *testing.T) {
 
 func TestLibFiltersGetStringSliceOptsFilterCheckErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -1177,7 +1177,7 @@ func TestLibFiltersGetStringSliceOptsFilterCheckErr(t *testing.T) {
 
 func TestLibFiltersGetStringSliceOptsReturnDefaultOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -1210,7 +1210,7 @@ func TestLibFiltersGetStringSliceOptsReturnDefaultOpt(t *testing.T) {
 
 func TestLibFiltersGetStringSliceOptsReturnOptFromAPIOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -1247,7 +1247,7 @@ func TestLibFiltersGetStringSliceOptsReturnOptFromAPIOpts(t *testing.T) {
 
 func TestLibFiltersGetDecimalBigOptsReturnConfigOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2395,7 +2395,7 @@ func TestRoutesDynamicOptsFromJson(t *testing.T) {
 
 func TestLibFiltersGetDecimalBigOptsFilterCheckErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2428,7 +2428,7 @@ func TestLibFiltersGetDecimalBigOptsFilterCheckErr(t *testing.T) {
 
 func TestLibFiltersGetDecimalBigOptsReturnDefaultOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2464,7 +2464,7 @@ func TestLibFiltersGetDecimalBigOptsReturnDefaultOpt(t *testing.T) {
 
 func TestLibFiltersGetDecimalBigOptsReturnOptFromAPIOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2503,7 +2503,7 @@ func TestLibFiltersGetDecimalBigOptsReturnOptFromAPIOpts(t *testing.T) {
 
 func TestLibFiltersGetIntPointerOptsReturnConfigOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2536,7 +2536,7 @@ func TestLibFiltersGetIntPointerOptsReturnConfigOpt(t *testing.T) {
 
 func TestLibFiltersGetIntPointerOptsFilterCheckErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2565,7 +2565,7 @@ func TestLibFiltersGetIntPointerOptsFilterCheckErr(t *testing.T) {
 
 func TestLibFiltersGetIntPointerOptsReturnDft(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2594,7 +2594,7 @@ func TestLibFiltersGetIntPointerOptsReturnDft(t *testing.T) {
 
 func TestLibFiltersGetIntPointerOptsReturnOptFromAPIOptsOK(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2627,7 +2627,7 @@ func TestLibFiltersGetIntPointerOptsReturnOptFromAPIOptsOK(t *testing.T) {
 
 func TestLibFiltersGetIntPointerOptsReturnOptFromAPIOptsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2658,7 +2658,7 @@ func TestLibFiltersGetIntPointerOptsReturnOptFromAPIOptsErr(t *testing.T) {
 
 func TestLibFiltersGetDurationOptsFromMultipleMapsReturnConfigOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2688,7 +2688,7 @@ func TestLibFiltersGetDurationOptsFromMultipleMapsReturnConfigOpt(t *testing.T) 
 
 func TestLibFiltersGetDurationOptsFromMultipleMapsFilterCheckErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2714,7 +2714,7 @@ func TestLibFiltersGetDurationOptsFromMultipleMapsFilterCheckErr(t *testing.T) {
 
 func TestLibFiltersGetDurationOptsFromMultipleMapsErrNotFound(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2740,7 +2740,7 @@ func TestLibFiltersGetDurationOptsFromMultipleMapsErrNotFound(t *testing.T) {
 
 func TestLibFiltersGetDurationOptsFromMultipleMapsReturnOptFromAPIOptsOK(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2770,7 +2770,7 @@ func TestLibFiltersGetDurationOptsFromMultipleMapsReturnOptFromAPIOptsOK(t *test
 
 func TestLibFiltersGetDurationOptsFromMultipleMapsReturnOptFromAPIOptsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2798,7 +2798,7 @@ func TestLibFiltersGetDurationOptsFromMultipleMapsReturnOptFromAPIOptsErr(t *tes
 
 func TestLibFiltersGetDurationOptsFromMultipleMapsReturnOptFromStartOptsOK(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2828,7 +2828,7 @@ func TestLibFiltersGetDurationOptsFromMultipleMapsReturnOptFromStartOptsOK(t *te
 
 func TestLibFiltersGetDurationOptsFromMultipleMapsReturnOptFromStartOptsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2856,7 +2856,7 @@ func TestLibFiltersGetDurationOptsFromMultipleMapsReturnOptFromStartOptsErr(t *t
 
 func TestLibFiltersGetDurationPointerOptsFromMultipleMapsReturnConfigOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2886,7 +2886,7 @@ func TestLibFiltersGetDurationPointerOptsFromMultipleMapsReturnConfigOpt(t *test
 
 func TestLibFiltersGetDurationPointerOptsFromMultipleMapsFilterCheckErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2912,7 +2912,7 @@ func TestLibFiltersGetDurationPointerOptsFromMultipleMapsFilterCheckErr(t *testi
 
 func TestLibFiltersGetDurationPointerOptsFromMultipleMapsReturnDft(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2936,7 +2936,7 @@ func TestLibFiltersGetDurationPointerOptsFromMultipleMapsReturnDft(t *testing.T)
 
 func TestLibFiltersGetDurationPointerOptsFromMultipleMapsReturnOptFromAPIOptsOK(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2966,7 +2966,7 @@ func TestLibFiltersGetDurationPointerOptsFromMultipleMapsReturnOptFromAPIOptsOK(
 
 func TestLibFiltersGetDurationPointerOptsFromMultipleMapsReturnOptFromAPIOptsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -2994,7 +2994,7 @@ func TestLibFiltersGetDurationPointerOptsFromMultipleMapsReturnOptFromAPIOptsErr
 
 func TestLibFiltersGetDurationPointerOptsFromMultipleMapsReturnOptFromStartOptsOK(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -3024,7 +3024,7 @@ func TestLibFiltersGetDurationPointerOptsFromMultipleMapsReturnOptFromStartOptsO
 
 func TestLibFiltersGetDurationPointerOptsFromMultipleMapsReturnOptFromStartOptsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -3067,7 +3067,7 @@ func (mockDP) FieldAsString([]string) (string, error) {
 func TestGetBoolOptsFieldAsInterfaceErr(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -3086,7 +3086,7 @@ func TestGetBoolOptsFieldAsInterfaceErr(t *testing.T) {
 
 func TestGetBoolOptsCantCastErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -3433,7 +3433,7 @@ func TestConvertOptsToMapStringAny(t *testing.T) {
 
 func TestGetConnIDsFilters(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	dataDB, _ := NewInternalDB(nil, nil, nil, nil)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)

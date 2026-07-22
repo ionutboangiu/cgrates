@@ -37,7 +37,7 @@ import (
 func TestCDRsNewCDRServer(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
@@ -61,7 +61,7 @@ func TestCDRsNewCDRServer(t *testing.T) {
 func TestCDRsChrgrSProcessEventErrMsnConnIDs(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
@@ -97,7 +97,7 @@ func TestCDRsChrgrSProcessEventErrMsnConnIDs(t *testing.T) {
 
 func TestCDRsAttrSProcessEventNoOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, nil, locker)
@@ -129,7 +129,7 @@ func TestCDRsAttrSProcessEventNoOpts(t *testing.T) {
 func TestCDRsAttrSProcessEvent(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
@@ -165,7 +165,7 @@ func TestCDRsAttrSProcessEvent(t *testing.T) {
 func TestCDRsRateSCostForEventErr(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
@@ -201,7 +201,7 @@ func TestCDRsRateSCostForEventErr(t *testing.T) {
 func TestCDRsAccountSDebitEventErr(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
@@ -237,7 +237,7 @@ func TestCDRsAccountSDebitEventErr(t *testing.T) {
 func TestCDRsThdSProcessEventErr(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
@@ -271,7 +271,7 @@ func TestCDRsThdSProcessEventErr(t *testing.T) {
 func TestCDRsStatSProcessEventErrMsnConnIDs(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
@@ -308,7 +308,7 @@ func TestCDRsStatSProcessEventErrMsnConnIDs(t *testing.T) {
 func TestCDRsEESProcessEventErrMsnConnIDs(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
@@ -377,7 +377,7 @@ func (ccM *ccMock) Call(ctx *context.Context, serviceMethod string, args any, re
 
 func TestCDRsAttrSProcessEventMock(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaAttributes] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAttributes)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -448,7 +448,7 @@ func TestCDRsAttrSProcessEventMock(t *testing.T) {
 
 func TestCDRsAttrSProcessEventMockNotFoundErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaAttributes] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAttributes)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -521,7 +521,7 @@ func TestCDRsAttrSProcessEventMockNotFoundErr(t *testing.T) {
 
 func TestCDRsAttrSProcessEventMockNotEmptyAF(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaAttributes] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAttributes)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -614,7 +614,7 @@ func TestCDRsAttrSProcessEventMockNotEmptyAF(t *testing.T) {
 
 func TestCDRsChrgrSProcessEvent(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaChargers] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaChargers)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -675,7 +675,7 @@ func TestCDRsChrgrSProcessEvent(t *testing.T) {
 
 func TestCDRsRateProcessEventMock(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaRates] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaRates)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -745,7 +745,7 @@ func TestCDRsRateProcessEventMock(t *testing.T) {
 
 func TestCDRsAccountProcessEventMock(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaAccounts] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAccounts)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -817,7 +817,7 @@ func TestCDRsAccountProcessEventMock(t *testing.T) {
 
 func TestCDRsThdSProcessEventMock(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaThresholds] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaThresholds)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -881,7 +881,7 @@ func TestCDRsThdSProcessEventMock(t *testing.T) {
 
 func TestCDRsThdSProcessEventMockNotfound(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaThresholds] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaThresholds)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -944,7 +944,7 @@ func TestCDRsThdSProcessEventMockNotfound(t *testing.T) {
 
 func TestCDRsStatSProcessEventMock(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaStats] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaStats)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -1008,7 +1008,7 @@ func TestCDRsStatSProcessEventMock(t *testing.T) {
 
 func TestCDRsEESProcessEventMock(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -1076,7 +1076,7 @@ func TestCDRsEESProcessEventMock(t *testing.T) {
 
 func TestCDRsProcessEventMock(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -1141,7 +1141,7 @@ func TestCDRsProcessEventMock(t *testing.T) {
 
 func TestCDRsProcessEventMockSkipOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -1220,7 +1220,7 @@ func TestCDRsNewMapEventFromReqFormErr(t *testing.T) {
 
 func TestCDRsProcessEventMockAttrsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 	cfg.CdrsCfg().Opts.Attributes = []*config.DynamicBoolOpt{
 		config.NewDynamicBoolOpt(nil, "", false, nil),
@@ -1273,7 +1273,7 @@ func TestCDRsProcessEventMockAttrsErr(t *testing.T) {
 
 func TestCDRsProcessEventMockAttrsErrBoolOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 	cfg.CdrsCfg().Opts.Attributes = []*config.DynamicBoolOpt{
 		config.NewDynamicBoolOpt(nil, "", false, nil),
@@ -1327,7 +1327,7 @@ func TestCDRsProcessEventMockAttrsErrBoolOpts(t *testing.T) {
 
 func TestCDRsProcessEventMockChrgsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 	cfg.CdrsCfg().Opts.Attributes = []*config.DynamicBoolOpt{
 		config.NewDynamicBoolOpt(nil, "", false, nil),
@@ -1381,7 +1381,7 @@ func TestCDRsProcessEventMockChrgsErr(t *testing.T) {
 
 func TestCDRsProcessEventMockChrgsErrBoolOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 	cfg.CdrsCfg().Opts.Attributes = []*config.DynamicBoolOpt{
 		config.NewDynamicBoolOpt(nil, "", false, nil),
@@ -1436,7 +1436,7 @@ func TestCDRsProcessEventMockChrgsErrBoolOpts(t *testing.T) {
 
 func TestCDRsProcessEventMockRateSErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 	cfg.CdrsCfg().Opts.Attributes = []*config.DynamicBoolOpt{
 		config.NewDynamicBoolOpt(nil, "", false, nil),
@@ -1490,7 +1490,7 @@ func TestCDRsProcessEventMockRateSErr(t *testing.T) {
 
 func TestCDRsProcessEventMockRateSErrBoolOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 	cfg.CdrsCfg().Opts.Attributes = []*config.DynamicBoolOpt{
 		config.NewDynamicBoolOpt(nil, "", false, nil),
@@ -1545,7 +1545,7 @@ func TestCDRsProcessEventMockRateSErrBoolOpts(t *testing.T) {
 
 func TestCDRsProcessEventMockAcntsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 	cfg.CdrsCfg().Opts.Attributes = []*config.DynamicBoolOpt{
 		config.NewDynamicBoolOpt(nil, "", false, nil),
@@ -1599,7 +1599,7 @@ func TestCDRsProcessEventMockAcntsErr(t *testing.T) {
 
 func TestCDRsProcessEventMockAcntsErrBoolOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 	cfg.CdrsCfg().Opts.Attributes = []*config.DynamicBoolOpt{
 		config.NewDynamicBoolOpt(nil, "", false, nil),
@@ -1654,7 +1654,7 @@ func TestCDRsProcessEventMockAcntsErrBoolOpts(t *testing.T) {
 
 func TestCDRsProcessEventMockExportErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 	cfg.CdrsCfg().Opts.Attributes = []*config.DynamicBoolOpt{
 		config.NewDynamicBoolOpt(nil, "", false, nil),
@@ -1708,7 +1708,7 @@ func TestCDRsProcessEventMockExportErr(t *testing.T) {
 
 func TestCDRsProcessEventMockExportErrBoolOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 	cfg.CdrsCfg().Opts.Attributes = []*config.DynamicBoolOpt{
 		config.NewDynamicBoolOpt(nil, "", false, nil),
@@ -1763,7 +1763,7 @@ func TestCDRsProcessEventMockExportErrBoolOpts(t *testing.T) {
 
 func TestCDRsProcessEventMockThdsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 	cfg.CdrsCfg().Opts.Attributes = []*config.DynamicBoolOpt{
 		config.NewDynamicBoolOpt(nil, "", false, nil),
@@ -1816,7 +1816,7 @@ func TestCDRsProcessEventMockThdsErr(t *testing.T) {
 
 func TestCDRsProcessEventMockThdsErrBoolOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 	cfg.CdrsCfg().Opts.Attributes = []*config.DynamicBoolOpt{
 		config.NewDynamicBoolOpt(nil, "", false, nil),
@@ -1871,7 +1871,7 @@ func TestCDRsProcessEventMockThdsErrBoolOpts(t *testing.T) {
 
 func TestCDRsProcessEventMockStatsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 	cfg.CdrsCfg().Opts.Attributes = []*config.DynamicBoolOpt{
 		config.NewDynamicBoolOpt(nil, "", false, nil),
@@ -1925,7 +1925,7 @@ func TestCDRsProcessEventMockStatsErr(t *testing.T) {
 
 func TestCDRsProcessEventMockStatsErrGetBoolOpts(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaEEs] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaEEs)}}}
 	cfg.CdrsCfg().Opts.Attributes = []*config.DynamicBoolOpt{
 		config.NewDynamicBoolOpt(nil, "", false, nil),
@@ -1980,7 +1980,7 @@ func TestCDRsProcessEventMockStatsErrGetBoolOpts(t *testing.T) {
 
 func TestCDRsChrgrSProcessEventEmptyChrgrs(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaChargers] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaChargers)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -2029,7 +2029,7 @@ func TestCDRsChrgrSProcessEventEmptyChrgrs(t *testing.T) {
 
 func TestCDRServerAccountSRefundCharges(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaAccounts] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.ConnsCfg)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -2100,7 +2100,7 @@ func TestCDRServerAccountSRefundCharges(t *testing.T) {
 }
 func TestCDRServerAccountSRefundChargesErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaAccounts] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.ConnsCfg)}}}
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -2190,7 +2190,7 @@ func TestPopulateCost(t *testing.T) {
 }
 func TestCDRsProcessEventMockThdsEcCostIface(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CdrsCfg().Conns[utils.MetaAccounts] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAccounts)}}}
 	cfg.CdrsCfg().Opts.Attributes = []*config.DynamicBoolOpt{
 		config.NewDynamicBoolOpt(nil, "", false, nil),
@@ -2249,7 +2249,7 @@ func TestCDRsProcessEventMockThdsEcCostIface(t *testing.T) {
 
 func TestCDRsProcessEventMockThdsEcCostIfaceMarshalErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	connMng := engine.NewConnManager(cfg)
@@ -2283,7 +2283,7 @@ func TestCDRsProcessEventMockThdsEcCostIfaceMarshalErr(t *testing.T) {
 
 func TestCDRsProcessEventMockThdsEcCostIfaceUnmarshalErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	connMng := engine.NewConnManager(cfg)

@@ -32,7 +32,7 @@ import (
 
 func TestPopulateResourcesForRoutesNoResourceSConns(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cM := engine.NewConnManager(cfg)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cM.SetCache(cacheS)
@@ -53,7 +53,7 @@ func TestPopulateResourcesForRoutesNoResourceSConns(t *testing.T) {
 
 func TestPopulateResourcesForRoutesNoResourceIDs(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.RouteSCfg().Conns[utils.MetaResources] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaResources)}}}
 	cM := engine.NewConnManager(cfg)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
@@ -80,7 +80,7 @@ func TestPopulateResourcesForRoutesNoResourceIDs(t *testing.T) {
 func TestPopulateResourcesForRoutesOK(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.RouteSCfg().Conns[utils.MetaResources] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaResources)}}}
 
 	res := &utils.Resource{
@@ -153,7 +153,7 @@ func TestPopulateResourcesForRoutesCallErr(t *testing.T) {
 	utils.Logger = utils.NewStdLoggerWithWriter(&buf, "", 7)
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.RouteSCfg().Conns[utils.MetaResources] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaResources)}}}
 
 	cc := make(chan birpc.ClientConnector, 1)
@@ -215,7 +215,7 @@ func TestPopulateResourcesForRoutesCallErr(t *testing.T) {
 func TestPopulateResourcesForRoutesLazyPassErr(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.RouteSCfg().Conns[utils.MetaResources] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaResources)}}}
 
 	res := &utils.Resource{
@@ -278,7 +278,7 @@ func TestPopulateResourcesForRoutesLazyPassErr(t *testing.T) {
 
 func TestResourceDescendentSorterSortRoutesNoResourceSConns(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cM := engine.NewConnManager(cfg)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cM.SetCache(cacheS)
@@ -301,7 +301,7 @@ func TestResourceDescendentSorterSortRoutesNoResourceSConns(t *testing.T) {
 
 func TestResourceDescendentSorterSortRoutesNoResourceIDs(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.RouteSCfg().Conns[utils.MetaResources] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaResources)}}}
 	cM := engine.NewConnManager(cfg)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
@@ -330,7 +330,7 @@ func TestResourceDescendentSorterSortRoutesNoResourceIDs(t *testing.T) {
 func TestResourceDescendentSorterSortRoutesOK(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.RouteSCfg().Conns[utils.MetaResources] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaResources)}}}
 
 	res1 := &utils.Resource{
@@ -461,7 +461,7 @@ func TestResourceDescendentSorterSortRoutesOK(t *testing.T) {
 
 func TestResourceDescendentSorterSortRoutesEmptyRoutes(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.RouteSCfg().Conns[utils.MetaResources] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaResources)}}}
 
 	cc := make(chan birpc.ClientConnector, 1)
@@ -508,7 +508,7 @@ func TestResourceDescendentSorterSortRoutesEmptyRoutes(t *testing.T) {
 func TestResourceDescendentSorterSortRoutesSingleRoute(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.RouteSCfg().Conns[utils.MetaResources] = []*config.DynamicConns{{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaResources)}}}
 
 	res := &utils.Resource{

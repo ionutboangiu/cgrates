@@ -79,7 +79,7 @@ func init() {
 
 func TestRadReplyAppendAttributes(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	rply := radigo.NewPacket(radigo.AccessRequest, 2, dictRad, coder, "CGRateS.org").Reply()
 	rplyFlds := []*config.FCTemplate{
 		{Tag: "ReplyCode", Path: utils.MetaRep + utils.NestingSep + MetaRadReplyCode,

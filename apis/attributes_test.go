@@ -33,7 +33,7 @@ import (
 
 func TestAttributesSetGetAttributeProfile(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -113,7 +113,7 @@ func TestAttributesSetGetAttributeProfile(t *testing.T) {
 
 func TestAttributesSetAttributeProfileCheckErrors(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -197,7 +197,7 @@ func TestAttributesSetAttributeProfileCheckErrors(t *testing.T) {
 
 func TestAttributesGetAttributeProfileCheckErrors(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -233,7 +233,7 @@ func TestAttributesGetAttributeProfileCheckErrors(t *testing.T) {
 
 func TestAttributesRemoveAttributeProfileCheckErrors(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -316,7 +316,7 @@ func TestAttributesRemoveAttributeProfileCheckErrors(t *testing.T) {
 
 func TestAttributesRemoveAttributeProfileMockErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -370,7 +370,7 @@ func TestAttributesRemoveAttributeProfileMockErr(t *testing.T) {
 
 func TestAttributesGetAttributeProfileIDsMockErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -413,7 +413,7 @@ func TestAttributesGetAttributeProfileIDsMockErr(t *testing.T) {
 
 func TestAttributesGetAttributeProfileIDsMockErrKeys(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -443,7 +443,7 @@ func TestAttributesGetAttributeProfileIDsMockErrKeys(t *testing.T) {
 
 func TestAttributesGetAttributeProfilesCountMockErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -502,7 +502,7 @@ func TestAttributesGetAttributeProfilesCountMockErr(t *testing.T) {
 
 func TestAttributesGetAttributeProfilesOK(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -647,7 +647,7 @@ func TestAttributesGetAttributeProfilesOK(t *testing.T) {
 
 func TestAttributesGetAttributeProfilesGetIDsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -703,7 +703,7 @@ func TestAttributesGetAttributeProfilesGetIDsErr(t *testing.T) {
 
 func TestAttributesGetAttributeProfilesGetProfileErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -741,7 +741,7 @@ func TestAttributesGetAttributeProfilesGetProfileErr(t *testing.T) {
 
 func TestAttributesGetAttributeProfileIDsGetOptsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -789,7 +789,7 @@ func TestAttributesGetAttributeProfileIDsGetOptsErr(t *testing.T) {
 
 func TestAttributesGetAttributeProfileIDsPaginateErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -839,7 +839,7 @@ func TestAttributesGetAttributeProfileIDsPaginateErr(t *testing.T) {
 
 func TestAttributesSetAttributeProfileAsAttrPrfErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)

@@ -69,7 +69,7 @@ var (
 
 func TestOnStorIT(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	switch *utils.DBType {
 	case utils.MetaInternal:
 		idb, err := NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)

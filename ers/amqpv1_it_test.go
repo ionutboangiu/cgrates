@@ -71,7 +71,7 @@ func TestAMQPERv1(t *testing.T) {
 	],
 },
 }`)
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -141,7 +141,7 @@ func TestAMQPERv1(t *testing.T) {
 
 func TestAmqpv1NewAMQPv1ER(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfgIdx := 0
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	expected := &AMQPv1ER{
@@ -173,7 +173,7 @@ func TestAmqpv1NewAMQPv1ER(t *testing.T) {
 
 func TestAmqpv1NewAMQPv1ER2(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfgIdx := 0
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	expected := &AMQPv1ER{

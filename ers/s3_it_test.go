@@ -78,7 +78,7 @@ func TestS3ER(t *testing.T) {
 	],
 },
 }`)
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -142,7 +142,7 @@ func TestS3ER(t *testing.T) {
 
 func TestNewS3ER(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	expected := &S3ER{
 		cgrCfg:    cfg,
@@ -194,7 +194,7 @@ func TestNewS3ER(t *testing.T) {
 
 func TestNewS3ERCase2(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	expected := &S3ER{
 		cgrCfg:    cfg,

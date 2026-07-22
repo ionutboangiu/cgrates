@@ -33,7 +33,7 @@ import (
 
 func TestRatesGetRateProfileErrMandatoryIeMissing(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -57,7 +57,7 @@ func TestRatesGetRateProfileErrMandatoryIeMissing(t *testing.T) {
 
 func TestRatesGetRateProfile1(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -126,7 +126,7 @@ func TestRatesGetRateProfile1(t *testing.T) {
 
 func TestRatesGetRateProfileErrorNotFound(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -152,7 +152,7 @@ func TestRatesGetRateProfileErrorNotFound(t *testing.T) {
 
 func TestRatesGetRateProfileIDs(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -196,7 +196,7 @@ func TestRatesGetRateProfileIDs(t *testing.T) {
 
 func TestRatesGetRateProfile2(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -242,7 +242,7 @@ func TestRatesGetRateProfile2(t *testing.T) {
 
 func TestRatesGetRateProfileErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -265,7 +265,7 @@ func TestRatesGetRateProfileErr(t *testing.T) {
 
 func TestRatesGetRateProfileErr2(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -292,7 +292,7 @@ func TestRatesGetRateProfileErr2(t *testing.T) {
 
 func TestRatesGetRateProfilesCount(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -337,7 +337,7 @@ func TestRatesGetRateProfilesCount(t *testing.T) {
 
 func TestRatesGetRateProfilesCountEmptyTenant(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -381,7 +381,7 @@ func TestRatesGetRateProfilesCountEmptyTenant(t *testing.T) {
 
 func TestRatesGetRateProfilesCountGetKeysError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -402,7 +402,7 @@ func TestRatesGetRateProfilesCountGetKeysError(t *testing.T) {
 
 func TestRatesGetRateProfilesCountKeysLenError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -427,7 +427,7 @@ func TestRatesGetRateProfilesCountKeysLenError(t *testing.T) {
 
 func TestRatesSetRateProfileMissingStructFieldError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -460,7 +460,7 @@ func TestRatesSetRateProfileMissingStructFieldError(t *testing.T) {
 
 func TestRatesSetRateProfileEmptyTenant(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -528,7 +528,7 @@ func TestRatesSetRateProfileEmptyTenant(t *testing.T) {
 
 func TestRatesSetRateProfileError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -598,7 +598,7 @@ func TestRatesSetRateProfileError(t *testing.T) {
 
 func TestRatesSetRateProfile(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -668,7 +668,7 @@ func TestRatesSetRateProfile(t *testing.T) {
 
 func TestRatesRemoveRateProfile(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -728,7 +728,7 @@ func TestRatesRemoveRateProfile(t *testing.T) {
 
 func TestRatesRemoveRateProfileMissing(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -776,7 +776,7 @@ func TestRatesRemoveRateProfileMissing(t *testing.T) {
 
 func TestRatesRemoveRateProfileEmptyTenant(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -833,7 +833,7 @@ func TestRatesRemoveRateProfileEmptyTenant(t *testing.T) {
 
 func TestRatesSetGetRateProfileError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -880,7 +880,7 @@ func TestRatesSetGetRateProfileError(t *testing.T) {
 
 func TestRatesSetRemoveRateProfileError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -940,7 +940,7 @@ func TestRatesSetRemoveRateProfileError(t *testing.T) {
 
 func TestRatesSetRateProfileRates(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -1020,7 +1020,7 @@ func TestRatesSetRateProfileRates(t *testing.T) {
 
 func TestRatesSetRateProfileRatesNoTenant(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -1097,7 +1097,7 @@ func TestRatesSetRateProfileRatesNoTenant(t *testing.T) {
 
 func TestRatesSetRateProfileRatesMissingField(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -1133,7 +1133,7 @@ func TestRatesSetRateProfileRatesMissingField(t *testing.T) {
 
 func TestRatesSetRateProfileRatesErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -1171,7 +1171,7 @@ func TestRatesSetRateProfileRatesErr(t *testing.T) {
 
 func TestRatesRemoveRateProfileRate(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -1257,7 +1257,7 @@ func TestRatesRemoveRateProfileRate(t *testing.T) {
 
 func TestRatesRemoveRateProfileRateEmptyTenant(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -1326,7 +1326,7 @@ func TestRatesRemoveRateProfileRateEmptyTenant(t *testing.T) {
 
 func TestRatesRemoveRateProfileRateError(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -1352,7 +1352,7 @@ func TestRatesRemoveRateProfileRateError(t *testing.T) {
 
 func TestRatesRemoveRateProfileRateErrorMissingField(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -1379,7 +1379,7 @@ func TestRatesRemoveRateProfileRateErrorMissingField(t *testing.T) {
 
 func TestRatesSetRateProfileErrorSetLoadIDs(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -1427,7 +1427,7 @@ func TestRatesSetRateProfileErrorSetLoadIDs(t *testing.T) {
 
 func TestRatesSetRateProfileRatesErrorSetLoadIDs(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -1480,7 +1480,7 @@ func TestRatesSetRateProfileRatesErrorSetLoadIDs(t *testing.T) {
 
 func TestRatesRemoveRateProfileRatesErrorSetLoadIDs(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -1525,7 +1525,7 @@ func TestRatesRemoveRateProfileRatesErrorSetLoadIDs(t *testing.T) {
 
 func TestRatesRemoveRateProfileErrorSetLoadIDs(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -1571,7 +1571,7 @@ func TestRatesRemoveRateProfileErrorSetLoadIDs(t *testing.T) {
 
 func TestRatesSetRateProfileErrorCache(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = "123"
 	delete(cfg.AdminSCfg().Conns, utils.MetaCaches)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
@@ -1629,7 +1629,7 @@ func TestRatesSetRateProfileErrorCache(t *testing.T) {
 
 func TestRatesSetRateProfileRatesErrorCache(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = "123"
 	delete(cfg.AdminSCfg().Conns, utils.MetaCaches)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
@@ -1686,7 +1686,7 @@ func TestRatesSetRateProfileRatesErrorCache(t *testing.T) {
 
 func TestRatesRemoveRateProfileRatesErrorCache(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = "123"
 	delete(cfg.AdminSCfg().Conns, utils.MetaCaches)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
@@ -1735,7 +1735,7 @@ func TestRatesRemoveRateProfileRatesErrorCache(t *testing.T) {
 
 func TestRatesRemoveRateProfileErrorSetCache(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = "123"
 	delete(cfg.AdminSCfg().Conns, utils.MetaCaches)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
@@ -1785,7 +1785,7 @@ func TestRatesRemoveRateProfileErrorSetCache(t *testing.T) {
 
 func TestRatesGetRateProfilesOK(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -1920,7 +1920,7 @@ func TestRatesGetRateProfilesOK(t *testing.T) {
 
 func TestRatesGetRateProfilesGetIDsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	connMgr := engine.NewConnManager(cfg)
@@ -1974,7 +1974,7 @@ func TestRatesGetRateProfilesGetIDsErr(t *testing.T) {
 
 func TestRatesGetRateProfilesGetProfileErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -2012,7 +2012,7 @@ func TestRatesGetRateProfilesGetProfileErr(t *testing.T) {
 
 func TestRatesGetRateProfileIDsGetOptsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -2060,7 +2060,7 @@ func TestRatesGetRateProfileIDsGetOptsErr(t *testing.T) {
 
 func TestRatesGetRateProfileIDsPaginateErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -2110,7 +2110,7 @@ func TestRatesGetRateProfileIDsPaginateErr(t *testing.T) {
 
 func TestRatesSetGetRemRateProfileRates(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -2238,7 +2238,7 @@ func TestRatesSetGetRemRateProfileRates(t *testing.T) {
 
 func TestRatesGetRateProfileRatesCheckErrors(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
@@ -2276,7 +2276,7 @@ func TestRatesGetRateProfileRatesCheckErrors(t *testing.T) {
 
 func TestRatesGetRateProfileRatesCountErrMock(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -2315,7 +2315,7 @@ func TestRatesGetRateProfileRatesCountErrMock(t *testing.T) {
 
 func TestRatesGetRateProfileRatesCountErrKeys(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -2343,7 +2343,7 @@ func TestRatesGetRateProfileRatesCountErrKeys(t *testing.T) {
 
 func TestRatesGetRateProfileRatesCountErrMissing(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, nil)
@@ -2367,7 +2367,7 @@ func TestRatesGetRateProfileRatesCountErrMissing(t *testing.T) {
 
 func TestRatesGetRateProfileRateIDsErrNotFound(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	idb, err := engine.NewInternalDB(nil, nil, nil, nil)
@@ -2397,7 +2397,7 @@ func TestRatesGetRateProfileRateIDsErrNotFound(t *testing.T) {
 
 func TestRatesGetRateProfileRateIDsErrKeys(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -2428,7 +2428,7 @@ func TestRatesGetRateProfileRateIDsErrKeys(t *testing.T) {
 
 func TestRatesGetRateProfileRateIDsGetOptsErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -2471,7 +2471,7 @@ func TestRatesGetRateProfileRateIDsGetOptsErr(t *testing.T) {
 
 func TestRatesGetRateProfileRateIDsPaginateErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dbMock := &engine.DataDBMock{
@@ -2515,7 +2515,7 @@ func TestRatesGetRateProfileRateIDsPaginateErr(t *testing.T) {
 
 func TestRatesGetRateProfileRateIDsErrMissing(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	dataDB, _ := engine.NewInternalDB(nil, nil, nil, nil)
@@ -2542,7 +2542,7 @@ func TestRatesGetRateProfileRateIDsErrMissing(t *testing.T) {
 
 func TestRatesSetRateProfileErrConvertOverwriteOpt(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)
@@ -2579,7 +2579,7 @@ func TestRatesSetRateProfileErrConvertOverwriteOpt(t *testing.T) {
 
 func TestRatesGetRateProfilePagination(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cacheS.Clear(nil)

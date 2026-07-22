@@ -32,7 +32,7 @@ import (
 
 func TestHealthFilterAttributes(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	db, _ := NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: db}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -77,7 +77,7 @@ func TestHealthFilterAttributes(t *testing.T) {
 
 func TestHealthReverseFilter(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	db, _ := NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: db}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -155,7 +155,7 @@ func TestHealthReverseFilter(t *testing.T) {
 
 func TestHealthIndexThreshold(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	db, _ := NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: db}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -271,7 +271,7 @@ func TestHealthIndexThreshold(t *testing.T) {
 
 func TestHealthIndexCharger(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	db, _ := NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: db}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -397,7 +397,7 @@ func TestHealthIndexCharger(t *testing.T) {
 
 func TestHealthIndexResources(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	db, _ := NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: db}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -531,7 +531,7 @@ func TestHealthIndexResources(t *testing.T) {
 
 func TestHealthIndexStats(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	db, _ := NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: db}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -689,7 +689,7 @@ func TestHealthIndexStats(t *testing.T) {
 
 func TestHealthIndexRoutes(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	db, _ := NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: db}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -883,7 +883,7 @@ func TestHealthIndexRoutes(t *testing.T) {
 
 func TestIndexHealthMultipleProfiles(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	db, _ := NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: db}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -985,7 +985,7 @@ func TestIndexHealthMultipleProfiles(t *testing.T) {
 
 func TestIndexHealthReverseChecking(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	db, _ := NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: db}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)
@@ -1119,7 +1119,7 @@ func TestIndexHealthReverseChecking(t *testing.T) {
 
 func TestIndexHealthMissingReverseIndexes(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	db, _ := NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := NewDBConnManager(map[string]DataDB{utils.MetaDefault: db}, cfg.DbCfg())
 	dm := NewDataManager(dbCM, cfg, nil, locker)

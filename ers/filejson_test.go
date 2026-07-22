@@ -31,7 +31,7 @@ import (
 
 func TestNewJSONFileER(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	cfgIdx := 0
 	expected := &JSONFileER{

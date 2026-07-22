@@ -30,7 +30,7 @@ import (
 
 func TestCallCacheForFilter(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	idb, err := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	if err != nil {
 		t.Error(err)
@@ -103,7 +103,7 @@ func TestCallCacheForFilter(t *testing.T) {
 
 func TestCallCache(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	connMgr := engine.NewConnManager(cfg)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
@@ -150,7 +150,7 @@ func TestCallCache(t *testing.T) {
 
 func TestCallCacheForRemoveIndexes(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	connMgr := engine.NewConnManager(cfg)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
@@ -191,7 +191,7 @@ func TestCallCacheForRemoveIndexes(t *testing.T) {
 
 func TestCallCacheForComputeIndexes(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	connMgr := engine.NewConnManager(cfg)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
@@ -232,7 +232,7 @@ func TestCallCacheForComputeIndexes(t *testing.T) {
 
 func TestCallCacheMultiple(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.GeneralCfg().DefaultCaching = utils.MetaNone
 	connMgr := engine.NewConnManager(cfg)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)

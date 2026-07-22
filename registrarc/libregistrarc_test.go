@@ -308,7 +308,7 @@ func TestLibRegistrarcRegister(t *testing.T) {
 		Response:         nil,
 	}
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cache := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	result, err := register(cfg, req, cache)
 	expected := &json.RawMessage{}
@@ -379,7 +379,7 @@ func TestRegisterRegistrarSv1UnregisterRPCHosts(t *testing.T) {
 	}
 	req.RemoteAddr = "127.0.0.1:2356"
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cache := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	if rplyID, err := register(cfg, req, cache); err != nil {
 		t.Fatal(err)
@@ -410,7 +410,7 @@ func TestRegisterRegistrarSv1UnregisterRPCHostsError(t *testing.T) {
 	}
 	req.RemoteAddr = "127.0.0.1:2356"
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.RPCConns()["errCon"] = &config.RPCConn{
 		Strategy: utils.MetaFirst,
 		PoolSize: 1,
@@ -470,7 +470,7 @@ func TestRegisterRegistrarSv1RegisterRPCHosts(t *testing.T) {
 	}
 	req.RemoteAddr = "127.0.0.1:2356"
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cache := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	if rplyID, err := register(cfg, req, cache); err != nil {
 		t.Fatal(err)
@@ -514,7 +514,7 @@ func TestRegisterRegistrarSv1RegisterRPCHostsError(t *testing.T) {
 	}
 	req.RemoteAddr = "127.0.0.1:3000"
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.RPCConns()["errCon1"] = &config.RPCConn{
 		Strategy: utils.MetaFirst,
 		PoolSize: 1,

@@ -58,7 +58,7 @@ func (benchMockClient) Call(ctx *context.Context, method string, args any, reply
 
 // setupBenchSessionS creates a fully wired SessionS with mock internal connections
 // for benchmarking.
-func setupBenchSessionS(b *testing.B, enableChargers bool, cfg *config.CGRConfig, locker *guardian.GuardianLocker) *SessionS {
+func setupBenchSessionS(b *testing.B, enableChargers bool, cfg *config.CGRConfig, locker *guardian.Locker) *SessionS {
 	b.Helper()
 
 	// Disable RPC caching to avoid guardian lock overhead in benchmark
@@ -104,7 +104,7 @@ func setupBenchSessionS(b *testing.B, enableChargers bool, cfg *config.CGRConfig
 // with only chargers enabled.
 func BenchmarkProcessEventChargersOnly(b *testing.B) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	sS := setupBenchSessionS(b, true, cfg, locker)
 	ctx := context.TODO()
 	b.ResetTimer()
@@ -131,7 +131,7 @@ func BenchmarkProcessEventChargersOnly(b *testing.B) {
 // subsystem flags are enabled.
 func BenchmarkProcessEventNoSubsystems(b *testing.B) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	sS := setupBenchSessionS(b, false, cfg, locker)
 	// Disable chargers so nothing triggers
 	sS.cfg.SessionSCfg().Opts.Chargers = nil
@@ -159,7 +159,7 @@ func BenchmarkProcessEventNoSubsystems(b *testing.B) {
 // calls with chargers.
 func BenchmarkProcessEventChargersParallel(b *testing.B) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	sS := setupBenchSessionS(b, true, cfg, locker)
 	ctx := context.TODO()
 	b.ResetTimer()

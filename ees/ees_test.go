@@ -67,7 +67,7 @@ func TestAttrSProcessEvent(t *testing.T) {
 		},
 	}
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.EEsNoLksCfg().Conns = map[string][]*config.DynamicConns{
 		utils.MetaAttributes: {{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAttributes)}}},
 	}
@@ -100,7 +100,7 @@ func TestAttrSProcessEvent2(t *testing.T) {
 		},
 	}
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.EEsNoLksCfg().Conns = map[string][]*config.DynamicConns{
 		utils.MetaAttributes: {{ConnIDs: []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaAttributes)}}},
 	}
@@ -131,7 +131,7 @@ func TestV1ProcessEvent(t *testing.T) {
 		t.Error(err)
 	}
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.EEsCfg().Exporters[0].Type = "*fileCSV"
 	cfg.EEsCfg().Exporters[0].ID = "SQLExporterFull"
 	cfg.EEsCfg().Exporters[0].ExportPath = filePath
@@ -193,7 +193,7 @@ func TestV1ProcessEvent(t *testing.T) {
 
 func TestV1ProcessEvent2(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.EEsCfg().Exporters[0].Type = "*fileCSV"
 	cfg.EEsCfg().Exporters[0].ID = "SQLExporterFull"
 	cfg.EEsCfg().Exporters[0].Filters = []string{"*prefix:~*req.Subject:20"}
@@ -239,7 +239,7 @@ func TestV1ProcessEvent2(t *testing.T) {
 
 func TestV1ProcessEvent3(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.EEsCfg().Exporters[0].Type = "*fileCSV"
 	cfg.EEsCfg().Exporters[0].ID = "SQLExporterFull"
 	cfg.EEsCfg().Exporters[0].Flags = utils.FlagsWithParams{
@@ -282,7 +282,7 @@ func TestV1ProcessEvent4(t *testing.T) {
 		},
 	}
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.EFsCfg().Enabled = true
 	cfg.EEsCfg().Exporters[0].Type = utils.MetaHTTPPost
 	cfg.EEsCfg().Exporters[0].ID = "SQLExporterFull"
@@ -368,7 +368,7 @@ func TestV1ProcessEventMockMetrics(t *testing.T) {
 			utils.NegativeExports: 5,
 		}}}
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.EEsCfg().Exporters[0].Type = utils.MetaHTTPPost
 	cfg.EEsCfg().Exporters[0].ID = "SQLExporterFull"
 	cfg.EEsCfg().Exporters[0].Synchronous = true
@@ -410,7 +410,7 @@ func TestV1ProcessEventMockMetrics(t *testing.T) {
 }
 func TestV1ProcessEvent5(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.EEsCfg().Exporters = []*config.EventExporterCfg{
 		{
 			Type: utils.MetaNone,
@@ -452,7 +452,7 @@ func TestV1ProcessEvent5(t *testing.T) {
 
 func TestV1ProcessEvent6(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.EEsCfg().Exporters[0].Type = utils.MetaHTTPPost
 	cfg.EEsCfg().Exporters[0].ID = "SQLExporterFull"
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
@@ -599,7 +599,7 @@ func TestEeSProcessEvent(t *testing.T) {
 		t.Error(err)
 	}
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.EEsCfg().Exporters[0].Type = "*fileCSV"
 	cfg.EEsCfg().Exporters[0].ID = "SQLExporterFull"
 	cfg.EEsCfg().Exporters[0].ExportPath = filePath
@@ -661,7 +661,7 @@ func TestEeSProcessEvent(t *testing.T) {
 
 func TestArchiveEventsInReply(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	// cfg.EEsCfg().Exporters[0].Type = "*fileCSV"
 	cfg.EEsCfg().Exporters[0].ID = "SQLExporterFull"
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)

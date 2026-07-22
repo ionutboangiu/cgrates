@@ -4719,7 +4719,7 @@ func (sT *mkCall) Call(ctx *context.Context, method string, arg any, rply any) e
 func TestBiRPCv1DisconnectPeer(t *testing.T) {
 	client := new(mkCall)
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
@@ -4767,7 +4767,7 @@ func (sT *mkCallForces) Call(ctx *context.Context, method string, arg any, rply 
 func TestBiRPCv1ForceDisconnect(t *testing.T) {
 	ctx := context.WithClient(context.Background(), new(mkCall))
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	data, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: data}, cfg.DbCfg())
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
@@ -4839,7 +4839,7 @@ func TestBiRPCv1ForceDisconnect(t *testing.T) {
 func TestSyncSessionsSync(t *testing.T) {
 	log.SetOutput(io.Discard)
 	cfg := config.NewDefaultCGRConfig()
-	locker := engine.NewGuardianLocker(cfg)
+	locker := engine.NewLocker(cfg)
 	cfg.CacheCfg().ReplicationConns = []string{utils.ConcatenatedKey(utils.MetaInternal, utils.MetaReplicator)}
 	cfg.CacheCfg().Partitions[utils.CacheClosedSessions] = &config.CacheParamCfg{
 		Replicate: true,

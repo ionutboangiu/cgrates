@@ -34,7 +34,7 @@ import (
 func TestCMgetConnNotFound(t *testing.T) {
 	connID := "connID"
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	cfg.RPCConns()[connID] = config.NewDfltRPCConn()
 
 	cM := &ConnManager{
@@ -65,7 +65,7 @@ func TestCMgetConnNotFound(t *testing.T) {
 func TestCMgetConnUnsupportedBiRPC(t *testing.T) {
 	connID := rpcclient.BiRPCInternal + "connID"
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	cfg.RPCConns()[connID] = config.NewDfltRPCConn()
 
 	cc := make(chan birpc.ClientConnector, 1)
@@ -101,7 +101,7 @@ func TestCMgetConnUnsupportedBiRPC(t *testing.T) {
 func TestCMgetConnNotInternalRPC(t *testing.T) {
 	connID := "connID"
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	cfg.RPCConns()[connID] = config.NewDfltRPCConn()
 	cfg.RPCConns()[connID].Conns = []*config.RemoteHost{
 		{
@@ -315,7 +315,7 @@ func TestCMgetConnWithConfigInternalBiRPCCodecUnsupported(t *testing.T) {
 func TestCMCallErrgetConn(t *testing.T) {
 	connID := "connID"
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	cfg.RPCConns()[connID] = config.NewDfltRPCConn()
 
 	cM := &ConnManager{
@@ -480,7 +480,7 @@ func TestCMCallWithConnIDsErrNotNetwork(t *testing.T) {
 
 func TestCMReload(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 
 	cM := &ConnManager{
 		cfg:       cfg,
@@ -545,7 +545,7 @@ func TestCMDeadLock(t *testing.T) {
 func TestCMGetInternalChan(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	cM := NewConnManager(cfg)
 	cacheS := NewCacheS(cfg, nil, nil, nil, locker)
 	cM.SetCache(cacheS)
@@ -563,7 +563,7 @@ func TestCMGetInternalChan(t *testing.T) {
 func TestCMGetDispInternalChan(t *testing.T) {
 
 	cfg := config.NewDefaultCGRConfig()
-	locker := NewGuardianLocker(cfg)
+	locker := NewLocker(cfg)
 	cM := NewConnManager(cfg)
 	cacheS := NewCacheS(cfg, nil, nil, nil, locker)
 	cM.SetCache(cacheS)
