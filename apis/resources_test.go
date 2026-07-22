@@ -502,7 +502,7 @@ func TestResourcesGetResourceProfilesOK(t *testing.T) {
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, connMgr, locker)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	args1 := &utils.ResourceProfileWithAPIOpts{
 		ResourceProfile: &utils.ResourceProfile{
 			Tenant:            "cgrates.org",
@@ -627,7 +627,7 @@ func TestResourcesGetResourceProfilesGetIDsErr(t *testing.T) {
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, connMgr, locker)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	args := &utils.ResourceProfileWithAPIOpts{
 		ResourceProfile: &utils.ResourceProfile{
 			Tenant:            "cgrates.org",

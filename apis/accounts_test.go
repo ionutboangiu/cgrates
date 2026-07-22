@@ -40,7 +40,7 @@ func TestAccountsSetGetAccount(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	args := &utils.AccountWithAPIOpts{
 		Account: &utils.Account{
 			Tenant: "cgrates.org",
@@ -135,7 +135,7 @@ func TestAccountsGetAccountErrorMissingID(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	args := &utils.AccountWithAPIOpts{
 		Account: &utils.Account{
 			Tenant: "cgrates.org",
@@ -198,7 +198,7 @@ func TestAccountsGetAccountErrorNotFound(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	var getRply utils.Account
 	err := admS.GetAccount(context.Background(),
 		&utils.TenantIDWithAPIOpts{
@@ -224,7 +224,7 @@ func TestAccountsGetAccountErrorGetAccount(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	var getRply utils.Account
 	err := admS.GetAccount(context.Background(),
 		&utils.TenantIDWithAPIOpts{
@@ -250,7 +250,7 @@ func TestAccountsSetGetAccountNoTenant(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	args := &utils.AccountWithAPIOpts{
 		Account: &utils.Account{
 			ID:   "test_ID1",
@@ -344,7 +344,7 @@ func TestAccountsSetGetAccountErrorMissingID(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	args := &utils.AccountWithAPIOpts{
 		Account: &utils.Account{
 			Opts: map[string]any{},
@@ -394,7 +394,7 @@ func TestAccountsSetGetAccountErrorBadFilter(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	args := &utils.AccountWithAPIOpts{
 		Account: &utils.Account{
 			Tenant:    "",
@@ -461,7 +461,7 @@ func TestAccountsSetGetAccountErrorSetLoadIDs(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	args := &utils.AccountWithAPIOpts{
 		Account: &utils.Account{
 			Tenant: "",
@@ -530,7 +530,7 @@ func TestAccountsSetGetAccountErrorCallCache(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	args := &utils.AccountWithAPIOpts{
 		Account: &utils.Account{
 			Tenant: "",
@@ -582,7 +582,7 @@ func TestAccountsSetGetAccountIDs(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	args := &utils.AccountWithAPIOpts{
 		Account: &utils.Account{
 			Tenant: "testTenant",
@@ -808,7 +808,7 @@ func TestAccountsGetAccountsCountError(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	var getRplyCount3 int
 	err := admS.GetAccountsCount(context.Background(),
 		&utils.ArgsItemIDs{}, &getRplyCount3)
@@ -828,7 +828,7 @@ func TestAccountsGetAccountIDSError(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	var getRplyCount3 []string
 	err := admS.GetAccountIDs(context.Background(),
 		&utils.ArgsItemIDs{}, &getRplyCount3)
@@ -848,7 +848,7 @@ func TestAccountsRemoveAccountErrorMissingID(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	var getRplyRmv string
 	err := admS.RemoveAccount(context.Background(),
 		&utils.TenantIDWithAPIOpts{
@@ -874,7 +874,7 @@ func TestAccountsRemoveAccountErrorRmvAccount(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	var getRplyRmv string
 	err := admS.RemoveAccount(context.Background(),
 		&utils.TenantIDWithAPIOpts{
@@ -916,7 +916,7 @@ func TestAccountsRemoveAccountErrorSetLoadIDs(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	var getRplyRmv string
 	err := admS.RemoveAccount(context.Background(),
 		&utils.TenantIDWithAPIOpts{
@@ -962,7 +962,7 @@ func TestAccountsRemoveAccountErrorCallCache(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	var getRplyRmv string
 	err := admS.RemoveAccount(context.Background(),
 		&utils.TenantIDWithAPIOpts{
@@ -988,7 +988,7 @@ func TestAccountsGetAccountsOK(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	args1 := &utils.AccountWithAPIOpts{
 		Account: &utils.Account{
 			Tenant: "cgrates.org",
@@ -1128,7 +1128,7 @@ func TestAccountsGetAccountsGetIDsErr(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, connMgr, nil, locker)
 	connMgr.SetCache(cacheS)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	args := &utils.AccountWithAPIOpts{
 		Account: &utils.Account{
 			Tenant: "cgrates.org",

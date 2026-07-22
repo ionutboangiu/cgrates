@@ -495,7 +495,7 @@ func TestActionsGetActionProfilesOK(t *testing.T) {
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, connMgr, locker)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	args1 := &utils.ActionProfileWithAPIOpts{
 		ActionProfile: &utils.ActionProfile{
 			Tenant: "cgrates.org",
@@ -630,7 +630,7 @@ func TestActionsGetActionProfilesGetIDsErr(t *testing.T) {
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: dataDB}, cfg.DbCfg())
 	dm := engine.NewDataManager(dbCM, cfg, connMgr, locker)
 	dm.SetCache(cacheS)
-	admS := NewAdminSv1(cfg, dm, connMgr, nil)
+	admS := NewAdminSv1(cfg, dm, connMgr, nil, locker)
 	args := &utils.ActionProfileWithAPIOpts{
 		ActionProfile: &utils.ActionProfile{
 			Tenant: "cgrates.org",
