@@ -28,7 +28,6 @@ import (
 	"github.com/cgrates/cgrates/engine"
 	"github.com/cgrates/cgrates/routes"
 	"github.com/cgrates/cgrates/utils"
-	"github.com/cgrates/guardian"
 )
 
 // BiRPCv1AuthorizeEvent performs authorization for CGREvent based on specific subsystems
@@ -52,9 +51,8 @@ func (sS *SessionS) BiRPCv1AuthorizeEvent(ctx *context.Context,
 	// RPC caching
 	if sS.cfg.CacheCfg().Partitions[utils.CacheRPCResponses].Limit != 0 {
 		cacheKey := utils.ConcatenatedKey(utils.SessionSv1AuthorizeEvent, args.ID)
-		refID := guardian.Guardian.GuardIDs("",
-			sS.cfg.GeneralCfg().LockingTimeout, cacheKey) // RPC caching needs to be atomic
-		defer guardian.Guardian.UnguardIDs(refID)
+		unlock := sS.cache.LockRPCResponse(cacheKey) // RPC caching needs to be atomic
+		defer unlock()
 
 		if itm, has := sS.cache.Get(utils.CacheRPCResponses, cacheKey); has {
 			cachedResp := itm.(*utils.CachedRPCResponse)
@@ -278,9 +276,8 @@ func (sS *SessionS) BiRPCv1InitiateSession(ctx *context.Context,
 	// RPC caching
 	if sS.cfg.CacheCfg().Partitions[utils.CacheRPCResponses].Limit != 0 {
 		cacheKey := utils.ConcatenatedKey(utils.SessionSv1InitiateSession, args.ID)
-		refID := guardian.Guardian.GuardIDs("",
-			sS.cfg.GeneralCfg().LockingTimeout, cacheKey) // RPC caching needs to be atomic
-		defer guardian.Guardian.UnguardIDs(refID)
+		unlock := sS.cache.LockRPCResponse(cacheKey) // RPC caching needs to be atomic
+		defer unlock()
 
 		if itm, has := sS.cache.Get(utils.CacheRPCResponses, cacheKey); has {
 			cachedResp := itm.(*utils.CachedRPCResponse)
@@ -508,9 +505,8 @@ func (sS *SessionS) BiRPCv1UpdateSession(ctx *context.Context,
 	// RPC caching
 	if sS.cfg.CacheCfg().Partitions[utils.CacheRPCResponses].Limit != 0 {
 		cacheKey := utils.ConcatenatedKey(utils.SessionSv1UpdateSession, args.ID)
-		refID := guardian.Guardian.GuardIDs("",
-			sS.cfg.GeneralCfg().LockingTimeout, cacheKey) // RPC caching needs to be atomic
-		defer guardian.Guardian.UnguardIDs(refID)
+		unlock := sS.cache.LockRPCResponse(cacheKey) // RPC caching needs to be atomic
+		defer unlock()
 
 		if itm, has := sS.cache.Get(utils.CacheRPCResponses, cacheKey); has {
 			cachedResp := itm.(*utils.CachedRPCResponse)
@@ -605,9 +601,8 @@ func (sS *SessionS) BiRPCv1TerminateSession(ctx *context.Context,
 	// RPC caching
 	if sS.cfg.CacheCfg().Partitions[utils.CacheRPCResponses].Limit != 0 {
 		cacheKey := utils.ConcatenatedKey(utils.SessionSv1TerminateSession, args.ID)
-		refID := guardian.Guardian.GuardIDs("",
-			sS.cfg.GeneralCfg().LockingTimeout, cacheKey) // RPC caching needs to be atomic
-		defer guardian.Guardian.UnguardIDs(refID)
+		unlock := sS.cache.LockRPCResponse(cacheKey) // RPC caching needs to be atomic
+		defer unlock()
 
 		if itm, has := sS.cache.Get(utils.CacheRPCResponses, cacheKey); has {
 			cachedResp := itm.(*utils.CachedRPCResponse)
@@ -781,9 +776,8 @@ func (sS *SessionS) BiRPCv1ProcessCDR(ctx *context.Context,
 	// RPC caching
 	if sS.cfg.CacheCfg().Partitions[utils.CacheRPCResponses].Limit != 0 {
 		cacheKey := utils.ConcatenatedKey(utils.SessionSv1ProcessCDR, cgrEv.ID)
-		refID := guardian.Guardian.GuardIDs("",
-			sS.cfg.GeneralCfg().LockingTimeout, cacheKey) // RPC caching needs to be atomic
-		defer guardian.Guardian.UnguardIDs(refID)
+		unlock := sS.cache.LockRPCResponse(cacheKey) // RPC caching needs to be atomic
+		defer unlock()
 
 		if itm, has := sS.cache.Get(utils.CacheRPCResponses, cacheKey); has {
 			cachedResp := itm.(*utils.CachedRPCResponse)
@@ -822,9 +816,8 @@ func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 	// RPC caching
 	if sS.cfg.CacheCfg().Partitions[utils.CacheRPCResponses].Limit != 0 {
 		cacheKey := utils.ConcatenatedKey(utils.SessionSv1AuthorizeEvent, apiArgs.ID)
-		refID := guardian.Guardian.GuardIDs("",
-			sS.cfg.GeneralCfg().LockingTimeout, cacheKey) // RPC caching needs to be atomic
-		defer guardian.Guardian.UnguardIDs(refID)
+		unlock := sS.cache.LockRPCResponse(cacheKey) // RPC caching needs to be atomic
+		defer unlock()
 
 		if itm, has := sS.cache.Get(utils.CacheRPCResponses, cacheKey); has {
 			cachedResp := itm.(*utils.CachedRPCResponse)

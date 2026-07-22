@@ -24,7 +24,6 @@ import (
 	"github.com/cgrates/birpc/context"
 	"github.com/cgrates/cgrates/engine"
 	"github.com/cgrates/cgrates/utils"
-	"github.com/cgrates/guardian"
 )
 
 // V1GetIPAllocationForEvent returns the IPAllocations object matching the event.
@@ -53,9 +52,8 @@ func (s *IPs) V1GetIPAllocationForEvent(ctx *context.Context, args *utils.CGREve
 	// RPC caching
 	if s.cfg.CacheCfg().Partitions[utils.CacheRPCResponses].Limit != 0 {
 		cacheKey := utils.ConcatenatedKey(utils.IPsV1GetIPAllocationForEvent, utils.ConcatenatedKey(tnt, args.ID))
-		refID := guardian.Guardian.GuardIDs("",
-			s.cfg.GeneralCfg().LockingTimeout, cacheKey) // RPC caching needs to be atomic
-		defer guardian.Guardian.UnguardIDs(refID)
+		unlock := s.cache.LockRPCResponse(cacheKey) // RPC caching needs to be atomic
+		defer unlock()
 		if itm, has := s.cache.Get(utils.CacheRPCResponses, cacheKey); has {
 			cachedResp := itm.(*utils.CachedRPCResponse)
 			if cachedResp.Error == nil {
@@ -106,9 +104,8 @@ func (s *IPs) V1AuthorizeIP(ctx *context.Context, args *utils.CGREvent, reply *u
 	// RPC caching
 	if s.cfg.CacheCfg().Partitions[utils.CacheRPCResponses].Limit != 0 {
 		cacheKey := utils.ConcatenatedKey(utils.IPsV1AuthorizeIP, utils.ConcatenatedKey(tnt, args.ID))
-		refID := guardian.Guardian.GuardIDs("",
-			s.cfg.GeneralCfg().LockingTimeout, cacheKey) // RPC caching needs to be atomic
-		defer guardian.Guardian.UnguardIDs(refID)
+		unlock := s.cache.LockRPCResponse(cacheKey) // RPC caching needs to be atomic
+		defer unlock()
 		if itm, has := s.cache.Get(utils.CacheRPCResponses, cacheKey); has {
 			cachedResp := itm.(*utils.CachedRPCResponse)
 			if cachedResp.Error == nil {
@@ -174,9 +171,8 @@ func (s *IPs) V1AllocateIP(ctx *context.Context, args *utils.CGREvent, reply *ut
 	// RPC caching
 	if s.cfg.CacheCfg().Partitions[utils.CacheRPCResponses].Limit != 0 {
 		cacheKey := utils.ConcatenatedKey(utils.IPsV1AllocateIP, utils.ConcatenatedKey(tnt, args.ID))
-		refID := guardian.Guardian.GuardIDs("",
-			s.cfg.GeneralCfg().LockingTimeout, cacheKey) // RPC caching needs to be atomic
-		defer guardian.Guardian.UnguardIDs(refID)
+		unlock := s.cache.LockRPCResponse(cacheKey) // RPC caching needs to be atomic
+		defer unlock()
 		if itm, has := s.cache.Get(utils.CacheRPCResponses, cacheKey); has {
 			cachedResp := itm.(*utils.CachedRPCResponse)
 			if cachedResp.Error == nil {
@@ -243,9 +239,8 @@ func (s *IPs) V1ReleaseIP(ctx *context.Context, args *utils.CGREvent, reply *str
 	// RPC caching
 	if s.cfg.CacheCfg().Partitions[utils.CacheRPCResponses].Limit != 0 {
 		cacheKey := utils.ConcatenatedKey(utils.IPsV1ReleaseIP, utils.ConcatenatedKey(tnt, args.ID))
-		refID := guardian.Guardian.GuardIDs("",
-			s.cfg.GeneralCfg().LockingTimeout, cacheKey) // RPC caching needs to be atomic
-		defer guardian.Guardian.UnguardIDs(refID)
+		unlock := s.cache.LockRPCResponse(cacheKey) // RPC caching needs to be atomic
+		defer unlock()
 		if itm, has := s.cache.Get(utils.CacheRPCResponses, cacheKey); has {
 			cachedResp := itm.(*utils.CachedRPCResponse)
 			if cachedResp.Error == nil {
