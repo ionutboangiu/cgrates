@@ -33,7 +33,6 @@ import (
 	"github.com/cgrates/cgrates/config"
 	"github.com/cgrates/cgrates/engine"
 	"github.com/cgrates/cgrates/utils"
-	"github.com/cgrates/guardian"
 	"github.com/cgrates/rpcclient"
 )
 
@@ -731,9 +730,6 @@ func TestStatQueueMatchingStatQueuesForEventLocks(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
 	locker := engine.NewGuardianLocker(cfg)
 
-	defer func() {
-		guardian.Guardian = guardian.New()
-	}()
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
 	db, _ := engine.NewInternalDB(nil, nil, nil, cfg.DbCfg().Items)
 	dbCM := engine.NewDBConnManager(map[string]engine.DataDB{utils.MetaDefault: db}, cfg.DbCfg())
@@ -972,7 +968,11 @@ func TestStatQueueStoreStatsStoreSQErr(t *testing.T) {
 	cfg := config.NewDefaultCGRConfig()
 	locker := engine.NewGuardianLocker(cfg)
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
-	sS := NewStatService(cfg, nil, cacheS, nil, nil)
+	dbMock := &engine.DataDBMock{}
+	dm := engine.NewDataManager(engine.NewDBConnManager(
+		map[string]engine.DataDB{utils.MetaDefault: dbMock}, cfg.DbCfg()), cfg, nil, locker)
+	dm.SetCache(cacheS)
+	sS := NewStatService(cfg, dm, cacheS, nil, nil)
 
 	value := &utils.StatQueue{
 		Tenant:    "cgrates.org",
@@ -986,7 +986,7 @@ func TestStatQueueStoreStatsStoreSQErr(t *testing.T) {
 	exp := utils.StringSet{
 		"SQ1": struct{}{},
 	}
-	expLog := `[WARNING] <StatS> failed saving StatQueue with ID: cgrates.org:SQ1, error: NO_DATABASE_CONNECTION`
+	expLog := `[WARNING] <StatS> failed saving StatQueue with ID: cgrates.org:SQ1, error: NOT_IMPLEMENTED`
 	sS.storeStats(context.Background())
 
 	if !reflect.DeepEqual(sS.storedStatQueues, exp) {
@@ -2336,8 +2336,16 @@ func TestStatQueueV1GetQueueFloatMetricsErrGetStats(t *testing.T) {
 	locker := engine.NewGuardianLocker(cfg)
 	cfg.StatSCfg().StoreInterval = 1
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
-	filterS := engine.NewFilterS(cfg, nil, nil)
-	sS := NewStatService(cfg, nil, cacheS, filterS, nil)
+	dbMock := &engine.DataDBMock{
+		GetStatQueueDrvF: func(*context.Context, string, string) (*utils.StatQueue, error) {
+			return nil, utils.ErrNoDatabaseConn
+		},
+	}
+	dm := engine.NewDataManager(engine.NewDBConnManager(
+		map[string]engine.DataDB{utils.MetaDefault: dbMock}, cfg.DbCfg()), cfg, nil, locker)
+	dm.SetCache(cacheS)
+	filterS := engine.NewFilterS(cfg, nil, dm)
+	sS := NewStatService(cfg, dm, cacheS, filterS, nil)
 
 	experr := `SERVER_ERROR: NO_DATABASE_CONNECTION`
 	reply := map[string]float64{}
@@ -2483,8 +2491,16 @@ func TestStatQueueV1GetQueueStringMetricsErrGetStats(t *testing.T) {
 	locker := engine.NewGuardianLocker(cfg)
 	cfg.StatSCfg().StoreInterval = 1
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
-	filterS := engine.NewFilterS(cfg, nil, nil)
-	sS := NewStatService(cfg, nil, cacheS, filterS, nil)
+	dbMock := &engine.DataDBMock{
+		GetStatQueueDrvF: func(*context.Context, string, string) (*utils.StatQueue, error) {
+			return nil, utils.ErrNoDatabaseConn
+		},
+	}
+	dm := engine.NewDataManager(engine.NewDBConnManager(
+		map[string]engine.DataDB{utils.MetaDefault: dbMock}, cfg.DbCfg()), cfg, nil, locker)
+	dm.SetCache(cacheS)
+	filterS := engine.NewFilterS(cfg, nil, dm)
+	sS := NewStatService(cfg, dm, cacheS, filterS, nil)
 
 	experr := `SERVER_ERROR: NO_DATABASE_CONNECTION`
 	reply := map[string]string{}
@@ -2879,8 +2895,16 @@ func TestStatV1GetQueueDecimalMetricsErrGetStats(t *testing.T) {
 	locker := engine.NewGuardianLocker(cfg)
 	cfg.StatSCfg().StoreInterval = 1
 	cacheS := engine.NewCacheS(cfg, nil, nil, nil, locker)
-	filterS := engine.NewFilterS(cfg, nil, nil)
-	sS := NewStatService(cfg, nil, cacheS, filterS, nil)
+	dbMock := &engine.DataDBMock{
+		GetStatQueueDrvF: func(*context.Context, string, string) (*utils.StatQueue, error) {
+			return nil, utils.ErrNoDatabaseConn
+		},
+	}
+	dm := engine.NewDataManager(engine.NewDBConnManager(
+		map[string]engine.DataDB{utils.MetaDefault: dbMock}, cfg.DbCfg()), cfg, nil, locker)
+	dm.SetCache(cacheS)
+	filterS := engine.NewFilterS(cfg, nil, dm)
+	sS := NewStatService(cfg, dm, cacheS, filterS, nil)
 
 	experr := `SERVER_ERROR: NO_DATABASE_CONNECTION`
 	var reply map[string]*utils.Decimal

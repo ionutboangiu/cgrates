@@ -31,7 +31,6 @@ import (
 	"github.com/cgrates/cgrates/config"
 	"github.com/cgrates/cgrates/engine"
 	"github.com/cgrates/cgrates/utils"
-	"github.com/cgrates/guardian"
 )
 
 // matchedStatQueue is the unit matched by filters
@@ -42,7 +41,7 @@ type matchedStatQueue struct {
 	profile   *utils.StatQueueProfile
 	ttl       *time.Duration // timeToLeave, picked on each init
 	weight    float64
-	lockID    string // ID of the lock used when matching the stat
+	unlock    func()
 }
 
 // NewStatService initializes a StatService
@@ -144,13 +143,11 @@ func (s *StatS) storeStats(ctx *context.Context) {
 			continue
 		}
 		sq := sqIf.(*utils.StatQueue)
-		lockID := guardian.Guardian.GuardIDs("",
-			s.cfg.GeneralCfg().LockingTimeout,
-			utils.StatQueueLockKey(sq.Tenant, sq.ID))
+		unlock := s.dm.Lock(utils.StatQueueLockKey(sq.Tenant, sq.ID))
 		if err := s.storeStatQueue(ctx, sq); err != nil {
 			failedSqIDs = append(failedSqIDs, sID) // record failure so we can schedule it for next backup
 		}
-		guardian.Guardian.UnguardIDs(lockID)
+		unlock()
 		// randomize the CPU load and give up thread control
 		runtime.Gosched()
 	}
@@ -187,7 +184,7 @@ func (s *StatS) matchingStatQueuesForEvent(ctx *context.Context, tnt string,
 	args *utils.CGREvent) (sqs []*matchedStatQueue, unlock func(), err error) {
 	unlockAll := func() {
 		for _, m := range sqs {
-			guardian.Guardian.UnguardIDs(m.lockID)
+			m.unlock()
 		}
 	}
 
@@ -226,12 +223,10 @@ func (s *StatS) matchingStatQueuesForEvent(ctx *context.Context, tnt string,
 
 	sqs = make([]*matchedStatQueue, 0, len(itemIDs))
 	for _, id := range itemIDs {
-		lockID := guardian.Guardian.GuardIDs("",
-			s.cfg.GeneralCfg().LockingTimeout,
-			utils.StatQueueLockKey(tnt, id))
+		unlock := s.dm.Lock(utils.StatQueueLockKey(tnt, id))
 		sqPrfl, err := s.dm.GetStatQueueProfile(ctx, tnt, id, true, true, utils.NonTransactional)
 		if err != nil {
-			guardian.Guardian.UnguardIDs(lockID)
+			unlock()
 			if err == utils.ErrNotFound {
 				continue
 			}
@@ -242,17 +237,17 @@ func (s *StatS) matchingStatQueuesForEvent(ctx *context.Context, tnt string,
 			pass, err := s.filters.Pass(ctx, tnt, sqPrfl.FilterIDs,
 				evNm)
 			if err != nil {
-				guardian.Guardian.UnguardIDs(lockID)
+				unlock()
 				unlockAll()
 				return nil, nil, err
 			} else if !pass {
-				guardian.Guardian.UnguardIDs(lockID)
+				unlock()
 				continue
 			}
 		}
 		sq, err := s.dm.GetStatQueue(ctx, sqPrfl.Tenant, sqPrfl.ID, true, true, utils.EmptyString)
 		if err != nil {
-			guardian.Guardian.UnguardIDs(lockID)
+			unlock()
 			unlockAll()
 			return nil, nil, err
 		}
@@ -265,7 +260,7 @@ func (s *StatS) matchingStatQueuesForEvent(ctx *context.Context, tnt string,
 		}
 		weight, err := engine.WeightFromDynamics(ctx, sqPrfl.Weights, s.filters, tnt, evNm)
 		if err != nil {
-			guardian.Guardian.UnguardIDs(lockID)
+			unlock()
 			unlockAll()
 			return nil, nil, err
 		}
@@ -276,7 +271,7 @@ func (s *StatS) matchingStatQueuesForEvent(ctx *context.Context, tnt string,
 			profile:   sqPrfl,
 			ttl:       ttl,
 			weight:    weight,
-			lockID:    lockID,
+			unlock:    unlock,
 		})
 	}
 	if len(sqs) == 0 {

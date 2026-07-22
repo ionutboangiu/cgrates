@@ -31,7 +31,6 @@ import (
 	"github.com/cgrates/cgrates/config"
 	"github.com/cgrates/cgrates/engine"
 	"github.com/cgrates/cgrates/utils"
-	"github.com/cgrates/guardian"
 )
 
 // matchedResource holds a resource together with state set during matching.
@@ -40,7 +39,7 @@ type matchedResource struct {
 	ttl      *time.Duration
 	profile  *utils.ResourceProfile
 	weight   float64
-	lockID   string
+	unlock   func()
 }
 
 // removeExpiredUnits removes units which are expired from the resource
@@ -262,13 +261,11 @@ func (s *ResourceS) storeResources(ctx *context.Context) {
 			continue
 		}
 		r := rIf.(*utils.Resource)
-		lkID := guardian.Guardian.GuardIDs("",
-			s.cfg.GeneralCfg().LockingTimeout,
-			utils.ResourceLockKey(r.Tenant, r.ID))
+		unlock := s.dm.Lock(utils.ResourceLockKey(r.Tenant, r.ID))
 		if err := s.storeResource(ctx, r); err != nil {
 			failedRIDs = append(failedRIDs, rID) // record failure so we can schedule it for next backup
 		}
-		guardian.Guardian.UnguardIDs(lkID)
+		unlock()
 		// randomize the CPU load and give up thread control
 		runtime.Gosched()
 	}
@@ -380,7 +377,7 @@ func (s *ResourceS) matchingResourcesForEvent(ctx *context.Context, tnt string, 
 
 	unlockAll := func() {
 		for _, r := range rs {
-			guardian.Guardian.UnguardIDs(r.lockID)
+			r.unlock()
 		}
 	}
 
@@ -431,14 +428,12 @@ func (s *ResourceS) matchingResourcesForEvent(ctx *context.Context, tnt string, 
 
 	rs = make(matchedResources, 0, len(itemIDs))
 	for _, id := range itemIDs {
-		lkID := guardian.Guardian.GuardIDs("",
-			s.cfg.GeneralCfg().LockingTimeout,
-			utils.ResourceLockKey(tnt, id))
+		unlock := s.dm.Lock(utils.ResourceLockKey(tnt, id))
 
 		rp, err := s.dm.GetResourceProfile(ctx, tnt, id,
 			true, true, utils.NonTransactional)
 		if err != nil {
-			guardian.Guardian.UnguardIDs(lkID)
+			unlock()
 			if err == utils.ErrNotFound {
 				continue
 			}
@@ -448,25 +443,25 @@ func (s *ResourceS) matchingResourcesForEvent(ctx *context.Context, tnt string, 
 
 		pass, err := s.filters.Pass(ctx, tnt, rp.FilterIDs, evNm)
 		if err != nil {
-			guardian.Guardian.UnguardIDs(lkID)
+			unlock()
 			unlockAll()
 			return nil, nil, err
 		}
 		if !pass {
-			guardian.Guardian.UnguardIDs(lkID)
+			unlock()
 			continue
 		}
 
 		res, err := s.dm.GetResource(ctx, rp.Tenant, rp.ID, true, true, "")
 		if err != nil {
-			guardian.Guardian.UnguardIDs(lkID)
+			unlock()
 			unlockAll()
 			return nil, nil, err
 		}
 
 		weight, err := engine.WeightFromDynamics(ctx, rp.Weights, s.filters, tnt, evNm)
 		if err != nil {
-			guardian.Guardian.UnguardIDs(lkID)
+			unlock()
 			unlockAll()
 			return nil, nil, err
 		}
@@ -475,7 +470,7 @@ func (s *ResourceS) matchingResourcesForEvent(ctx *context.Context, tnt string, 
 			resource: res,
 			profile:  rp,
 			weight:   weight,
-			lockID:   lkID,
+			unlock:   unlock,
 		}
 		if usageTTL != nil {
 			if *usageTTL != 0 {
@@ -500,7 +495,7 @@ func (s *ResourceS) matchingResourcesForEvent(ctx *context.Context, tnt string, 
 	for i, r := range rs {
 		if r.profile.Blocker && i != len(rs)-1 { // blocker will stop processing and we are not at last index
 			for _, dropped := range rs[i+1:] {
-				guardian.Guardian.UnguardIDs(dropped.lockID)
+				dropped.unlock()
 			}
 			rs = rs[:i+1]
 			break

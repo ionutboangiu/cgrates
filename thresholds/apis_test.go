@@ -28,13 +28,9 @@ import (
 	"github.com/cgrates/cgrates/config"
 	"github.com/cgrates/cgrates/engine"
 	"github.com/cgrates/cgrates/utils"
-	"github.com/cgrates/guardian"
 )
 
 func TestThresholdsV1ProcessEventOK(t *testing.T) {
-	defer func() {
-		guardian.Guardian = guardian.New()
-	}()
 
 	cfg := config.NewDefaultCGRConfig()
 	locker := engine.NewGuardianLocker(cfg)
@@ -98,7 +94,6 @@ func TestThresholdsV1ProcessEventPartExecErr(t *testing.T) {
 	tmpLogger := utils.Logger
 	defer func() {
 		utils.Logger = tmpLogger
-		guardian.Guardian = guardian.New()
 	}()
 
 	var buf bytes.Buffer
@@ -166,7 +161,6 @@ func TestThresholdsV1ProcessEventMissingArgs(t *testing.T) {
 	tmpLogger := utils.Logger
 	defer func() {
 		utils.Logger = tmpLogger
-		guardian.Guardian = guardian.New()
 	}()
 
 	cfg := config.NewDefaultCGRConfig()
@@ -255,7 +249,6 @@ func TestThresholdsV1GetThresholdOK(t *testing.T) {
 
 	defer func() {
 		utils.Logger = tmpLogger
-		guardian.Guardian = guardian.New()
 	}()
 
 	cfg := config.NewDefaultCGRConfig()
@@ -312,7 +305,6 @@ func TestThresholdsV1GetThresholdNotFoundErr(t *testing.T) {
 
 	defer func() {
 		utils.Logger = tmpLogger
-		guardian.Guardian = guardian.New()
 	}()
 
 	cfg := config.NewDefaultCGRConfig()
@@ -353,9 +345,6 @@ func TestThresholdsV1GetThresholdNotFoundErr(t *testing.T) {
 }
 
 func TestThresholdsV1GetThresholdsForEventOK(t *testing.T) {
-	defer func() {
-		guardian.Guardian = guardian.New()
-	}()
 
 	cfg := config.NewDefaultCGRConfig()
 	locker := engine.NewGuardianLocker(cfg)
@@ -406,9 +395,6 @@ func TestThresholdsV1GetThresholdsForEventOK(t *testing.T) {
 }
 
 func TestThresholdsV1GetThresholdsForEventMissingArgs(t *testing.T) {
-	defer func() {
-		guardian.Guardian = guardian.New()
-	}()
 
 	cfg := config.NewDefaultCGRConfig()
 	locker := engine.NewGuardianLocker(cfg)
@@ -472,9 +458,6 @@ func TestThresholdsV1GetThresholdsForEventMissingArgs(t *testing.T) {
 }
 
 func TestThresholdsV1GetThresholdIDsOK(t *testing.T) {
-	defer func() {
-		guardian.Guardian = guardian.New()
-	}()
 
 	cfg := config.NewDefaultCGRConfig()
 	locker := engine.NewGuardianLocker(cfg)
@@ -532,9 +515,6 @@ func TestThresholdsV1GetThresholdIDsOK(t *testing.T) {
 }
 
 func TestThresholdsV1GetThresholdIDsGetKeysForPrefixErr(t *testing.T) {
-	defer func() {
-		guardian.Guardian = guardian.New()
-	}()
 
 	cfg := config.NewDefaultCGRConfig()
 	locker := engine.NewGuardianLocker(cfg)
@@ -554,9 +534,6 @@ func TestThresholdsV1GetThresholdIDsGetKeysForPrefixErr(t *testing.T) {
 }
 
 func TestThresholdsV1ResetThresholdOK(t *testing.T) {
-	defer func() {
-		guardian.Guardian = guardian.New()
-	}()
 
 	cfg := config.NewDefaultCGRConfig()
 	locker := engine.NewGuardianLocker(cfg)
@@ -599,9 +576,6 @@ func TestThresholdsV1ResetThresholdOK(t *testing.T) {
 }
 
 func TestThresholdsV1ResetThresholdErrNotFound(t *testing.T) {
-	defer func() {
-		guardian.Guardian = guardian.New()
-	}()
 
 	cfg := config.NewDefaultCGRConfig()
 	locker := engine.NewGuardianLocker(cfg)
@@ -681,7 +655,15 @@ func TestThresholdsV1ResetThresholdNegativeStoreIntervalErr(t *testing.T) {
 	cacheS := engine.NewCacheS(cfg, dm, nil, nil, locker)
 	dm.SetCache(cacheS)
 	filterS := engine.NewFilterS(cfg, nil, dm)
-	tS := NewThresholdService(cfg, nil, cacheS, filterS, nil)
+	dbMock := &engine.DataDBMock{
+		GetThresholdDrvF: func(*context.Context, string, string) (*utils.Threshold, error) {
+			return nil, utils.ErrNoDatabaseConn
+		},
+	}
+	emptyDM := engine.NewDataManager(engine.NewDBConnManager(
+		map[string]engine.DataDB{utils.MetaDefault: dbMock}, cfg.DbCfg()), cfg, nil, locker)
+	emptyDM.SetCache(cacheS)
+	tS := NewThresholdService(cfg, emptyDM, cacheS, filterS, nil)
 
 	th := &utils.Threshold{
 		Tenant: "cgrates.org",
