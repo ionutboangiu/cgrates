@@ -4,6 +4,7 @@
 package sessions
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -781,6 +782,29 @@ func (sS *SessionS) BiRPCv1ProcessCDR(ctx *context.Context,
 	return sS.processCDR(ctx, cgrEv, rply)
 }
 
+func eventChargesFromInterface(value any) (*utils.EventCharges, error) {
+	if charges, ok := value.(*utils.EventCharges); ok {
+		if charges == nil {
+			return nil, utils.NewErrMandatoryIeMissing(utils.MetaAccountsCost)
+		}
+		return charges, nil
+	}
+	chargesMap, ok := value.(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("expected %s to be *utils.EventCharges or map[string]any, got %T",
+			utils.MetaAccountsCost, value)
+	}
+	encoded, err := json.Marshal(chargesMap)
+	if err != nil {
+		return nil, fmt.Errorf("encoding %s: %w", utils.MetaAccountsCost, err)
+	}
+	charges := new(utils.EventCharges)
+	if err := json.Unmarshal(encoded, charges); err != nil {
+		return nil, fmt.Errorf("decoding %s: %w", utils.MetaAccountsCost, err)
+	}
+	return charges, nil
+}
+
 // BiRPCv1ProcessEvent processes an CGREvent with various subsystems
 func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 	apiArgs *utils.CGREvent, apiRply *V1ProcessEventReply) (err error) {
@@ -1366,13 +1390,16 @@ func (sS *SessionS) BiRPCv1ProcessEvent(ctx *context.Context,
 		}
 		if utils.OptAsBool(cchEv, utils.MetaRefund) ||
 			utils.OptAsBool(cchEv, utils.MetaAccountsRefundCfg) {
+			var errRfnd error
 			rfndCharges, has := cgrEv.APIOpts[utils.MetaAccountsCost]
 			if !has {
-				utils.Logger.Warning(
-					fmt.Sprintf("<%s> Missing <%s> processing event: %+v for refund",
-						utils.SessionS, utils.MetaAccountsCost, cgrEv))
+				errRfnd = utils.NewErrMandatoryIeMissing(utils.MetaAccountsCost)
+			} else if charges, err := eventChargesFromInterface(rfndCharges); err != nil {
+				errRfnd = err
+			} else {
+				errRfnd = sS.accountSRefundCharges(ctx, charges, cgrEv)
 			}
-			if errRfnd := sS.accountSRefundCharges(ctx, rfndCharges.(*utils.EventCharges), cgrEv); err != nil {
+			if errRfnd != nil {
 				if utils.OptAsBool(cch, utils.OptsSesBlockerError) {
 					return errRfnd
 				}
