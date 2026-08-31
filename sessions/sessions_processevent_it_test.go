@@ -1061,7 +1061,7 @@ func TestSessionSv1ProcessEventChargerSSessionTerminate(t *testing.T) {
 		}
 	})
 
-	t.Run("terminateEventChargersSkipped", func(t *testing.T) {
+	t.Run("terminateEventChargersRun", func(t *testing.T) {
 		var rply V1ProcessEventReply
 		if err := client.Call(context.Background(), utils.SessionSv1ProcessEvent,
 			&utils.CGREvent{
@@ -1081,8 +1081,8 @@ func TestSessionSv1ProcessEventChargerSSessionTerminate(t *testing.T) {
 			}, &rply); err != nil {
 			t.Fatalf("ProcessEvent failed: %v", err)
 		}
-		if _, hasDefault := rply.RouteProfiles[utils.MetaDefault]; hasDefault {
-			t.Errorf("expected RouteProfiles[*default] to be absent when *terminate=true, got: %v", rply.RouteProfiles)
+		if _, hasDefault := rply.RouteProfiles[utils.MetaDefault]; !hasDefault {
+			t.Errorf("expected RouteProfiles[*default] to be present when ChargerS runs with *terminate=true, got: %v", rply.RouteProfiles)
 		}
 	})
 }
@@ -1496,8 +1496,11 @@ cgrates.org,RP_SIMPLE,,;10,,,,RT_SIMPLE,*string:~*req.Destination:1002,"* * * * 
 					utils.AnswerTime:   "2018-01-07T17:00:00Z",
 				},
 			}, &rply)
-		if err == nil || err.Error() != utils.ErrNotFound.Error() {
-			t.Fatalf("expected NOT_FOUND for unknown account, got: %v", err)
+		if err == nil || err.Error() != utils.ErrPartiallyExecuted.Error() {
+			t.Fatalf("expected PARTIALLY_EXECUTED for unknown account, got: %v", err)
+		}
+		if len(rply.AccountsUsage) != 0 {
+			t.Errorf("AccountsUsage should be empty when no account matches, got: %v", rply.AccountsUsage)
 		}
 	})
 
