@@ -7,6 +7,8 @@
 package general_tests
 
 import (
+	"bytes"
+	stdctx "context"
 	"os/exec"
 	"path"
 	"testing"
@@ -112,23 +114,23 @@ func testtrendAuQRpcConn(t *testing.T) {
 }
 
 func testtrendAuQFromFolder(t *testing.T) {
-	wchan := make(chan struct{}, 1)
-	go func() {
-		loaderPath, err := exec.LookPath("cgr-loader")
-		if err != nil {
-			t.Error(err)
+	t.Helper()
+	loaderPath, err := exec.LookPath("cgr-loader")
+	if err != nil {
+		t.Fatal(err)
+	}
+	output := new(bytes.Buffer)
+	ctx, cancel := stdctx.WithTimeout(stdctx.Background(), 1*time.Second)
+	defer cancel()
+	loader := exec.CommandContext(ctx, loaderPath, "-config_path", trendAuQCfgPath, "-path", path.Join(*utils.DataDir, "tariffplans", "tuttrends"), "-caches_address", "")
+	loader.Stdout = output
+	loader.Stderr = output
+	if err := loader.Run(); err != nil {
+		if ctx.Err() != nil {
+			t.Errorf("cgr-loader timed out: %v\n%s", err, output.String())
+		} else {
+			t.Errorf("cgr-loader failed: %v\n%s", err, output.String())
 		}
-		loader := exec.Command(loaderPath, "-config_path", trendAuQCfgPath, "-path", path.Join(*utils.DataDir, "tariffplans", "tuttrends"))
-		if err := loader.Start(); err != nil {
-			t.Error(err)
-		}
-		loader.Wait()
-		wchan <- struct{}{}
-	}()
-	select {
-	case <-wchan:
-	case <-time.After(1 * time.Second):
-		t.Errorf("cgr-loader failed: ")
 	}
 }
 
