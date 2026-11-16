@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/cgrates/cgrates/utils"
@@ -372,6 +373,9 @@ func (ec *EventCost) AsRefundIncrements(tor string) (cd *CallDescriptor) {
 					}
 					cd.Increments[iIdx].BalanceInfo = blncInfo
 					balanceType := blncCharge.BalanceType
+					if balanceType == "" {
+						balanceType = ec.AccountSummary.BalanceSummaries.BalanceSummaryWithUUD(blncCharge.BalanceUUID).Type
+					}
 					if balanceType == utils.MetaMonetary {
 						blncInfo.Monetary = &MonetaryInfo{UUID: blncCharge.BalanceUUID}
 					} else if utils.NonMonetaryBalances.Has(balanceType) {
@@ -392,6 +396,9 @@ func (ec *EventCost) AsRefundIncrements(tor string) (cd *CallDescriptor) {
 					// extra charges, ie: non-free *voice
 					extraCharge := ec.Accounting[blncCharge.ExtraChargeID]
 					extraType := extraCharge.BalanceType
+					if extraType == "" {
+						extraType = ec.AccountSummary.BalanceSummaries.BalanceSummaryWithUUD(extraCharge.BalanceUUID).Type
+					}
 					if extraType == utils.MetaMonetary {
 						blncInfo.Monetary = &MonetaryInfo{UUID: extraCharge.BalanceUUID}
 					} else if utils.NonMonetaryBalances.Has(extraType) {
@@ -477,7 +484,24 @@ func (ec *EventCost) newIntervalFromCharge(cInc *ChargingIncrement) (incr *Incre
 	cBC := ec.Accounting[cInc.AccountingID]
 	incr.BalanceInfo.AccountID = cBC.AccountID
 	balanceType := cBC.BalanceType
-	if balanceType != "" && balanceType != utils.MetaMonetary {
+	if balanceType == "" && cBC.BalanceUUID != "" {
+		if ec.AccountSummary != nil {
+			for _, b := range ec.AccountSummary.BalanceSummaries {
+				if b.UUID == cBC.BalanceUUID {
+					balanceType = b.Type
+					break
+				}
+			}
+		}
+	}
+	isUnit := cBC.ExtraChargeID != ""
+	if cBC.BalanceType != "" {
+		isUnit = cBC.BalanceType != utils.MetaMonetary
+	} else if cBC.ExtraChargeID == "" {
+		// Older EventCosts may have lost *none while accounting was copied.
+		isUnit = slices.Contains([]string{utils.MetaData, utils.MetaVoice, utils.MetaGeneric}, balanceType)
+	}
+	if isUnit {
 		incr.BalanceInfo.Unit = &UnitInfo{
 			UUID:        cBC.BalanceUUID,
 			BalanceType: balanceType,
